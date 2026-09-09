@@ -1,0 +1,35 @@
+{
+  "name": "world-geography",
+  "version": "8.0.0",
+  "private": true,
+  "description": "World Geography — Arcade Edition. Offline single-file geography quiz.",
+  "license": "MIT",
+  "type": "module",
+  "engines": {
+    "node": "24.14.0"
+  },
+  "scripts": {
+    "build": "node scripts/unimplemented.ts build U13",
+    "build:readable": "node scripts/unimplemented.ts build:readable U15",
+    "dev": "node scripts/unimplemented.ts dev U15",
+    "data:refresh": "node scripts/unimplemented.ts data:refresh U9",
+    "data:apply": "node scripts/unimplemented.ts data:apply U9",
+    "data:check": "node scripts/unimplemented.ts data:check U9",
+    "data:flags": "node scripts/unimplemented.ts data:flags U10",
+    "verify:baseline": "node scripts/unimplemented.ts verify:baseline U2",
+    "simulate": "node scripts/unimplemented.ts simulate U3",
+    "test": "vitest run",
+    "test:browser": "node scripts/unimplemented.ts test:browser U14",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@napi-rs/canvas": "1.0.9",
+    "@playwright/test": "1.63.0",
+    "@types/node": "24.13.4",
+    "esbuild": "0.28.2",
+    "javascript-obfuscator": "5.7.0",
+    "typescript": "5.9.3",
+    "vitest": "4.1.11",
+    "world-countries": "5.1.0"
+  }
+}

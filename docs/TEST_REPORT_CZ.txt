@@ -1,0 +1,68 @@
+World Geography 7.0 — protokol testů
+Datum vydání: 8. září 2026
+
+ÚPRAVA PRAVIDEL
+Body vráceny na 100 + až 900. Za každých 10 000 bodů dva pokusy a jedna
+odložená vlajka. Správná vlajka dává body i jeden další pokus.
+
+PROVEDENÉ TESTY
+- 14 040 variant otázek, 42 konfigurací hry (core.test.js).
+- Přesná hranice 10 000 bodů, její překročení uprostřed země, okamžité +2,
+  bonus až po páté otázce, body + pokus za správnou vlajku, žádné odečty za
+  chybu nebo vypršení limitu. Zachránění nulové rezervy, uložení bez dvojího
+  účtování, žádné duplicitní odměny, osobní ekonomika dvou hráčů.
+- 6 203 vzorků monotonního bodování, limity, vypršení času a pauza.
+- 8 859 vzorků porovnání s původní nižší bodovací funkcí.
+- 48 diferenciálních porovnání plného herního automatu a ekonomického
+  simulátoru, celkem 19 762 odpovědí, pevné i náhodné časy.
+- 2 000 skutečně generovaných států, 748 vlajek, při vzorci 4 správné z 5
+  a třísekundových odpovědích. Rezerva 100, skóre 7 481 130.
+- 195 cílových zemí: časová osa tří úplných otoček, zpomalení a přiblížení;
+  zachováno 12 sekund a neutrální glóbus před bonusem.
+- 21 hudebních motivů, 2 100 promíchaných voleb, různé vstupy do fráze,
+  kontinuita naléhavého doprovodu a odpovídající znělky.
+- 11 integračních skupin v Chromiu s virtuálním časem, včetně 390px mobilního
+  rozvržení, ukládání, duelu, pokusů, bonusového skóre, hudby a obecných měn.
+- 3 reálné integrační skupiny: země i vlajka se skutečným oddechem a audio
+  signálem; naměřeno 11,98 s a 12,13 s. Měření začíná po návratu z události
+  kliknutí, ne na přesném interním startu animace, proto drobný rozdíl od 12 s.
+- 4 další reálné kontroly finálního sestavení: vykreslený glóbus a +2 pokusy,
+  bonus s body i +1, mobilní otázka a mobilní vlajka. Snímky s názvem final-v7.
+- Bez zachycených chyb JavaScriptu a bez externích HTTP požadavků při hraní.
+- Samostatný HTML soubor lze z přiložených zdrojů znovu sestavit.
+
+SIMULACE
+Sedm sad po 10 000 hráčích, až 10 000 států na hráče; celkem 288 283 974
+států. Stejné ekonomické funkce jako hra, ne odlišně nastavený matematický
+model. Při 80 % a přesně 5 sekundách skončilo všech 10 000 hráčů; medián
+27 států, průměr 35,9134. Při třech sekundách dosáhlo horizontu 77,66 %.
+Úplná metodika, kontrolní scénáře a omezení jsou v SIMULACE_CZ.md.
+
+OMEZENÍ OVĚŘENÍ
+- Soubor file:// byl při přímém pokusu o otevření zablokován správní politikou
+  místního Chromia (ERR_BLOCKED_BY_ADMINISTRATOR). Proto integrační testy
+  vkládají výsledný HTML obsah do stránky a používají řízené místní úložiště.
+  Nativní perzistence přes skutečné zavření prohlížeče nebyla ověřena.
+- Firefox, Safari ani fyzická mobilní zařízení nebyly testovány. Mobilní
+  kontroly jsou emulované viewporty a dotykový režim Chromia.
+- V reálném čase byl zkontrolován zvukový signál. Hudba je beze změn oproti
+  v6; přiložená MP3 a audio-demo-results.json jsou převzaté z tohoto vydání,
+  nikoli nová zvuková nahrávka v7.
+- Některé snímky virtuálních testů nezachycují canvas po skutečném malování
+  prohlížečem. Výstupní náhled a snímky *final-v7.png jsou reálné vykreslení;
+  přítomnost obrazu na canvasu byla navíc automaticky ověřena.
+- Jde o test dodaného remaku, ne o porovnání s původním binárním programem C64.
+- Neomezené herní kolo neznamená neomezenou paměť či kapacitu úložiště.
+- Geografická data ani nahrávky nejsou v tomto vydání znovu auditované.
+
+PŘÍKAZY
+python scripts/build.py
+node tests/core.test.js
+node tests/timing.test.js
+node tests/audio.test.js
+node tests/globe.test.js
+node tests/simulation.test.js
+node tests/simulate.js
+python tests/browser.test.py
+python tests/browser.test.py --real
+python tests/final-ui.test.py
