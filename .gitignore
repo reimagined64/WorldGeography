@@ -6,4 +6,3 @@ __pycache__/
 *.tsbuildinfo
 test-results/
 playwright-report/
-data/raw/
