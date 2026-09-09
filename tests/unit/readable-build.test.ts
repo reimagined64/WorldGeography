@@ -115,15 +115,18 @@ describe('readable build', () => {
     const executable = [...html.matchAll(/<script(?![^>]*\btype=)[^>]*>/gi)];
 
     expect(executable).toHaveLength(1);
-    // The order the five v7 `<script>` tags ran in; `legacy-globals.ts` stands
-    // in for v7's `core.js` and `clock.js` until U16 removes it.
+    // The order the five v7 `<script>` tags ran in — core, clock, audio, globe,
+    // app — with `themes.ts` ahead of the synthesizer it was split out of and
+    // `legacy-globals.ts` after everything it publishes, which is where its own
+    // imports put it until U16 removes it.
     const modules = [...html.matchAll(/^\s*\/\/ (src\/\S+)$/gm)].map((match) => match[1]);
     expect(modules).toEqual([
       'src/engine/core.ts',
       'src/engine/clock.ts',
+      'src/audio/themes.ts',
+      'src/audio/audio.ts',
+      'src/globe/globe.ts',
       'src/legacy-globals.ts',
-      'src/audio/audio.js',
-      'src/globe/globe.js',
       'src/app/app.js',
     ]);
   });

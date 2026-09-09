@@ -117,7 +117,15 @@ async function serveBaseline(): Promise<{ origin: string; close: () => void }> {
  * audio-golden.json
  * ------------------------------------------------------------------ */
 
-async function renderThemes(page: Page): Promise<ThemeDigest[]> {
+/**
+ * Render every question theme in the open page and digest it.
+ *
+ * Shared rather than duplicated: `tests/browser/audio.spec.ts` holds the
+ * *ported* synthesizer to the fixture this function captured from the
+ * *baseline* one, and a second implementation of the same FFT would make a
+ * difference between the two unattributable.
+ */
+export async function renderThemes(page: Page): Promise<ThemeDigest[]> {
   return page.evaluate(
     async (options: {
       sampleRate: number;

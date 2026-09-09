@@ -1,18 +1,34 @@
 /**
- * U3 — port of the archived `tests/audio.test.js`.
+ * U5 — the ported synthesizer, measured where a browser is not needed.
  *
  * Composition and transition checks only: what the synthesizer *schedules* is
  * asserted here by intercepting `note`, while what it *sounds like* is pinned
- * by `audio-golden.json`, which needs a real Web Audio renderer. The two are
- * complementary — the note stream would not notice a changed envelope or
- * filter, and the spectral digest would not explain which note moved.
+ * by `audio-golden.json` in `tests/browser/audio.spec.ts`, which needs a real
+ * `OfflineAudioContext`. The two are complementary — the note stream would not
+ * notice a changed envelope or filter, and the spectral digest would not
+ * explain which note moved.
+ *
+ * `note` is the seam on purpose. It is the single point where a scheduled note
+ * becomes Web Audio, so replacing it leaves every scene, score and cue running
+ * its real arithmetic with nothing stubbed upstream of it.
  */
 import { describe, expect, it } from 'vitest';
-import { loadAudio, loadCore, type GeoAudio, type RenderedNote } from '../helpers/load-baseline.ts';
+import { GeoAudio, type Envelope, type SynthContext } from '../../src/audio/audio.ts';
+import { rng } from '../../src/engine/core.ts';
 
-const Audio = loadAudio();
-const Core = loadCore();
 const DORIAN = [0, 2, 3, 5, 7, 9, 10];
+
+/** One intercepted call to `note`, in its declared argument order. */
+interface RenderedNote {
+  midi: number;
+  time: number;
+  duration: number;
+  type: string;
+  level: number;
+  group: string;
+  slide: number | null;
+  envelope: Envelope | null;
+}
 
 /** Replace the Web Audio sink with a recorder; every check below reads this. */
 function recorder(instance: GeoAudio): RenderedNote[] {
@@ -25,15 +41,19 @@ function recorder(instance: GeoAudio): RenderedNote[] {
     level = 0.07,
     group = 'music',
     slide: number | null = null,
-    envelope: unknown = null,
+    envelope: Envelope | null = null,
   ) => {
     notes.push({ midi, time, duration, type, level, group, slide, envelope });
   };
   return notes;
 }
 
+/** A clock with no graph behind it: enough for the scene-transition bookkeeping. */
+const clock = (currentTime: number): SynthContext =>
+  ({ currentTime }) as unknown as SynthContext;
+
 describe('the quiz groove', () => {
-  const a = new Audio();
+  const a = new GeoAudio();
   const notes = recorder(a);
   /** Sixty-four steps of the current scene, from a clean recorder. */
   const play = (scene: string, steps = 64, beat?: number): RenderedNote[] => {
@@ -47,9 +67,9 @@ describe('the quiz groove', () => {
   it('runs eight articulated bars of C Dorian at 108 BPM', () => {
     a.scene = 'question';
     expect(a.stepDuration()).toBe(60 / 108 / 2);
-    expect(Audio.QUESTION_SCORE.bpm).toBe(108);
-    expect(Audio.QUESTION_SCORE.key).toBe('C Dorian');
-    expect(Audio.QUESTION_SCORE.lead).toHaveLength(64);
+    expect(GeoAudio.QUESTION_SCORE.bpm).toBe(108);
+    expect(GeoAudio.QUESTION_SCORE.key).toBe('C Dorian');
+    expect(GeoAudio.QUESTION_SCORE.lead).toHaveLength(64);
 
     play('question');
 
@@ -111,8 +131,8 @@ describe('the quiz groove', () => {
 
 describe('scene transitions', () => {
   it('changes tempo without cutting the phrase, and clears music for feedback', () => {
-    const transition = new Audio();
-    transition.context = { currentTime: 17 };
+    const transition = new GeoAudio();
+    transition.context = clock(17);
     transition.scene = 'question';
     transition.step = 19;
     transition.nextTime = 17.1;
@@ -134,8 +154,8 @@ describe('scene transitions', () => {
   });
 
   it('resumes at the stored step, rescheduled against the live context clock', () => {
-    const resumed = new Audio();
-    resumed.context = { currentTime: 17 };
+    const resumed = new GeoAudio();
+    resumed.context = clock(17);
     resumed.paused = true;
     resumed.step = 3;
     resumed.nextTime = 19;
@@ -154,16 +174,16 @@ describe('scene transitions', () => {
 
 describe('the twenty-one themes', () => {
   it('are all distinct, and every one stays inside the Dorian collection', () => {
-    expect(Audio.QUESTION_SCORES).toHaveLength(21);
-    expect(new Set(Audio.QUESTION_SCORES.map((s) => JSON.stringify(s.lead))).size).toBe(21);
+    expect(GeoAudio.QUESTION_SCORES).toHaveLength(21);
+    expect(new Set(GeoAudio.QUESTION_SCORES.map((s) => JSON.stringify(s.lead))).size).toBe(21);
 
-    const a = new Audio();
+    const a = new GeoAudio();
     const notes = recorder(a);
     for (let id = 0; id < 21; id += 1) {
       a.scoreIndex = id;
       a.scene = 'question';
       notes.length = 0;
-      const score = Audio.QUESTION_SCORES[id];
+      const score = GeoAudio.QUESTION_SCORES[id];
       expect(score?.lead).toHaveLength(id === 0 ? 64 : 128);
       for (let j = 0; j < (score?.lead.length ?? 0); j += 1) a.playStep(j, j * a.stepDuration());
 
@@ -174,7 +194,7 @@ describe('the twenty-one themes', () => {
   });
 
   it('never repeats a theme or a starting offset back to back over 2,100 selections', () => {
-    const shuffled = new Audio({ random: Core.rng(6006) });
+    const shuffled = new GeoAudio({ random: rng(6006) });
     let previous = -1;
     let lastId = -1;
     let selections = 0;

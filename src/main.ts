@@ -1,19 +1,20 @@
 /**
  * Bundle entry: the whole page in one module graph, in v7's evaluation order.
  *
- * Only the first import is permanent. `audio.js`, `globe.js` and `app.js` are
- * still the untouched v7 scripts — copied out of the frozen fixtures so there
- * is something to run before U5 and U16 convert them — and they register
- * themselves on `window` on evaluation, which is why the order below is
- * load-bearing rather than cosmetic: `core`, `clock` (both via
- * `legacy-globals.ts`), then `audio`, `globe`, `app`, exactly as v7's five
- * `<script>` tags ran.
+ * Only `app.js` is still an untouched v7 script — copied out of the frozen
+ * fixtures so there is something to run until U16 converts it — and it reads
+ * the engine, the globe and the synthesizer off `window`, which is why the
+ * order below is load-bearing rather than cosmetic: `core`, `clock`, `audio`
+ * and `globe` (all four published by `legacy-globals.ts`), then `app`, exactly
+ * as v7's five `<script>` tags ran.
  *
- * Removal order: U5 replaces the audio and globe imports with module imports,
- * U16 replaces the app import, and whichever lands last also deletes
- * `legacy-globals.ts`.
+ * The two module imports under the shim are what that order refers to;
+ * `legacy-globals.ts` pulls them in first so it can publish them, so they are
+ * listed here for the order rather than for the effect.
+ *
+ * Removal order: U16 replaces the app import and deletes `legacy-globals.ts`.
  */
 import './legacy-globals.ts';
-import './audio/audio.js';
-import './globe/globe.js';
+import './audio/audio.ts';
+import './globe/globe.ts';
 import './app/app.js';

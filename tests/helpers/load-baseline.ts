@@ -16,10 +16,14 @@
  * The data model and the core API are not described a second time here: the
  * frozen JavaScript implements exactly the contract `src/engine/` declares, and
  * proving that is what U4 is for, so `CoreApi` is the ported module's own type
- * and the shapes come from `src/engine/types.ts`. The browser-only interfaces
- * below stay narrow on purpose — they cover only the surface the suites touch,
- * so a mistyped field fails a typecheck rather than hiding under `any`. U5
- * deletes this file together with the last baseline consumer.
+ * and the shapes come from `src/engine/types.ts`. The browser-only interface
+ * below stays narrow on purpose — it covers only the surface the suites touch,
+ * so a mistyped field fails a typecheck rather than hiding under `any`.
+ *
+ * What is loaded shrinks as the port lands. U5 took the globe loader with it;
+ * the synthesizer stays because `golden.test.ts` holds `audio-golden.json` to
+ * the theme names and lead lengths of the *original* scores, which is a claim
+ * about the fixture rather than about the port.
  */
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
@@ -48,52 +52,6 @@ export type GeoClockConstructor = new (
   elapsedMs?: number,
   now?: () => number,
 ) => GeoClock;
-
-export interface FlightState {
-  stage: string;
-  elapsed: number;
-  paused: boolean;
-  progress: number;
-  remainingMs: number;
-  durationMs: number;
-  turnsCompleted: number;
-  motion: boolean;
-  neutral: boolean;
-}
-
-export interface RevealOptions {
-  neutral?: boolean;
-  onStage?: (stage: string) => void;
-  onProgress?: (state: FlightState) => void;
-  onComplete?: () => void;
-}
-
-export interface GeoGlobe {
-  lat: number;
-  lon: number;
-  zoom: number;
-  target: Country | null;
-  locked: boolean;
-  flight: { elapsed: number; spinAngle: number; stage: string } | null;
-  pendingComplete: (() => void) | null;
-  reveal(country: Country, options?: RevealOptions): void;
-  update(timestamp: number): void;
-  setMotion(enabled: boolean): void;
-  pauseFlight(paused: boolean): void;
-  cancelFlight(): void;
-}
-
-export interface GeoGlobeConstructor {
-  new (canvas: unknown, map: unknown): GeoGlobe;
-  FLIGHT: {
-    depart: number;
-    spin: number;
-    settle: number;
-    zoom: number;
-    total: number;
-    turns: number;
-  };
-}
 
 export interface Score {
   name: string;
@@ -165,9 +123,11 @@ function loadUmd<T>(relative: string): T {
 }
 
 /**
- * The two browser-only files are `(function(root){…})(window)`. Passing the
- * globals they reference as parameters shadows Node's own `setInterval` and
- * keeps the evaluation free of any global mutation.
+ * The browser-only files are `(function(root){…})(window)`. Passing the globals
+ * they reference as parameters shadows Node's own `setInterval` and keeps the
+ * evaluation free of any global mutation. The stub set still covers the globe's
+ * needs as well as the synthesizer's: `js/globe.js` is one of the files the
+ * byte-identity gate concatenates, so it stays loadable.
  */
 function loadBrowserGlobal<T>(relative: string, key: string): T {
   const win: Record<string, unknown> = {};
@@ -194,7 +154,6 @@ function loadBrowserGlobal<T>(relative: string, key: string): T {
 
 let core: CoreApi | undefined;
 let clock: GeoClockConstructor | undefined;
-let globe: GeoGlobeConstructor | undefined;
 let audio: GeoAudioConstructor | undefined;
 let countries: Country[] | undefined;
 let flags: Record<string, string> | undefined;
@@ -206,10 +165,6 @@ export function loadCore(): CoreApi {
 
 export function loadClock(): GeoClockConstructor {
   return (clock ??= loadUmd<GeoClockConstructor>('js/clock.js'));
-}
-
-export function loadGlobe(): GeoGlobeConstructor {
-  return (globe ??= loadBrowserGlobal<GeoGlobeConstructor>('js/globe.js', 'GeoGlobe'));
 }
 
 export function loadAudio(): GeoAudioConstructor {
