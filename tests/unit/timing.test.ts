@@ -1,5 +1,5 @@
 /**
- * U3 — port of the archived `tests/timing.test.js`.
+ * U3 — port of the archived `tests/timing.test.js`, driving the U4 engine.
  *
  * Scoring is the one part of the engine a player can feel to the millisecond,
  * so the curve is pinned at its anchors and swept exhaustively rather than
@@ -7,14 +7,15 @@
  * as an assertion, since a changed step size would otherwise pass silently.
  */
 import { describe, expect, it } from 'vitest';
-import { loadClock, loadCore, loadCountries, type Difficulty, type Game } from '../helpers/load-baseline.ts';
+import * as Core from '../../src/engine/core.ts';
+import { GeoClock as Clock } from '../../src/engine/clock.ts';
+import type { Difficulty, GameState } from '../../src/engine/types.ts';
+import { loadCountries } from '../helpers/load-baseline.ts';
 
-const Core = loadCore();
-const Clock = loadClock();
 const data = loadCountries();
 const DIFFICULTIES: Difficulty[] = ['easy', 'normal', 'expert'];
 
-const game = (difficulty: Difficulty): Game =>
+const game = (difficulty: Difficulty): GameState =>
   Core.makeGame(data, { difficulty, players: 2, region: 'all', names: ['A', 'B'] }, 7);
 
 describe('the time-to-points curve', () => {

@@ -10,12 +10,16 @@
  * The full 61-second sweep stays a script (`npm run simulate`) and never runs
  * in CI — these 48 comparisons are the part that is cheap enough to run on
  * every commit.
+ *
+ * Since U4 the two sides are also two engines: the model still reasons with the
+ * frozen v7 JavaScript, the play-out runs the TypeScript port.
  */
 import { describe, expect, it } from 'vitest';
+import * as Core from '../../src/engine/core.ts';
+import type { GameState, Question } from '../../src/engine/types.ts';
 import { averagePoints, expectation, simulate } from '../../scripts/simulate.ts';
-import { loadCore, loadCountries, type Game, type Question } from '../helpers/load-baseline.ts';
+import { loadCountries } from '../helpers/load-baseline.ts';
 
-const Core = loadCore();
 const all = loadCountries();
 
 describe('the scoring formula the model assumes', () => {
@@ -65,7 +69,7 @@ describe('the simulator against the full engine', () => {
           timeRangeMs,
         });
         const random = Core.rng(seed);
-        const g: Game = Core.makeGame(
+        const g: GameState = Core.makeGame(
           all,
           { players: 1, difficulty: 'normal', region: 'all', names: ['Test'] },
           seed,

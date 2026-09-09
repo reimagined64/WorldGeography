@@ -1,12 +1,15 @@
 /**
- * U3 — the four fidelity fixtures.
+ * U3 captured the four fidelity fixtures; U4 turns them on the ported engine.
  *
- * From U4 onward these files, and not byte-identity with the original
- * JavaScript, are what carries v7 fidelity: the engine, the globe and the
- * synthesizer are rewritten in TypeScript and measured against them. So this
- * suite has two jobs — prove the two engine fixtures still reproduce from the
- * baseline exactly (which is also what makes them a usable oracle), and prove
- * the two browser-captured fixtures are structurally what U5 and U6 will need.
+ * These files, and not byte-identity with the original JavaScript, are what
+ * carries v7 fidelity from here on: the engine, the globe and the synthesizer
+ * are rewritten in TypeScript and measured against them. So this suite has two
+ * jobs — prove `src/engine/core.ts` reproduces the two engine fixtures exactly,
+ * entry for entry and step for step, and prove the two browser-captured
+ * fixtures are structurally what U5 and U6 will need.
+ *
+ * A divergence here is a defect in the port. The fixtures are the oracle and
+ * are never recaptured from the thing they are measuring.
  *
  * The browser fixtures cannot be regenerated here; `OfflineAudioContext` does
  * not exist in Node, and a real save only exists once the shipped page has
@@ -16,6 +19,8 @@
 import { describe, expect, it } from 'vitest';
 import { readFileSync, statSync } from 'node:fs';
 import { join } from 'node:path';
+import * as Engine from '../../src/engine/core.ts';
+import type { GameState } from '../../src/engine/types.ts';
 import {
   captureQuestions,
   captureRuns,
@@ -25,15 +30,8 @@ import {
   type RunsGolden,
 } from '../helpers/golden.ts';
 import { FLOOR_DB, type AudioGolden } from '../helpers/audio-digest.ts';
-import {
-  loadAudio,
-  loadCore,
-  loadCountries,
-  loadIsValidRun,
-  type Game,
-} from '../helpers/load-baseline.ts';
+import { loadAudio, loadCountries, loadIsValidRun } from '../helpers/load-baseline.ts';
 
-const Core = loadCore();
 const all = loadCountries();
 const read = <T>(relative: string): T =>
   JSON.parse(readFileSync(join(FIXTURES_DIR, relative), 'utf8')) as T;
@@ -46,11 +44,11 @@ describe('questions-golden.json', () => {
     expect(golden.version).toBe(7);
   });
 
-  it('regenerates from the baseline engine, identically, twice in a row', () => {
+  it('regenerates from the TypeScript engine, identically, twice in a row', () => {
     // Two passes because `makeQuestion` takes the RNG as an argument: a port
     // that leaked state between calls would still match on the first pass.
-    const first = captureQuestions(Core, all);
-    const second = captureQuestions(Core, all);
+    const first = captureQuestions(Engine, all);
+    const second = captureQuestions(Engine, all);
     const expected = JSON.stringify(golden.entries);
 
     expect(JSON.stringify(first.entries)).toBe(expected);
@@ -92,11 +90,11 @@ describe('runs-golden.json', () => {
     expect(statSync(join(FIXTURES_DIR, 'runs-golden.json')).size).toBeLessThan(2 * 1024 * 1024);
   });
 
-  it('replays step for step against the baseline engine', () => {
+  it('replays step for step against the TypeScript engine', () => {
     // This is the only fixture that notices a reordering of the three RNG
     // consumers in `appendQuestion`, so a mismatch is reported by step number
     // rather than as one opaque object diff.
-    const replayed = captureRuns(Core, all);
+    const replayed = captureRuns(Engine, all);
     expect(replayed.runs).toHaveLength(golden.runs.length);
 
     for (const [index, expected] of golden.runs.entries()) {
@@ -121,9 +119,10 @@ describe('runs-golden.json', () => {
 describe('real wg.run.v7 payloads', () => {
   const NAMES = ['mid-country', 'mid-flight', 'post-milestone', 'pending-bonus'] as const;
   const saves = new Map(
-    NAMES.map((name) => [name, read<Game>(`baseline/runs/${name}.json`)] as const),
+    NAMES.map((name) => [name, read<GameState>(`baseline/runs/${name}.json`)] as const),
   );
-  const isValidRun = loadIsValidRun();
+  // The shipped predicate, driven by the ported engine rather than the original.
+  const isValidRun = loadIsValidRun(Engine);
 
   it('captured three to five real saves from the shipped build', () => {
     expect(saves.size).toBeGreaterThanOrEqual(3);
@@ -134,30 +133,30 @@ describe('real wg.run.v7 payloads', () => {
   // `JSON.stringify`, so adding, removing or renaming one field on a result or
   // a question silently rejects every player's save on their next visit.
   it.each([...saves.keys()])('%s passes isValidRun and validateProgress', (name) => {
-    const save = saves.get(name) as Game;
+    const save = saves.get(name) as GameState;
     expect(isValidRun(save)).toBe(true);
-    expect(Core.validateProgress(save)).toBe(true);
+    expect(Engine.validateProgress(save)).toBe(true);
     expect(save.version).toBe(7);
     expect(save.completed).toBe(false);
     expect(save.questions).toHaveLength(save.index + 1);
   });
 
   it('covers a question mid-country, a flight, a milestone and a pending bonus', () => {
-    const midCountry = saves.get('mid-country') as Game;
+    const midCountry = saves.get('mid-country') as GameState;
     expect(midCountry.questions[midCountry.index]?.type).toBe('capital');
     expect(midCountry.clock?.index).toBe(midCountry.index);
 
-    const midFlight = saves.get('mid-flight') as Game;
+    const midFlight = saves.get('mid-flight') as GameState;
     expect(midFlight.revealedIndex).toBeNull();
     expect(midFlight.clock).toBeNull();
     expect(midFlight.answers).toHaveLength(midFlight.index);
 
-    const postMilestone = saves.get('post-milestone') as Game;
+    const postMilestone = saves.get('post-milestone') as GameState;
     expect(postMilestone.answers[postMilestone.index]?.milestoneThresholds).toEqual([10000]);
     expect(postMilestone.answers[postMilestone.index]?.scoreLifeDelta).toBe(2);
     expect(postMilestone.pendingBonuses).toEqual([[10000]]);
 
-    const pendingBonus = saves.get('pending-bonus') as Game;
+    const pendingBonus = saves.get('pending-bonus') as GameState;
     expect(pendingBonus.questions[pendingBonus.index]?.type).toBe('flag');
     expect(pendingBonus.questions[pendingBonus.index]?.bonusThreshold).toBe(10000);
     expect(pendingBonus.pendingBonuses).toEqual([[]]);
@@ -165,12 +164,12 @@ describe('real wg.run.v7 payloads', () => {
 
   it('is rejected once a single stored field is edited', () => {
     // The point of committing real payloads: prove the gate is this strict.
-    const tampered = JSON.parse(JSON.stringify(saves.get('post-milestone'))) as Game;
+    const tampered = JSON.parse(JSON.stringify(saves.get('post-milestone'))) as GameState;
     const answer = tampered.answers[tampered.index];
     if (answer === undefined) throw new Error('post-milestone has no current answer');
     delete (answer as unknown as Record<string, unknown>)['isFlagBonus'];
 
-    expect(Core.validateProgress(tampered)).toBe(false);
+    expect(Engine.validateProgress(tampered)).toBe(false);
     expect(isValidRun(tampered)).toBe(false);
   });
 });

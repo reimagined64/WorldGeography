@@ -13,185 +13,25 @@
  * browser globals for the two browser-only ones. Byte-for-byte the same source
  * text, and the emitted questions are identical either way (verified).
  *
- * The declared interfaces are narrow on purpose: they cover only the surface
- * the suites touch, so a mistyped field fails a typecheck rather than hiding
- * under `any`. U5 deletes this file together with the last baseline consumer.
+ * The data model and the core API are not described a second time here: the
+ * frozen JavaScript implements exactly the contract `src/engine/` declares, and
+ * proving that is what U4 is for, so `CoreApi` is the ported module's own type
+ * and the shapes come from `src/engine/types.ts`. The browser-only interfaces
+ * below stay narrow on purpose — they cover only the surface the suites touch,
+ * so a mistyped field fails a typecheck rather than hiding under `any`. U5
+ * deletes this file together with the last baseline consumer.
  */
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import type { Country } from '../../src/engine/types.ts';
 
 export const BASELINE_ROOT = fileURLToPath(new URL('../fixtures/baseline', import.meta.url));
 
-export type Difficulty = 'easy' | 'normal' | 'expert';
-export type QuestionType = 'country' | 'capital' | 'currency' | 'language' | 'population';
-export type QuestionKind = QuestionType | 'flag';
+export type { Country, GameState } from '../../src/engine/types.ts';
 
-export interface CurrencyName {
-  code: string;
-  name: string;
-}
-
-export interface Country {
-  code: string;
-  iso3: string;
-  name: string;
-  capital: string[];
-  currency: string[];
-  currencyNames: CurrencyName[];
-  languages: string[];
-  languageNames: string[];
-  excludeLanguages: string[];
-  lat: number;
-  lon: number;
-  region: string;
-  population: number;
-  populationYear: number;
-  populationKind: string;
-  populationSource: string;
-  note: string;
-  easy: boolean;
-}
-
-export interface GameOptions {
-  players: number;
-  difficulty: Difficulty;
-  region: string;
-  names: string[];
-  mode?: string;
-}
-
-/** What `makeQuestion` returns; `appendQuestion` adds the placement fields. */
-export interface BaseQuestion {
-  country: string;
-  type: QuestionKind;
-  prompt: string;
-  options: string[];
-  correct: number;
-  explanation: string;
-  source: string;
-}
-
-export interface Question extends BaseQuestion {
-  visit: number;
-  player: number;
-  anchor: string;
-  bonusThreshold?: number;
-  regularIndex?: number;
-  livesBeforeCountry?: number;
-  countryCost?: number;
-}
-
-/** The v7 shape. A `review` game omits the five ledger fields; nothing here plays one. */
-export interface AnswerResult {
-  selected: number | null;
-  correct: boolean;
-  points: number;
-  basePoints: number;
-  bonusPoints: number;
-  elapsedMs: number;
-  timeLimitMs: number;
-  timedOut: boolean;
-  player: number;
-  lifeDelta: number;
-  scoreLifeDelta: number;
-  flagLifeDelta: number;
-  milestoneThresholds: number[];
-  livesBefore: number;
-  livesAfter: number;
-  isFlagBonus: boolean;
-}
-
-export interface Economy {
-  scores: number[];
-  lives: number[];
-  earnedLives: number[];
-  scoreLives: number[];
-  flagLives: number[];
-  bonusMilestones: number[];
-  bonusIssued: number[];
-  pendingBonuses: number[][];
-  countriesPlayed: number[];
-}
-
-export interface ClockSnapshot {
-  index: number;
-  elapsedMs: number;
-  paused: boolean;
-}
-
-export interface Game extends Economy {
-  version: number;
-  seed: number;
-  revealedIndex: number | null;
-  clock: ClockSnapshot | null;
-  options: GameOptions;
-  questions: Question[];
-  index: number;
-  answers: AnswerResult[];
-  deck: string[];
-  recentFlags: string[];
-  cycles: number;
-  created: string;
-  completed: boolean;
-  gameOver: boolean;
-  lastCountry?: string;
-  review?: boolean;
-}
-
-export type Turn =
-  | { kind: 'end' }
-  | { kind: 'country'; player: number; visit: number }
-  | { kind: 'question'; player: number; visit: number; anchor: string; type: QuestionType }
-  | {
-      kind: 'bonus';
-      player: number;
-      visit: number;
-      anchor: string;
-      regularIndex: number;
-      threshold: number;
-    };
-
-export interface CoreApi {
-  TYPES: QuestionType[];
-  LABELS: Record<string, string>;
-  REGIONS: Record<string, string>;
-  TIME_LIMITS: Record<Difficulty, number>;
-  INITIAL_LIVES: number;
-  BONUS_INTERVAL: number;
-  MILESTONE_LIVES: number;
-  BASE_POINTS: number;
-  MAX_POINTS: number;
-  CURRENCY_UNITS: Record<string, string>;
-  currencyLabel(entry: { code: string; name?: string }): string;
-  createEconomy(players?: number): Economy;
-  spendCountryAttempt(economy: Economy, player: number): boolean;
-  awardPoints(economy: Economy, player: number, points: number): number[];
-  awardFlagAttempt(economy: Economy, player: number): void;
-  consumeBonus(economy: Economy, player: number): number | null;
-  validateProgress(game: unknown): boolean;
-  nextBonusThreshold(game: Economy, player: number): number;
-  nextTurn(game: Game): Turn;
-  needsFlight(game: Game): boolean;
-  sameFlagFamily(a: string, b: string): boolean;
-  timeLimit(game: Game): number;
-  pointsForTime(elapsedMs: number, limitMs: number): number;
-  rng(seed: number): () => number;
-  shuffle<T>(items: readonly T[], random?: () => number): T[];
-  populationLabel(population: number): string;
-  makeQuestion(
-    country: Country,
-    type: QuestionKind,
-    all: Country[],
-    difficulty?: Difficulty,
-    random?: () => number,
-  ): BaseQuestion;
-  makeGame(all: Country[], options: GameOptions, seed?: number): Game;
-  submit(game: Game, selected: number | null, elapsedMs?: number): AnswerResult | null;
-  advance(game: Game, all: Country[]): boolean;
-  getPool(all: Country[], options: { region: string; difficulty: Difficulty }): Country[];
-  validateCountries(all: unknown): boolean;
-}
+/** The v7 engine surface, which is the ported module's own exported surface. */
+export type CoreApi = typeof import('../../src/engine/core.ts');
 
 export interface GeoClock {
   limitMs: number;
@@ -358,7 +198,7 @@ let globe: GeoGlobeConstructor | undefined;
 let audio: GeoAudioConstructor | undefined;
 let countries: Country[] | undefined;
 let flags: Record<string, string> | undefined;
-let validRun: ((run: unknown) => boolean) | undefined;
+const validRuns = new Map<CoreApi, (run: unknown) => boolean>();
 
 export function loadCore(): CoreApi {
   return (core ??= loadUmd<CoreApi>('js/core.js'));
@@ -393,9 +233,14 @@ export function loadFlags(): Record<string, string> {
  * IIFE with no export of any kind. Lifting its exact source text out is the
  * only way to test real `wg.run.v7` payloads against the shipped predicate
  * rather than against a paraphrase of it.
+ *
+ * The engine is a parameter because the predicate delegates to
+ * `Core.validateProgress` and `Core.getPool`: handing it the TypeScript engine
+ * is what proves the port still accepts a real player's save.
  */
-export function loadIsValidRun(): (run: unknown) => boolean {
-  if (validRun !== undefined) return validRun;
+export function loadIsValidRun(engine: CoreApi = loadCore()): (run: unknown) => boolean {
+  const cached = validRuns.get(engine);
+  if (cached !== undefined) return cached;
   const app = source('js/app.js');
   const start = app.indexOf('function isValidRun(g){');
   const end = app.indexOf('\nif(isValidRun(initialRun)){');
@@ -413,6 +258,7 @@ export function loadIsValidRun(): (run: unknown) => boolean {
     byCode: Record<string, Country>,
   ) => (run: unknown) => boolean;
   const all = loadCountries();
-  validRun = factory(loadCore(), all, Object.fromEntries(all.map((c) => [c.code, c])));
-  return validRun;
+  const built = factory(engine, all, Object.fromEntries(all.map((c) => [c.code, c])));
+  validRuns.set(engine, built);
+  return built;
 }

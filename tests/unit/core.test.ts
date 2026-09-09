@@ -1,51 +1,56 @@
 /**
- * U3 — port of the archived `tests/core.test.js`.
+ * U3 — port of the archived `tests/core.test.js`, driving the U4 engine.
  *
  * The original wrote its counters to `tests/core-results.json`; here they are
  * assertions, because a count that is only printed cannot fail. The recorded
  * numbers (14,040 question variants, 42 configurations, and the two full-engine
  * runs) are the v7 values from that file, inlined so the suite keeps meaning
- * after `original-source/` is deleted in U14.
+ * after `original-source/` is deleted in U14. They were produced by the
+ * original JavaScript and are asserted here against the TypeScript port.
  */
 import { describe, expect, it } from 'vitest';
-import {
-  loadCore,
-  loadCountries,
-  loadFlags,
-  type AnswerResult,
-  type Country,
-  type Difficulty,
-  type Game,
-  type GameOptions,
-  type Question,
-  type QuestionKind,
-} from '../helpers/load-baseline.ts';
+import * as Core from '../../src/engine/core.ts';
+import type {
+  AnswerResult,
+  Country,
+  CurrencyCode,
+  Difficulty,
+  GameOptions,
+  GameState,
+  Question,
+  QuestionKind,
+  Region,
+} from '../../src/engine/types.ts';
+import { loadCountries, loadFlags } from '../helpers/load-baseline.ts';
 
-const Core = loadCore();
 const all = loadCountries();
 const flags = loadFlags();
 const by = Object.fromEntries(all.map((c) => [c.code, c])) as Record<string, Country>;
 const TYPES: QuestionKind[] = [...Core.TYPES, 'flag'];
 
-const create = (extra: Partial<GameOptions> = {}, seed = 777): Game =>
+const create = (extra: Partial<GameOptions> = {}, seed = 777): GameState =>
   Core.makeGame(
     all,
     { players: 1, difficulty: 'normal', region: 'all', names: ['Anna', 'Petr'], ...extra },
     seed,
   );
-const current = (g: Game): Question => g.questions[g.index] as Question;
-const answer = (g: Game, correct = true, elapsed = 5000): AnswerResult =>
+const current = (g: GameState): Question => g.questions[g.index] as Question;
+const answer = (g: GameState, correct = true, elapsed = 5000): AnswerResult =>
   Core.submit(
     g,
     correct ? current(g).correct : (current(g).correct + 1) % 3,
     elapsed,
   ) as AnswerResult;
-const step = (g: Game, correct = true, elapsed = 5000): AnswerResult => {
+const step = (g: GameState, correct = true, elapsed = 5000): AnswerResult => {
   const a = answer(g, correct, elapsed);
   Core.advance(g, all);
   return a;
 };
-const clone = (): Country[] => JSON.parse(JSON.stringify(all)) as Country[];
+/** Loose on purpose: the rejection tests below write values `Country` forbids. */
+const clone = (): Record<string, unknown>[] =>
+  JSON.parse(JSON.stringify(all)) as Record<string, unknown>[];
+const entry = (list: Record<string, unknown>[], at: number): Record<string, unknown> =>
+  list[at] as Record<string, unknown>;
 
 describe('the country database', () => {
   it('passes its own validator, with one flag per country', () => {
@@ -55,7 +60,7 @@ describe('the country database', () => {
   });
 
   it('names a currency by its monetary unit, not by its nationality', () => {
-    expect(Core.currencyLabel({ code: 'MAD' })).toBe('dirham');
+    expect(Core.currencyLabel({ code: 'MAD' as CurrencyCode })).toBe('dirham');
     expect(by.MA?.currencyNames[0]?.name).toBe('marocký dirham');
   });
 
@@ -64,25 +69,25 @@ describe('the country database', () => {
   // rejection paths.
   it('rejects a duplicated country code', () => {
     const broken = clone();
-    (broken[1] as Country).code = (broken[0] as Country).code;
+    entry(broken, 1).code = entry(broken, 0).code;
     expect(() => Core.validateCountries(broken)).toThrow(/duplicitní kód/);
   });
 
   it('rejects a country with no capital', () => {
     const broken = clone();
-    (broken[0] as Country).capital = [];
+    entry(broken, 0).capital = [];
     expect(() => Core.validateCountries(broken)).toThrow(/chybí capital/);
   });
 
   it('rejects an unknown region', () => {
     const broken = clone();
-    (broken[0] as Country).region = 'Atlantis';
+    entry(broken, 0).region = 'Atlantis';
     expect(() => Core.validateCountries(broken)).toThrow(/Neznámý region/);
   });
 
   it('rejects a non-finite population', () => {
     const broken = clone();
-    (broken[0] as Country).population = Number.POSITIVE_INFINITY;
+    entry(broken, 0).population = Number.POSITIVE_INFINITY;
     expect(() => Core.validateCountries(broken)).toThrow(/obyvatelstvo/);
   });
 });
@@ -148,11 +153,22 @@ describe('every question variant', () => {
 });
 
 describe('every playable configuration', () => {
+  it('builds the same game twice from one seed, and never writes to the database', () => {
+    const before = JSON.stringify(all);
+    const g = create();
+    const h = create();
+
+    // `created` is the single non-reproducible field: a wall-clock stamp that
+    // two calls a millisecond apart disagree on.
+    expect({ ...g, created: '' }).toEqual({ ...h, created: '' });
+    expect(JSON.stringify(all)).toBe(before);
+  });
+
   it('deals the same deck twice and keeps the attempt ledger exact for 130 questions', () => {
     let configurations = 0;
 
     for (const difficulty of ['easy', 'normal', 'expert'] as Difficulty[]) {
-      for (const region of ['all', ...Object.keys(Core.REGIONS)]) {
+      for (const region of ['all' as const, ...(Object.keys(Core.REGIONS) as Region[])]) {
         for (const players of [1, 2]) {
           const g = create({ difficulty, region, players });
           const h = create({ difficulty, region, players });
@@ -253,7 +269,7 @@ describe('the attempt economy', () => {
     expect(Core.validateProgress(g)).toBe(true);
 
     // Advancing a restored save must land on the same next question.
-    const saved = JSON.parse(JSON.stringify(g)) as Game;
+    const saved = JSON.parse(JSON.stringify(g)) as GameState;
     Core.advance(g, all);
     Core.advance(saved, all);
     expect(g).toEqual(saved);
@@ -291,7 +307,7 @@ describe('the attempt economy', () => {
       expect(g.scoreLives[0]).toBe(2);
       expect(g.bonusMilestones[0]).toBe(1);
 
-      const restore = JSON.parse(JSON.stringify(g)) as Game;
+      const restore = JSON.parse(JSON.stringify(g)) as GameState;
       expect(Core.validateProgress(restore)).toBe(true);
       for (const run of [g, restore]) {
         if (timeout) Core.submit(run, null, 20000);
@@ -396,7 +412,7 @@ describe('the complete engine, driven end to end', () => {
     elapsed = 5000,
     seed = 71007,
     pattern = false,
-  }): { game: Game; report: EngineReport } {
+  }): { game: GameState; report: EngineReport } {
     const game = create({ region: 'Oceania', difficulty: 'normal' }, seed);
     const random = Core.rng(seed);
     let countries = 0;
@@ -476,11 +492,16 @@ describe('the complete engine, driven end to end', () => {
   });
 
   it('refuses a save whose ledger has been edited or whose version is old', () => {
-    const tampered = JSON.parse(JSON.stringify(fast.game)) as Game;
+    const tampered = JSON.parse(JSON.stringify(fast.game)) as GameState;
     tampered.lives[0] = (tampered.lives[0] as number) + 1;
     expect(Core.validateProgress(tampered)).toBe(false);
 
-    const oldVersion = JSON.parse(JSON.stringify(fast.game)) as Game;
+    // A score is replayed out of the stored answers, so inflating it cannot hold.
+    const inflated = JSON.parse(JSON.stringify(fast.game)) as GameState;
+    inflated.scores[0] = (inflated.scores[0] as number) + 10;
+    expect(Core.validateProgress(inflated)).toBe(false);
+
+    const oldVersion = JSON.parse(JSON.stringify(fast.game)) as GameState;
     oldVersion.version = 6;
     expect(Core.validateProgress(oldVersion)).toBe(false);
   });

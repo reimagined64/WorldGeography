@@ -20,7 +20,7 @@ import { join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { chromium, type Browser, type Page } from '@playwright/test';
 import { CHROMIUM_LAUNCH } from '../playwright.config.ts';
-import { BASELINE_ROOT, loadCore, loadCountries, type Game } from '../tests/helpers/load-baseline.ts';
+import { BASELINE_ROOT, loadCore, loadCountries, type GameState } from '../tests/helpers/load-baseline.ts';
 import {
   captureQuestions,
   captureRuns,
@@ -366,17 +366,17 @@ const SAVE_KEY = 'wg.run.v7';
 const WANTED = ['mid-country', 'mid-flight', 'post-milestone', 'pending-bonus'] as const;
 type SaveName = (typeof WANTED)[number];
 
-const readSave = (page: Page): Promise<Game | null> =>
+const readSave = (page: Page): Promise<GameState | null> =>
   page.evaluate((key: string) => {
     const raw = localStorage.getItem(key);
-    return raw === null ? null : (JSON.parse(raw) as Game);
+    return raw === null ? null : (JSON.parse(raw) as GameState);
   }, SAVE_KEY);
 
 const isFlying = (page: Page): Promise<boolean> =>
   page.evaluate(() => document.body.classList.contains('flying'));
 
 /** The app starts the countdown only after the flag images decode and two frames pass. */
-async function waitForRunningQuestion(page: Page): Promise<Game> {
+async function waitForRunningQuestion(page: Page): Promise<GameState> {
   await page.waitForSelector('.answer-list [data-answer]', { timeout: 60_000 });
   await page.waitForFunction(
     (key: string) => {
@@ -405,8 +405,8 @@ async function captureSaveFixtures(browser: Browser, origin: string, outDir: str
   await page.goto(origin, { waitUntil: 'load' });
   await page.click('#start');
 
-  const captured = new Map<SaveName, Game>();
-  const keep = (name: SaveName, save: Game): void => {
+  const captured = new Map<SaveName, GameState>();
+  const keep = (name: SaveName, save: GameState): void => {
     if (!captured.has(name)) {
       captured.set(name, save);
       console.log(`  captured ${name} at question ${save.index + 1} (${save.questions[save.index]?.type})`);

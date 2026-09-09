@@ -1,7 +1,9 @@
 /**
  * Shared production of the two engine fixtures, so `scripts/capture-golden.ts`
  * and `tests/unit/golden.test.ts` cannot drift apart: the capture writes what
- * this module computes and the test recomputes it and compares.
+ * this module computes from the frozen v7 JavaScript, and the test recomputes
+ * it from the TypeScript engine and compares. One walk, two engines — which is
+ * only a fidelity claim as long as the walk itself is the same code.
  *
  * Both walks reproduce the exact traversal the original `node:assert` suites
  * used — `core.test.js` for the question walk, `simulation.test.js` for the
@@ -12,13 +14,39 @@ import { createHash } from 'node:crypto';
 import { fileURLToPath } from 'node:url';
 import type {
   AnswerResult,
-  CoreApi,
+  BaseQuestion,
   Country,
   Difficulty,
-  Game,
+  GameOptions,
+  GameState,
   Question,
   QuestionKind,
-} from './load-baseline.ts';
+  QuestionType,
+  Turn,
+} from '../../src/engine/types.ts';
+
+/**
+ * The slice of the engine both walks drive.
+ *
+ * Declared here rather than lifted off either module, so one walk can be
+ * pointed at the frozen JavaScript — which is how the fixtures were captured —
+ * and at the TypeScript port, which is what the suite holds to them.
+ */
+export interface GoldenEngine {
+  readonly TYPES: readonly QuestionType[];
+  rng(seed: number): () => number;
+  makeQuestion(
+    country: Country,
+    type: QuestionKind,
+    all: Country[],
+    difficulty?: Difficulty,
+    random?: () => number,
+  ): BaseQuestion;
+  makeGame(all: Country[], options: GameOptions, seed?: number): GameState;
+  submit(game: GameState, selected: number | null, elapsedMs?: number): AnswerResult | null;
+  advance(game: GameState, all: Country[]): boolean;
+  nextTurn(game: GameState): Turn;
+}
 
 export const FIXTURES_DIR = fileURLToPath(new URL('../fixtures', import.meta.url));
 
@@ -111,14 +139,14 @@ export const QUESTION_DIFFICULTIES: Difficulty[] = ['easy', 'normal', 'expert'];
 export const QUESTION_SEEDS = [0, 1, 2, 3];
 
 /** 3 difficulties x 4 seeds x 195 countries x 6 types, in `core.test.js` order. */
-export function captureQuestions(core: CoreApi, all: Country[]): QuestionsGolden {
-  const types: QuestionKind[] = [...core.TYPES, 'flag'];
+export function captureQuestions(engine: GoldenEngine, all: Country[]): QuestionsGolden {
+  const types: QuestionKind[] = [...engine.TYPES, 'flag'];
   const entries: GoldenQuestion[] = [];
   for (const difficulty of QUESTION_DIFFICULTIES) {
     for (const seed of QUESTION_SEEDS) {
       for (const country of all) {
         for (const type of types) {
-          const q = core.makeQuestion(country, type, all, difficulty, core.rng(seed));
+          const q = engine.makeQuestion(country, type, all, difficulty, engine.rng(seed));
           entries.push({
             country: q.country,
             type: q.type,
@@ -248,7 +276,7 @@ class ArrayDigest {
 
 /** The game object with its two append-only arrays folded to digests. */
 function gameView(
-  game: Game,
+  game: GameState,
   questions: FoldedArray,
   answers: FoldedArray,
 ): Record<string, unknown> {
@@ -269,10 +297,10 @@ function gameView(
  * their order is only observable in the resulting game — not in any single
  * question. That is what these hashes pin.
  */
-export function replayRun(core: CoreApi, all: Country[], config: RunConfig): GoldenRun {
+export function replayRun(engine: GoldenEngine, all: Country[], config: RunConfig): GoldenRun {
   const { seed, timeRangeMs, capCountries, elapsedMs, correctProbability } = config;
-  const random = core.rng(seed);
-  const game = core.makeGame(
+  const random = engine.rng(seed);
+  const game = engine.makeGame(
     all,
     { players: 1, difficulty: 'normal', region: 'all', names: ['Test'] },
     seed,
@@ -301,7 +329,7 @@ export function replayRun(core: CoreApi, all: Country[], config: RunConfig): Gol
       correct && timeRangeMs !== null
         ? timeRangeMs[0] + random() * (timeRangeMs[1] - timeRangeMs[0])
         : elapsedMs;
-    const result = core.submit(
+    const result = engine.submit(
       game,
       correct ? question.correct : (question.correct + 1) % 3,
       elapsed,
@@ -330,11 +358,11 @@ export function replayRun(core: CoreApi, all: Country[], config: RunConfig): Gol
       ),
     );
 
-    if (counts.countries === capCountries && core.nextTurn(game).kind === 'country') {
+    if (counts.countries === capCountries && engine.nextTurn(game).kind === 'country') {
       terminalReason = 'capped';
       break;
     }
-    if (!core.advance(game, all)) break;
+    if (!engine.advance(game, all)) break;
     if ((game.questions[game.index] as Question).type === 'country') counts.countries += 1;
   }
 
@@ -360,15 +388,16 @@ export function replayRun(core: CoreApi, all: Country[], config: RunConfig): Gol
   };
 }
 
-export function captureRuns(core: CoreApi, all: Country[]): RunsGolden {
+export function captureRuns(engine: GoldenEngine, all: Country[]): RunsGolden {
   return {
     version: 7,
+    // Provenance of the committed fixture, not of whatever is driving this walk.
     engine: 'tests/fixtures/baseline/js/core.js',
     createdPlaceholder: CREATED_PLACEHOLDER,
     stepHash:
       'sha256 of the canonicalized {game, result} after each submit, with questions and answers folded to rolling digests',
     terminal:
       'terminalHash is sha256 of the canonicalized final game object in full; terminal is that object with the two arrays folded',
-    runs: RUN_CONFIGS.map((config) => replayRun(core, all, config)),
+    runs: RUN_CONFIGS.map((config) => replayRun(engine, all, config)),
   };
 }
