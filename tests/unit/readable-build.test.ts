@@ -116,7 +116,8 @@ describe('readable build', () => {
 
     expect(executable).toHaveLength(1);
     // The order the five v7 `<script>` tags ran in — core, clock, audio, globe,
-    // app — with `themes.ts` ahead of the synthesizer it was split out of and
+    // app — with `themes.ts` ahead of the synthesizer it was split out of, the
+    // `src/app/` modules U6 lifted out of the monolith between them, and
     // `legacy-globals.ts` after everything it publishes, which is where its own
     // imports put it until U16 removes it.
     const modules = [...html.matchAll(/^\s*\/\/ (src\/\S+)$/gm)].map((match) => match[1]);
@@ -126,6 +127,13 @@ describe('readable build', () => {
       'src/audio/themes.ts',
       'src/audio/audio.ts',
       'src/globe/globe.ts',
+      'src/app/storage.ts',
+      'src/app/state.ts',
+      'src/app/dialogs/help.ts',
+      'src/app/dialogs/sources.ts',
+      'src/app/dialogs/audio-settings.ts',
+      'src/app/mobile-hud.ts',
+      'src/app/views/atlas.ts',
       'src/legacy-globals.ts',
       'src/app/app.js',
     ]);
