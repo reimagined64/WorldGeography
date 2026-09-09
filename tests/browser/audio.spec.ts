@@ -15,14 +15,19 @@
  * run-to-run noise and an order of magnitude below any audible change.
  *
  * The page under test is the real readable build, not a bespoke harness, so a
- * bundle that failed to publish `window.GeoAudio` fails here too.
+ * bundle that fails to load at all fails here too. The synthesizer itself is
+ * injected rather than read off the page: U16 deleted the global shim, and the
+ * built bundle keeps its one `GeoAudio` instance inside its own closure, so
+ * `renderThemes` gets the class from a second bundle of the same source file
+ * instead of from a global the product would otherwise have to keep exporting.
  */
 import { expect, test } from '@playwright/test';
+import { build } from 'esbuild';
 import { mkdtempSync, readFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { pathToFileURL } from 'node:url';
-import { writeReadable } from '../../scripts/build.ts';
+import { REPO_ROOT, writeReadable } from '../../scripts/build.ts';
 import { renderThemes } from '../../scripts/capture-golden.ts';
 import { FIXTURES_DIR } from '../helpers/golden.ts';
 import {
@@ -42,6 +47,29 @@ const expected = JSON.parse(
 let out: string;
 let themes: ThemeDigest[];
 
+/** `src/audio/audio.ts`, bundled on its own and published under v7's name. */
+async function audioGlobalScript(): Promise<string> {
+  const result = await build({
+    absWorkingDir: REPO_ROOT,
+    stdin: {
+      contents: "import { GeoAudio } from './src/audio/audio.ts';\n"
+        + "(window as unknown as Record<string, unknown>)['GeoAudio'] = GeoAudio;\n",
+      resolveDir: REPO_ROOT,
+      loader: 'ts',
+    },
+    bundle: true,
+    format: 'iife',
+    platform: 'browser',
+    target: 'es2022',
+    charset: 'utf8',
+    write: false,
+    logLevel: 'silent',
+  });
+  const [output] = result.outputFiles;
+  if (output === undefined) throw new Error('esbuild produced no synthesizer bundle');
+  return output.text;
+}
+
 test.beforeAll(async ({ browser }) => {
   out = mkdtempSync(join(tmpdir(), 'wg-audio-'));
   const file = join(out, 'index.html');
@@ -50,6 +78,7 @@ test.beforeAll(async ({ browser }) => {
   const context = await browser.newContext();
   const page = await context.newPage();
   await page.goto(pathToFileURL(file).href, { waitUntil: 'load' });
+  await page.addScriptTag({ content: await audioGlobalScript() });
   themes = await renderThemes(page);
   await context.close();
 });

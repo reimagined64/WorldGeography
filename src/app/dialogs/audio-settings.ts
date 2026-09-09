@@ -11,20 +11,13 @@
  */
 import { requireAudio } from '../state.ts';
 import { STORE } from '../storage.ts';
-
-export interface AudioSettingsHost {
-  /** `document.getElementById`, as the shell already wraps it. */
-  $(id: string): HTMLElement;
-  openDialog(html: string): void;
-  /** `write`, plus the shell's one-shot warning toast on a refusal. */
-  persist(key: string, value: unknown): boolean;
-}
+import { $, dialog, persist } from '../dom.ts';
+import { openDialog } from '../main.ts';
 
 /** Never reset: a repeated key makes `beginQuestion` decline to restart. */
 let musicPreviewSerial = 0;
 
-export function showAudioSettings(host: AudioSettingsHost): void {
-  const { $, openDialog, persist } = host;
+export function showAudioSettings(): void {
   const audio = requireAudio();
   const input = (id: string): HTMLInputElement => $(id) as HTMLInputElement;
   const previewButton = (): HTMLButtonElement => $('audio-question-preview') as HTMLButtonElement;
@@ -38,13 +31,13 @@ export function showAudioSettings(host: AudioSettingsHost): void {
   previewButton().onclick=()=>{
     if(audio.scene==='question'&&!audio.paused){audio.setScene('feedback');previewButton().textContent='Ukázka hudby při odpovídání ♪';return;}
     audio.configure({enabled:true,music:true});input('audio-enabled').checked=true;input('audio-music').checked=true;persist(STORE.audio,audio.settings());
-    audio.unlock().then(ok=>{if(ok&&($('dialog') as HTMLDialogElement).open&&previewButton()){audio.setPaused(false);audio.stopVoices('effects');audio.beginQuestion(`preview:${++musicPreviewSerial}`);audio.setScene('question');previewButton().textContent='Zastavit hudební ukázku';updateThemeLabel();}});
+    audio.unlock().then(ok=>{if(ok&&dialog().open&&previewButton()){audio.setPaused(false);audio.stopVoices('effects');audio.beginQuestion(`preview:${++musicPreviewSerial}`);audio.setScene('question');previewButton().textContent='Zastavit hudební ukázku';updateThemeLabel();}});
   };
   function updateThemeLabel(){const m=audio.status().melody;$('audio-theme-label').textContent=`${m.index+1} / ${m.count} · ${m.name} · začátek od ${Math.floor(m.startStep/8)+1}. taktu`;}
   ($('audio-next-theme') as HTMLButtonElement).onclick=()=>{audio.setScene('feedback');previewButton().click();};
   const previewAnswer=(kind: string)=>{
     audio.configure({enabled:true,effects:true});input('audio-enabled').checked=true;input('audio-effects').checked=true;persist(STORE.audio,audio.settings());
-    audio.unlock().then(ok=>{if(ok&&($('dialog') as HTMLDialogElement).open&&previewButton()){
+    audio.unlock().then(ok=>{if(ok&&dialog().open&&previewButton()){
       audio.setPaused(false);audio.setScene('feedback');audio.cue(kind);
       previewButton().textContent='Ukázka hudby při odpovídání ♪';
     }});

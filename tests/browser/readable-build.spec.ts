@@ -19,7 +19,7 @@ import { pathToFileURL } from 'node:url';
 import { writeReadable } from '../../scripts/build.ts';
 
 /**
- * The page's own test surface, frozen onto `window` by `app.js`. Narrow on
+ * The page's own test surface, frozen onto `window` during boot. Narrow on
  * purpose — only what this spec reads, so a rename fails a typecheck instead
  * of silently returning `undefined` inside the browser.
  */

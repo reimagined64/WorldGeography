@@ -42,6 +42,27 @@ describe('rescued assets', () => {
     expect(read('src/style.css').equals(read('tests/fixtures/baseline/style.css'))).toBe(true);
   });
 
+  it('tracks the committed baseline dataset', () => {
+    // `data/build/` is the diff baseline `data:refresh` compares against and
+    // refuses to overwrite when dirty, so it has to be in the repository. An
+    // unanchored `build/` rule in .gitignore matches at any depth and silently
+    // excluded all four files, leaving a checkout that could not build.
+    const tracked = execFileSync('git', ['ls-files', 'data/build'], {
+      cwd: root,
+      encoding: 'utf8',
+    })
+      .split('\n')
+      .filter((p) => p !== '')
+      .sort();
+
+    expect(tracked).toEqual([
+      'data/build/countries.json',
+      'data/build/flags.json',
+      'data/build/map.json',
+      'data/build/sources.json',
+    ]);
+  });
+
   it('leaves no Python in the project outside the archive and original-source', () => {
     const tracked = execFileSync('git', ['ls-files', '-co', '--exclude-standard', '*.py'], {
       cwd: root,

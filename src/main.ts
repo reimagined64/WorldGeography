@@ -1,20 +1,12 @@
 /**
- * Bundle entry: the whole page in one module graph, in v7's evaluation order.
+ * Bundle entry: the whole page in one module graph.
  *
- * `app.js` is the last v7 script still in its original language — it is being
- * emptied module by module rather than converted in one move — and it reaches
- * everything it no longer owns off `window`, which is why the order below is
- * load-bearing rather than cosmetic: the engine, the clock, the synthesizer,
- * the globe and the `src/app/` modules U6 lifted out (all published by
- * `legacy-globals.ts`), then `app`, exactly as v7's five `<script>` tags ran.
- *
- * The two module imports under the shim are what that order refers to;
- * `legacy-globals.ts` pulls them in first so it can publish them, so they are
- * listed here for the order rather than for the effect.
- *
- * Removal order: U16 replaces the app import and deletes `legacy-globals.ts`.
+ * There is nothing left to order by hand. v7 shipped five `<script>` tags and
+ * the transitional builds had to reproduce that order, because `app.js` reached
+ * everything it did not own off `window`; now every module says what it needs
+ * and esbuild resolves the graph. `boot()` is called rather than run as a module
+ * body so that `src/app/main.ts` can be imported without a browser.
  */
-import './legacy-globals.ts';
-import './audio/audio.ts';
-import './globe/globe.ts';
-import './app/app.js';
+import { boot } from './app/main.ts';
+
+boot();

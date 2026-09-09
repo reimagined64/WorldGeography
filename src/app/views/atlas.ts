@@ -2,58 +2,42 @@
  * The atlas: search, region filter, and the country card the globe follows.
  *
  * All three of its variables are genuinely local — nothing outside this view
- * has ever read the search box or the highlighted code — so they live in the
- * factory closure rather than in the shared store. The one piece it does share
+ * has ever read the search box or the highlighted code — so they stay module
+ * scoped rather than moving into the shared store. The one piece it does share
  * is `lastGlobeCode`, because the game reads it to decide whether the globe
  * already shows the country it is about to ask about.
  *
- * Rendering helpers arrive through `host` rather than being reimplemented:
- * two copies of `esc` is one copy too many, and the shell still owns them
- * until U16 moves the remaining views out.
+ * Rendering helpers are imported rather than reimplemented: two copies of `esc`
+ * is one copy too many. Until U16 they arrived through a host object the
+ * monolith built, which is the same idea with an extra indirection in it.
  */
 import * as Core from '../../engine/core.ts';
-import type { Coordinates, Country } from '../../engine/types.ts';
-import { requireGlobe, store, type View } from '../state.ts';
+import { requireGlobe, store } from '../state.ts';
+import { byCode, countries } from '../database.ts';
+import { $, coords, esc, flagImage, regionOptions } from '../dom.ts';
+import { showSources } from '../dialogs/sources.ts';
+import { setView } from '../main.ts';
 
-export interface AtlasHost {
-  /** `document.getElementById`, as the shell already wraps it. */
-  $(id: string): HTMLElement;
-  countries: Country[];
-  byCode: Readonly<Record<string, Country>>;
-  esc(value: unknown): string;
-  flagImage(code: string, hiddenName?: boolean, extra?: string): string;
-  coords(c: Coordinates): string;
-  regionOptions(value: string): string;
-  setView(next: View): void;
-  showSources(): void;
+let atlasCode = 'CZ';
+let atlasQuery = '';
+let atlasRegion = 'all';
+
+const normalize=(t: string)=>String(t).normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
+
+export function renderAtlas(): void {
+  setView('atlas');$('world-heading').innerHTML=`<div class="atlas-heading"><div class="eyebrow accent">OTEVŘENÝ ATLAS / 195 ZEMÍ</div><h1>Nejdřív poznat.<br><em>Potom odpovědět.</em></h1><p class="intro-line">Najděte si zemi a prohlédněte si její údaje.<br>Vaše rozehraná expedice zůstává uložená.</p></div>`;
+  $('side-panel').innerHTML=`<div class="section-title"><h2>Atlas světa</h2><span class="number">02 /</span></div><div class="atlas-search"><label><span class="field-label">Vyhledat zemi</span><input id="atlas-search" type="search" value="${esc(atlasQuery)}" placeholder="Například Česko, Japonsko…" autocomplete="off"></label></div><label class="settings-section"><span class="field-label">Oblast</span><select id="atlas-region">${regionOptions(atlasRegion)}</select></label><div id="atlas-list" class="atlas-list" aria-label="Seznam zemí"></div><div id="atlas-details" class="atlas-details"></div>`;
+  $('atlas-search').oninput=e=>{atlasQuery=(e.target as HTMLInputElement).value;renderAtlasList();};$('atlas-region').onchange=e=>{atlasRegion=(e.target as HTMLSelectElement).value;renderAtlasList();};renderAtlasList();selectAtlas(atlasCode);
 }
 
-export interface Atlas {
-  render(): void;
+function renderAtlasList(): void {const query=normalize(atlasQuery),matches=countries.filter(c=>(atlasRegion==='all'||c.region===atlasRegion)&&[c.name,c.code,c.iso3].some(s=>normalize(s).includes(query))).sort((a,b)=>a.name.localeCompare(b.name,'cs'));
+  $('atlas-list').innerHTML=matches.length?matches.map(c=>`<button class="atlas-item ${c.code===atlasCode?'active':''}" data-country="${c.code}" aria-pressed="${c.code===atlasCode}"><span class="atlas-country-name">${flagImage(c.code)}${esc(c.name)}</span><span>${c.code} ↗</span></button>`).join(''):'<p class="empty">Žádná země neodpovídá hledání.</p>';
+  document.querySelectorAll<HTMLElement>('[data-country]').forEach(b=>{b.onclick=()=>selectAtlas(b.dataset['country']!);});
 }
 
-export function createAtlas(host: AtlasHost): Atlas {
-  const { $, countries, byCode, esc, flagImage, coords, regionOptions } = host;
-  let atlasCode = 'CZ';
-  let atlasQuery = '';
-  let atlasRegion = 'all';
-
-  const normalize=(t: string)=>String(t).normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();
-  function render(): void {
-    host.setView('atlas');$('world-heading').innerHTML=`<div class="atlas-heading"><div class="eyebrow accent">OTEVŘENÝ ATLAS / 195 ZEMÍ</div><h1>Nejdřív poznat.<br><em>Potom odpovědět.</em></h1><p class="intro-line">Najděte si zemi a prohlédněte si její údaje.<br>Vaše rozehraná expedice zůstává uložená.</p></div>`;
-    $('side-panel').innerHTML=`<div class="section-title"><h2>Atlas světa</h2><span class="number">02 /</span></div><div class="atlas-search"><label><span class="field-label">Vyhledat zemi</span><input id="atlas-search" type="search" value="${esc(atlasQuery)}" placeholder="Například Česko, Japonsko…" autocomplete="off"></label></div><label class="settings-section"><span class="field-label">Oblast</span><select id="atlas-region">${regionOptions(atlasRegion)}</select></label><div id="atlas-list" class="atlas-list" aria-label="Seznam zemí"></div><div id="atlas-details" class="atlas-details"></div>`;
-    $('atlas-search').oninput=e=>{atlasQuery=(e.target as HTMLInputElement).value;renderAtlasList();};$('atlas-region').onchange=e=>{atlasRegion=(e.target as HTMLSelectElement).value;renderAtlasList();};renderAtlasList();selectAtlas(atlasCode);
-  }
-  function renderAtlasList(): void {const query=normalize(atlasQuery),matches=countries.filter(c=>(atlasRegion==='all'||c.region===atlasRegion)&&[c.name,c.code,c.iso3].some(s=>normalize(s).includes(query))).sort((a,b)=>a.name.localeCompare(b.name,'cs'));
-    $('atlas-list').innerHTML=matches.length?matches.map(c=>`<button class="atlas-item ${c.code===atlasCode?'active':''}" data-country="${c.code}" aria-pressed="${c.code===atlasCode}"><span class="atlas-country-name">${flagImage(c.code)}${esc(c.name)}</span><span>${c.code} ↗</span></button>`).join(''):'<p class="empty">Žádná země neodpovídá hledání.</p>';
-    document.querySelectorAll<HTMLElement>('[data-country]').forEach(b=>{b.onclick=()=>selectAtlas(b.dataset.country!);});
-  }
-  function selectAtlas(code: string): void {atlasCode=code;const c=byCode[code]!;requireGlobe().focus(c);store.lastGlobeCode=code;$('globe').setAttribute('aria-label',`Glóbus – ${c.name}.`);
-    $('world-caption').innerHTML=`<div class="country-caption">${flagImage(c.code)}<div><div class="caption-title">${esc(c.name)}</div><div class="caption-sub">${esc(Core.REGIONS[c.region])} / ${c.iso3}</div></div></div><div class="coord">${coords(c)}</div>`;
-    const cap=c.code==='ID'?'Jakarta / budovaná Nusantara':c.capital.join(' / ');
-    $('atlas-details').innerHTML=`<div class="atlas-flag-heading">${flagImage(c.code)}<h3>${esc(c.name)}</h3></div>${c.code==='AF'?'<p class="flag-caveat">Zobrazena je republikánská trikolóra z použité sady Noto, nikoli bílá vlajka de facto úřadů. Afghánistán proto není zařazen do vlajkových bonusů.</p>':''}<div class="fact-row"><span class="fact-label">HLAVNÍ MĚSTO</span><span class="fact-value">${esc(cap)}</span></div><div class="fact-row"><span class="fact-label">MĚNA</span><span class="fact-value">${c.currencyNames.map(m=>`${esc(m.name)} (${m.code})`).join('<br>')}</span></div><div class="fact-row"><span class="fact-label">JAZYKY · VÝBĚR</span><span class="fact-value">${esc(c.languageNames.join(', '))}</span></div><div class="fact-row"><span class="fact-label">OBYVATELSTVO</span><span class="fact-value">${c.population.toLocaleString('cs-CZ')}<small>Projekce ${c.populationYear} · OSN / Worldometer</small></span></div><div class="atlas-note">${esc(c.note||'Jazyky představují výběr hlavních nebo úředních jazyků. Počet obyvatel je populační projekce, nikoli průběžné sčítání.')}<br><button class="text-button" id="atlas-source">Zdroje a metodika</button></div>`;
-    document.querySelectorAll<HTMLElement>('[data-country]').forEach(b=>{b.classList.toggle('active',b.dataset.country===code);b.setAttribute('aria-pressed',String(b.dataset.country===code));});$('atlas-source').onclick=()=>{host.showSources();};
-  }
-
-  return { render };
+function selectAtlas(code: string): void {atlasCode=code;const c=byCode[code]!;requireGlobe().focus(c);store.lastGlobeCode=code;$('globe').setAttribute('aria-label',`Glóbus – ${c.name}.`);
+  $('world-caption').innerHTML=`<div class="country-caption">${flagImage(c.code)}<div><div class="caption-title">${esc(c.name)}</div><div class="caption-sub">${esc(Core.REGIONS[c.region])} / ${c.iso3}</div></div></div><div class="coord">${coords(c)}</div>`;
+  const cap=c.code==='ID'?'Jakarta / budovaná Nusantara':c.capital.join(' / ');
+  $('atlas-details').innerHTML=`<div class="atlas-flag-heading">${flagImage(c.code)}<h3>${esc(c.name)}</h3></div>${c.code==='AF'?'<p class="flag-caveat">Zobrazena je republikánská trikolóra z použité sady Noto, nikoli bílá vlajka de facto úřadů. Afghánistán proto není zařazen do vlajkových bonusů.</p>':''}<div class="fact-row"><span class="fact-label">HLAVNÍ MĚSTO</span><span class="fact-value">${esc(cap)}</span></div><div class="fact-row"><span class="fact-label">MĚNA</span><span class="fact-value">${c.currencyNames.map(m=>`${esc(m.name)} (${m.code})`).join('<br>')}</span></div><div class="fact-row"><span class="fact-label">JAZYKY · VÝBĚR</span><span class="fact-value">${esc(c.languageNames.join(', '))}</span></div><div class="fact-row"><span class="fact-label">OBYVATELSTVO</span><span class="fact-value">${c.population.toLocaleString('cs-CZ')}<small>Projekce ${c.populationYear} · OSN / Worldometer</small></span></div><div class="atlas-note">${esc(c.note||'Jazyky představují výběr hlavních nebo úředních jazyků. Počet obyvatel je populační projekce, nikoli průběžné sčítání.')}<br><button class="text-button" id="atlas-source">Zdroje a metodika</button></div>`;
+  document.querySelectorAll<HTMLElement>('[data-country]').forEach(b=>{b.classList.toggle('active',b.dataset['country']===code);b.setAttribute('aria-pressed',String(b.dataset['country']===code));});$('atlas-source').onclick=()=>{showSources();};
 }

@@ -14,7 +14,8 @@
  *
  * `write` reports a refusal instead of throwing. A browser in private mode or
  * over quota is an ordinary condition, not a crash — but it is one the player
- * has to be told about, which is `persist` in `app.js` and the toast it raises.
+ * has to be told about, which is `persist` in `app/dom.ts` and the toast it
+ * raises.
  */
 import * as Core from '../engine/core.ts';
 import type { AudioSettings } from '../audio/audio.ts';

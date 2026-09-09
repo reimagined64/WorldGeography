@@ -30,7 +30,7 @@ import { copySourceTree } from '../helpers/source-tree.ts';
 
 /** Czech text the game shows before anything is clicked, one per source. */
 const CZECH_SAMPLES: readonly string[] = [
-  'Zahájit expedici', // src/app/app.js, through the bundle
+  'Zahájit expedici', // src/app/views/home.ts, through the bundle
   'Který stát je zvýrazněný na glóbu?', // src/engine/core.ts, through the bundle
   'Česko', // data/build/countries.json
 ];
@@ -78,8 +78,15 @@ describe('readable build', () => {
       expect(resolve(REPO_ROOT, READABLE_OUTPUT).startsWith(join(REPO_ROOT, 'dist'))).toBe(false);
 
       // Outside `dist/` is only half of KTD18; the other half is that it never
-      // reaches a checkout, or the obfuscated flavor guards nothing.
-      expect(readFileSync(join(REPO_ROOT, '.gitignore'), 'utf8')).toMatch(/^build\/$/m);
+      // reaches a checkout, or the obfuscated flavor guards nothing. Ask git
+      // rather than matching a pattern: the spelling of the rule is not the
+      // point, and an unanchored `build/` would also swallow `data/build/`.
+      expect(
+        execFileSync('git', ['check-ignore', READABLE_OUTPUT], {
+          cwd: REPO_ROOT,
+          encoding: 'utf8',
+        }).trim(),
+      ).toBe(READABLE_OUTPUT);
     } finally {
       tree.remove();
     }
@@ -115,28 +122,43 @@ describe('readable build', () => {
     const executable = [...html.matchAll(/<script(?![^>]*\btype=)[^>]*>/gi)];
 
     expect(executable).toHaveLength(1);
-    // The order the five v7 `<script>` tags ran in — core, clock, audio, globe,
-    // app — with `themes.ts` ahead of the synthesizer it was split out of, the
-    // `src/app/` modules U6 lifted out of the monolith between them, and
-    // `legacy-globals.ts` after everything it publishes, which is where its own
-    // imports put it until U16 removes it.
+    // Not v7's five `<script>` tags any more: U16 deleted the monolith and the
+    // global shim, so nothing is ordered by hand and this is esbuild's own
+    // resolution of the `src/main.ts` graph. It is pinned because the order is
+    // still observable — every module body runs in one scope, in this sequence,
+    // and the entry has to come last or `boot()` would run before the shell it
+    // boots exists.
     const modules = [...html.matchAll(/^\s*\/\/ (src\/\S+)$/gm)].map((match) => match[1]);
     expect(modules).toEqual([
       'src/engine/core.ts',
-      'src/engine/clock.ts',
       'src/audio/themes.ts',
       'src/audio/audio.ts',
       'src/globe/globe.ts',
       'src/app/storage.ts',
       'src/app/state.ts',
+      'src/app/database.ts',
+      'src/app/dom.ts',
+      'src/app/dialogs/audio-settings.ts',
       'src/app/dialogs/help.ts',
       'src/app/dialogs/sources.ts',
-      'src/app/dialogs/audio-settings.ts',
-      'src/app/mobile-hud.ts',
       'src/app/views/atlas.ts',
-      'src/legacy-globals.ts',
-      'src/app/app.js',
+      'src/engine/clock.ts',
+      'src/app/mobile-hud.ts',
+      'src/app/views/flight.ts',
+      'src/app/views/results.ts',
+      'src/app/views/game.ts',
+      'src/app/views/home.ts',
+      'src/app/main.ts',
+      'src/main.ts',
     ]);
+
+    // The graph is full of cycles now — every screen imports the shell and the
+    // shell imports every screen — and esbuild is free to answer a cycle by
+    // wrapping modules in lazy initializers instead of concatenating them. It
+    // does not here, and the difference is not cosmetic: a wrapped module's
+    // function declarations stop being hoisted, and the first cross-module call
+    // during boot would throw.
+    expect(html).not.toContain('__esm(');
   });
 });
 
