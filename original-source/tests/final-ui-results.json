@@ -1,0 +1,57 @@
+{
+  "version": 7,
+  "checks": [
+    {
+      "check": "Rendered globe and +2 milestone on final build",
+      "paintedCanvasPixels": 543120,
+      "answer": {
+        "selected": 0,
+        "correct": true,
+        "points": 850,
+        "basePoints": 100,
+        "bonusPoints": 750,
+        "elapsedMs": 3341.5,
+        "timeLimitMs": 20000,
+        "timedOut": false,
+        "player": 0,
+        "lifeDelta": 2,
+        "scoreLifeDelta": 2,
+        "flagLifeDelta": 0,
+        "milestoneThresholds": [
+          10000
+        ],
+        "livesBefore": 2,
+        "livesAfter": 4,
+        "isFlagBonus": false
+      }
+    },
+    {
+      "check": "Real-clock bonus awards score plus one attempt",
+      "answer": {
+        "selected": 2,
+        "correct": true,
+        "points": 840,
+        "basePoints": 100,
+        "bonusPoints": 740,
+        "elapsedMs": 3588.9000000000233,
+        "timeLimitMs": 20000,
+        "timedOut": false,
+        "player": 0,
+        "lifeDelta": 1,
+        "scoreLifeDelta": 0,
+        "flagLifeDelta": 1,
+        "milestoneThresholds": [],
+        "livesBefore": 4,
+        "livesAfter": 5,
+        "isFlagBonus": true
+      }
+    },
+    {
+      "check": "Real-clock 390px question layout and +2 milestone label"
+    },
+    {
+      "check": "Real-clock 390px bonus labels and score display"
+    }
+  ],
+  "errors": []
+}

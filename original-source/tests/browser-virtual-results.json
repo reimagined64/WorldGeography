@@ -1,0 +1,18 @@
+{
+  "checks": [
+    "Country debited once; five wrong answers cost nothing; immediate same-country transitions; distinct melodies and offsets; short currency choices",
+    "10k grants TWO immediate attempts; scored flag waits for all remaining categories; free neutral bonus rotation; correct flag gives points and another attempt",
+    "Save/resume preserves paid country, queued bonus, and clock; pause does not consume an attempt",
+    "Bonus saved during flight restarts without a debit; timeout consumes no attempt and cannot repeat milestone",
+    "Last paid country completes at zero reserve; game ends after 25 errors / 5 countries; untimed practice remains available",
+    "Duel keeps thresholds, queued flags and entry costs personal; turn changes only after bonus",
+    "Sound settings can audition successive melodies and matched answer cues; selected motif/start displayed",
+    "390px mobile layout has no horizontal overflow; timer, points and attempts visible; sound dialog pauses question",
+    "Mobile bonus rest and flag layout render with neutral globe and no horizontal overflow",
+    "Blocked storage produces a warning and does not break gameplay",
+    "No browser JavaScript errors or external HTTP requests"
+  ],
+  "errors": [],
+  "nativeStorage": "Not verified: this environment blocks file:// and local HTTP navigation by administrator policy; save/restore scenarios use a controlled storage shim.",
+  "externalRequests": []
+}

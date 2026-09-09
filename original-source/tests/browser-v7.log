@@ -1,0 +1,12 @@
+PASS — Country debited once; five wrong answers cost nothing; immediate same-country transitions; distinct melodies and offsets; short currency choices
+PASS — 10k grants TWO immediate attempts; scored flag waits for all remaining categories; free neutral bonus rotation; correct flag gives points and another attempt
+PASS — Save/resume preserves paid country, queued bonus, and clock; pause does not consume an attempt
+PASS — Bonus saved during flight restarts without a debit; timeout consumes no attempt and cannot repeat milestone
+PASS — Last paid country completes at zero reserve; game ends after 25 errors / 5 countries; untimed practice remains available
+PASS — Duel keeps thresholds, queued flags and entry costs personal; turn changes only after bonus
+PASS — Sound settings can audition successive melodies and matched answer cues; selected motif/start displayed
+PASS — 390px mobile layout has no horizontal overflow; timer, points and attempts visible; sound dialog pauses question
+PASS — Mobile bonus rest and flag layout render with neutral globe and no horizontal overflow
+PASS — Blocked storage produces a warning and does not break gameplay
+PASS — No browser JavaScript errors or external HTTP requests
+PASS — 11 integration groups (virtual)

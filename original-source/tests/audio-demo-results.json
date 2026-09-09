@@ -1,0 +1,220 @@
+{
+  "sampleRate": 44100,
+  "duration": 134.8,
+  "notes": 1340,
+  "peak": 0.09509644657373428,
+  "rms": 0.016316221617456016,
+  "clipped": 0,
+  "markers": [
+    {
+      "slot": 1,
+      "themeIndex": 13,
+      "name": "Za obzorem",
+      "offsetStep": 60,
+      "startSeconds": 0.08,
+      "endSeconds": 5.08,
+      "cue": "correct",
+      "rms": 0.01643061588497214
+    },
+    {
+      "slot": 2,
+      "themeIndex": 12,
+      "name": "Soutěžní pulz",
+      "offsetStep": 118,
+      "startSeconds": 6.48,
+      "endSeconds": 11.48,
+      "cue": "wrong",
+      "rms": 0.017002153437557534
+    },
+    {
+      "slot": 3,
+      "themeIndex": 17,
+      "name": "Vzdálená stanice",
+      "offsetStep": 44,
+      "startSeconds": 12.88,
+      "endSeconds": 17.880000000000003,
+      "cue": "extraLife",
+      "rms": 0.016452143740658273
+    },
+    {
+      "slot": 4,
+      "themeIndex": 8,
+      "name": "Napětí v éteru",
+      "offsetStep": 10,
+      "startSeconds": 19.28,
+      "endSeconds": 24.28,
+      "cue": "correct",
+      "rms": 0.016711049518200988
+    },
+    {
+      "slot": 5,
+      "themeIndex": 3,
+      "name": "Před startem",
+      "offsetStep": 14,
+      "startSeconds": 25.68,
+      "endSeconds": 30.68,
+      "cue": "wrong",
+      "rms": 0.015758352692247884
+    },
+    {
+      "slot": 6,
+      "themeIndex": 11,
+      "name": "Noční navigace",
+      "offsetStep": 112,
+      "startSeconds": 32.08,
+      "endSeconds": 37.08,
+      "cue": "extraLife",
+      "rms": 0.017147436316510563
+    },
+    {
+      "slot": 7,
+      "themeIndex": 4,
+      "name": "Souřadnice",
+      "offsetStep": 120,
+      "startSeconds": 38.480000000000004,
+      "endSeconds": 43.480000000000004,
+      "cue": "correct",
+      "rms": 0.017444415288607407
+    },
+    {
+      "slot": 8,
+      "themeIndex": 10,
+      "name": "Blízko cíle",
+      "offsetStep": 36,
+      "startSeconds": 44.88,
+      "endSeconds": 49.88,
+      "cue": "wrong",
+      "rms": 0.016668080568060056
+    },
+    {
+      "slot": 9,
+      "themeIndex": 1,
+      "name": "Meridián",
+      "offsetStep": 48,
+      "startSeconds": 51.28,
+      "endSeconds": 56.28,
+      "cue": "extraLife",
+      "rms": 0.01738417244031937
+    },
+    {
+      "slot": 10,
+      "themeIndex": 9,
+      "name": "Modrý radar",
+      "offsetStep": 72,
+      "startSeconds": 57.68,
+      "endSeconds": 62.68,
+      "cue": "correct",
+      "rms": 0.017569364165427717
+    },
+    {
+      "slot": 11,
+      "themeIndex": 15,
+      "name": "Stříbrná osa",
+      "offsetStep": 22,
+      "startSeconds": 64.08,
+      "endSeconds": 69.08,
+      "cue": "wrong",
+      "rms": 0.015794764021551087
+    },
+    {
+      "slot": 12,
+      "themeIndex": 5,
+      "name": "Tichý kompas",
+      "offsetStep": 106,
+      "startSeconds": 70.48,
+      "endSeconds": 75.48,
+      "cue": "extraLife",
+      "rms": 0.01673720633434967
+    },
+    {
+      "slot": 13,
+      "themeIndex": 6,
+      "name": "Druhá stopa",
+      "offsetStep": 32,
+      "startSeconds": 76.88000000000001,
+      "endSeconds": 81.88000000000001,
+      "cue": "correct",
+      "rms": 0.01758172761191611
+    },
+    {
+      "slot": 14,
+      "themeIndex": 0,
+      "name": "Původní soutěžní motiv",
+      "offsetStep": 48,
+      "startSeconds": 83.28,
+      "endSeconds": 88.28,
+      "cue": "wrong",
+      "rms": 0.017597861372869034
+    },
+    {
+      "slot": 15,
+      "themeIndex": 19,
+      "name": "Šifra na mapě",
+      "offsetStep": 70,
+      "startSeconds": 89.68,
+      "endSeconds": 94.68,
+      "cue": "extraLife",
+      "rms": 0.01589415011023113
+    },
+    {
+      "slot": 16,
+      "themeIndex": 20,
+      "name": "Přesná odpověď",
+      "offsetStep": 122,
+      "startSeconds": 96.08,
+      "endSeconds": 101.08,
+      "cue": "correct",
+      "rms": 0.017493398270603366
+    },
+    {
+      "slot": 17,
+      "themeIndex": 14,
+      "name": "Rozhodnutí",
+      "offsetStep": 38,
+      "startSeconds": 102.48,
+      "endSeconds": 107.48,
+      "cue": "wrong",
+      "rms": 0.01737331963999468
+    },
+    {
+      "slot": 18,
+      "themeIndex": 16,
+      "name": "Kontrolní bod",
+      "offsetStep": 20,
+      "startSeconds": 108.88000000000001,
+      "endSeconds": 113.88000000000001,
+      "cue": "extraLife",
+      "rms": 0.017279033745960848
+    },
+    {
+      "slot": 19,
+      "themeIndex": 7,
+      "name": "Poledník",
+      "offsetStep": 92,
+      "startSeconds": 115.28,
+      "endSeconds": 120.28,
+      "cue": "correct",
+      "rms": 0.016069573839562753
+    },
+    {
+      "slot": 20,
+      "themeIndex": 2,
+      "name": "Skrytý signál",
+      "offsetStep": 60,
+      "startSeconds": 121.68,
+      "endSeconds": 126.68,
+      "cue": "wrong",
+      "rms": 0.016580435300714735
+    },
+    {
+      "slot": 21,
+      "themeIndex": 18,
+      "name": "Poslední stopa",
+      "offsetStep": 64,
+      "startSeconds": 128.08,
+      "endSeconds": 133.08,
+      "cue": "extraLife",
+      "rms": 0.017688732519004095
+    }
+  ]
+}
