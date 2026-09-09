@@ -1,8 +1,8 @@
 node_modules/
-build/
-dist/
+/build/
+/dist/
 .DS_Store
 __pycache__/
 *.tsbuildinfo
-test-results/
-playwright-report/
+/test-results/
+/playwright-report/
