@@ -10,8 +10,8 @@
   },
   "scripts": {
     "build": "node scripts/unimplemented.ts build U13",
-    "build:readable": "node scripts/unimplemented.ts build:readable U15",
-    "dev": "node scripts/unimplemented.ts dev U15",
+    "build:readable": "node scripts/build.ts",
+    "dev": "node scripts/dev.ts",
     "data:refresh": "node scripts/unimplemented.ts data:refresh U9",
     "data:apply": "node scripts/unimplemented.ts data:apply U9",
     "data:check": "node scripts/unimplemented.ts data:check U9",

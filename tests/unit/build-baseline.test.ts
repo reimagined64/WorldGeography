@@ -1,10 +1,10 @@
 /**
  * U2 — the byte-identity gate.
  *
- * `scripts/build.ts` is a port of the archived `scripts/build.py`. The only
- * proof the port is faithful is that it reproduces the shipped v7 file byte for
- * byte, so this suite reads nothing but frozen fixtures and must keep passing
- * for the life of the project.
+ * `scripts/legacy-concat-build.ts` is a port of the archived
+ * `scripts/build.py`. The only proof the port is faithful is that it
+ * reproduces the shipped v7 file byte for byte, so this suite reads nothing
+ * but frozen fixtures and must keep passing for the life of the project.
  *
  * The gate alone is a weak oracle for the builder's guards: several of them are
  * no-ops on today's inputs (no JSON value contains `</`, no marker repeats), so
@@ -25,7 +25,7 @@ import {
   pythonFloatRepr,
   V7_SOURCE_FILES,
   type InlineSource,
-} from '../../scripts/build.ts';
+} from '../../scripts/legacy-concat-build.ts';
 
 const root = fileURLToPath(new URL('../..', import.meta.url));
 const baselineRoot = join(root, 'tests/fixtures/baseline');
@@ -63,7 +63,7 @@ describe('byte-identity gate', () => {
     const out = mkdtempSync(join(tmpdir(), 'wg-build-'));
     try {
       const file = join(out, 'index.html');
-      execFileSync('node', ['scripts/build.ts', '--root', baselineRoot, '--out', file], {
+      execFileSync('node', ['scripts/legacy-concat-build.ts', '--root', baselineRoot, '--out', file], {
         cwd: root,
         stdio: 'pipe',
       });
