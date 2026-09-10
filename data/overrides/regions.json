@@ -1,0 +1,14 @@
+{
+  "why": "Which of the six playable regions a country belongs to. Upstream reports one `Americas` region, so `americasSouth` is the list that splits it: a code in it becomes South America, every other Americas country becomes North America. `overrides` then wins outright, and holds the placement of the transcontinental states — an editorial call, not a fact: Russia plays in Europe, Turkey, Cyprus, Georgia, Armenia, Azerbaijan and Kazakhstan in Asia. `missingUpstream` covers a country the fetcher has no record of.",
+  "americasSouth": ["AR", "BO", "BR", "CL", "CO", "EC", "GY", "PE", "PY", "SR", "UY", "VE"],
+  "overrides": {
+    "AM": "Asia",
+    "AZ": "Asia",
+    "CY": "Asia",
+    "GE": "Asia",
+    "KZ": "Asia",
+    "RU": "Europe",
+    "TR": "Asia"
+  },
+  "missingUpstream": { "AD": "Europe", "ME": "Europe", "MM": "Asia", "PS": "Asia", "VA": "Europe" }
+}

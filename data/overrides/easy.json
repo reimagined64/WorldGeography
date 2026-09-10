@@ -1,0 +1,8 @@
+{
+  "why": "The easy deck: a country qualifies if it has more than `populationThreshold` people, or if it is listed in `always`. The threshold is what makes the deck mostly self-maintaining as populations move; `always` is the hand-picked tail of small countries a Czech player is still expected to know. Raising the threshold shrinks the easy deck, so change it knowing that.",
+  "populationThreshold": 18000000,
+  "always": [
+    "AE", "AT", "BE", "CH", "CR", "CU", "CZ", "DK", "EE", "FI", "GR", "HR", "HU", "IE", "IL",
+    "IS", "JM", "LT", "LV", "NO", "NZ", "PA", "PT", "SE", "SG", "SK"
+  ]
+}

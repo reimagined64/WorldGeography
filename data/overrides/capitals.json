@@ -1,0 +1,41 @@
+{
+  "why": "Which cities count as a country's capital, and in what order. `overrides` is the editorial call and is used verbatim: unlike a fetched capital it does not pass through the `capitals` table in `countries.<locale>.json`, which is why the entries here are already spelled the way a player sees them. `missingUpstream` is the opposite — the capital of a country the fetcher has no record of at all, given as upstream text and translated like any other. Where a capital is disputed or a country has several, the reason a player is shown is the note filed under the same code in `notes.<locale>.json`.",
+  "overrides": {
+    "BI": ["Gitega"],
+    "BN": ["Bandar Seri Begawan"],
+    "BO": ["Sucre"],
+    "CH": ["Bern"],
+    "CI": ["Yamoussoukro"],
+    "FM": ["Palikir"],
+    "GQ": ["Ciudad de la Paz"],
+    "ID": ["Jakarta"],
+    "IL": ["Jeruzalém"],
+    "KI": ["Jižní Tarawa"],
+    "KZ": ["Astana"],
+    "LK": ["Šrí Džajavardanapura Kotte"],
+    "MD": ["Kišiněv"],
+    "MM": ["Neipyijto"],
+    "MN": ["Ulánbátar"],
+    "MY": ["Kuala Lumpur"],
+    "NA": ["Windhoek"],
+    "NL": ["Amsterdam"],
+    "NR": ["Yaren (sídlo vlády)"],
+    "PS": ["Východní Jeruzalém (nárokovaný)"],
+    "PW": ["Ngerulmud"],
+    "SO": ["Mogadišo"],
+    "SZ": ["Mbabane", "Lobamba"],
+    "TV": ["Funafuti"],
+    "TZ": ["Dodoma"],
+    "US": ["Washington, D.C."],
+    "VA": ["Vatikán"],
+    "YE": ["Saná"],
+    "ZA": ["Pretoria", "Kapské Město", "Bloemfontein"]
+  },
+  "missingUpstream": {
+    "AD": ["Andorra la Vella"],
+    "ME": ["Podgorica"],
+    "MM": ["Naypyidaw"],
+    "PS": ["East Jerusalem"],
+    "VA": ["Vatikán"]
+  }
+}

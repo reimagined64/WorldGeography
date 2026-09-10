@@ -1,0 +1,24 @@
+{
+  "why": "CLDR supplies currency validity intervals, which lag a currency change by a release or more; a dated manual change belongs here and takes precedence. `overrides` replaces the fetched list whole. A country listing more than one code is listing them in the order a player reads.",
+  "overrides": {
+    "BG": ["EUR"],
+    "BT": ["BTN", "INR"],
+    "BY": ["BYN"],
+    "CU": ["CUP"],
+    "HR": ["EUR"],
+    "LR": ["LRD", "USD"],
+    "LS": ["LSL", "ZAR"],
+    "MR": ["MRU"],
+    "NA": ["NAD", "ZAR"],
+    "PA": ["PAB", "USD"],
+    "PS": ["ILS", "JOD", "USD"],
+    "SL": ["SLE"],
+    "ST": ["STN"],
+    "SV": ["USD"],
+    "SZ": ["SZL", "ZAR"],
+    "VA": ["EUR"],
+    "VE": ["VES"],
+    "ZW": ["ZWG", "USD"]
+  },
+  "missingUpstream": {}
+}

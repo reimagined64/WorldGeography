@@ -1,0 +1,27 @@
+{
+  "why": "The footnote a player is shown in the atlas, and in the population explanation for the four countries the engine names. A note is where a curated value that would otherwise look wrong is explained: a disputed capital, a country with several, a currency changed ahead of CLDR, a population figure whose territorial basis differs from the national one. Written for a player, not for a maintainer.",
+  "notes": {
+    "BG": "Od 1. ledna 2026 používá Bulharsko euro, nikoli bulharský lev.",
+    "BO": "Ústavním hlavním městem je Sucre; vláda a parlament sídlí v La Pazu.",
+    "CH": "Bern je spolkové město a sídlo vlády; Švýcarsko formálně neurčuje hlavní město.",
+    "CI": "Hlavním městem je Yamoussoukro; řada institucí sídlí v Abidžanu.",
+    "CZ": "Populační údaj je projekce řady OSN pro rok 2026, nikoli aktuální počet obyvatel podle ČSÚ. Projekce a národní statistiky se mohou lišit.",
+    "EG": "Hlavní město Káhira je zde odlišeno od nového správního centra (The New Capital), kam se přesouvají státní instituce. Káhirský úřední portál nadále uvádí Káhiru jako hlavní město.",
+    "FR": "Populační řada OSN používá vlastní územní vymezení Francie; číslo není přímo srovnatelné s francouzským národním součtem včetně všech zámořských území.",
+    "GQ": "Ciudad de la Paz bylo vyhlášeno hlavním městem 2. ledna 2026. Dřívější hlavní město bylo Malabo; instituce se stěhují v přechodném období.",
+    "ID": "Přesun hlavního města do Nusantary probíhá. Herní otázka se ptá na název budované Nusantary, nikoli na datum právního či faktického přesunu vlády.",
+    "IL": "Izrael označuje Jeruzalém za své hlavní město. Status města a rozsah uznání jsou mezinárodně sporné; herní otázka proto rozlišuje konkrétní funkci města.",
+    "LK": "Šrí Džajavardanapura Kotte je sídlem parlamentu; Kolombo má významné správní a obchodní funkce.",
+    "MY": "Hlavním městem je Kuala Lumpur, správním centrem Putrajaya.",
+    "NL": "Hlavním městem je Amsterdam; vláda a parlament sídlí v Haagu.",
+    "NR": "Nauru nemá oficiální hlavní město. Vládní instituce sídlí v distriktu Yaren.",
+    "PS": "Palestina nárokuje Východní Jeruzalém jako hlavní město; správní sídlo je v Ramalláhu. Herní otázka se ptá na správní sídlo. Status Jeruzaléma je sporný. Vatikán/Svatý stolec a Palestina jsou přidány ke 193 členům OSN.",
+    "SZ": "Mbabane je správní hlavní město; Lobamba je královské a zákonodárné sídlo.",
+    "TG": "Populační číslo je převzato z tabulky Worldometer pro rok 2026; některé novější revize řady OSN se mohou lišit.",
+    "UA": "Populační projekce vychází z modelu OSN. Válka, migrace a různá územní vymezení významně zvyšují nejistotu.",
+    "VA": "Ve hře je Vatikán, jehož suverénem je Svatý stolec, nečlenský pozorovatelský stát OSN. Odhad obyvatel není počet vatikánských občanů.",
+    "YE": "Saná je ústavní hlavní město. Kvůli konfliktu je politická a správní situace rozdělena; herní otázka proto rozlišuje konkrétní funkci města.",
+    "ZA": "Jihoafrická republika má tři hlavní města: Pretoria (výkonná moc), Kapské Město (zákonodárná) a Bloemfontein (tradičně soudní). Ústavní soud sídlí v Johannesburgu.",
+    "ZW": "Domácí měnou je Zimbabwe Gold (ZiG, kód ZWG). V zemi se oficiálně používají také cizí měny včetně amerického dolaru; výčet zde není úplný."
+  }
+}

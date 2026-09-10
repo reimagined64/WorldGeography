@@ -1,0 +1,28 @@
+{
+  "why": "Where the globe marker for a country goes. The marker denotes the country, not its capital, so `overrides` is for a position the fetcher places badly: the centroid of a country with distant overseas territory, or a small island state the fetcher rounds to the wrong sea. `missingUpstream` supplies a position for a country the fetcher has no record of. Degrees, positive north and positive east.",
+  "overrides": {
+    "BH": { "lat": 26.05, "lon": 50.55 },
+    "FM": { "lat": 6.9, "lon": 158.2 },
+    "FR": { "lat": 46.7, "lon": 2.4 },
+    "KI": { "lat": 1.45, "lon": 173 },
+    "MH": { "lat": 7.1, "lon": 171.2 },
+    "MT": { "lat": 35.9, "lon": 14.45 },
+    "NO": { "lat": 62, "lon": 10 },
+    "NR": { "lat": -0.52, "lon": 166.94 },
+    "NZ": { "lat": -41, "lon": 174 },
+    "PW": { "lat": 7.5, "lon": 134.6 },
+    "SC": { "lat": -4.68, "lon": 55.49 },
+    "SG": { "lat": 1.35, "lon": 103.82 },
+    "TO": { "lat": -21.15, "lon": -175.2 },
+    "TV": { "lat": -8.5, "lon": 179.2 },
+    "US": { "lat": 39, "lon": -98 },
+    "WS": { "lat": -13.76, "lon": -172.1 }
+  },
+  "missingUpstream": {
+    "AD": { "lat": 42.54, "lon": 1.58 },
+    "ME": { "lat": 42.7, "lon": 19.3 },
+    "MM": { "lat": 21, "lon": 96 },
+    "PS": { "lat": 31.9, "lon": 35.2 },
+    "VA": { "lat": 41.9029, "lon": 12.4534 }
+  }
+}

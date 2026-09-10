@@ -12,7 +12,11 @@
  * Data arrives as JSON and is asserted into these types at the loading
  * boundary; `validateCountries` is the runtime half of that claim.
  *
- * The locale dimension is deliberately absent: v7 is Czech-only and U8 adds it.
+ * The locale dimension arrived in U8 as a second set of shapes rather than a
+ * widening of the first: `Country` is still the Czech-only record that v7
+ * shipped and that the engine, the views and the golden fixtures read, and
+ * `LocalizedCountry` is the bilingual record the override merge builds. U12 is
+ * what moves the engine onto the second and retires the first.
  */
 
 declare const KIND: unique symbol;
@@ -72,6 +76,86 @@ export interface Country {
   populationKind: string;
   populationSource: string;
   note: string;
+  easy: boolean;
+}
+
+/**
+ * The locales the dataset can carry. v7 shipped `cs`; U12 adds `en`.
+ *
+ * Not a list of UI languages: this is the dimension the *data* varies over, so
+ * a locale here means there is a `data/overrides/countries.<locale>.json` and a
+ * `notes.<locale>.json` for it, hand-written, and a fetch that resolved
+ * upstream display names in it.
+ */
+export type Locale = 'cs' | 'en';
+
+/**
+ * One string per locale the dataset carries.
+ *
+ * Parameterised rather than fixed at `Record<Locale, string>` because a dataset
+ * built from the `cs` bundle alone has to type-check without a half-filled
+ * `en`: `LocalizedText<'cs'>` is `{ cs: string }` and nothing else. Widening
+ * the argument is U12's migration, and it is a compile error everywhere the
+ * second locale is not supplied — which is the point.
+ */
+export type LocalizedText<L extends Locale = Locale> = Record<L, string>;
+
+/**
+ * One locale's hand-edited text: `data/overrides/countries.<locale>.json` and
+ * `notes.<locale>.json`, loaded and joined.
+ *
+ * `capitals` is the odd one out: it is keyed by the capital name *upstream*
+ * uses, not by country code, because it is a translation table applied to a
+ * fetched capital. A capital pinned in `capitals.json` is a finished name and
+ * never passes through it. The other four are keyed by ISO 3166-1 alpha-2, ISO
+ * 4217 and language tag.
+ */
+export interface LocaleBundle<L extends Locale = Locale> {
+  locale: L;
+  names: Readonly<Record<string, string>>;
+  capitals: Readonly<Record<string, string>>;
+  currencies: Readonly<Record<string, string>>;
+  languages: Readonly<Record<string, string>>;
+  notes: Readonly<Record<string, string>>;
+}
+
+/** `CurrencyName` with the display name widened over the locales carried. */
+export interface LocalizedCurrencyName<L extends Locale = Locale> {
+  code: CurrencyCode;
+  name: LocalizedText<L>;
+}
+
+/**
+ * `Country` with every locale-varying field widened.
+ *
+ * The five widened fields are exactly the ones `prepare_data.py` resolved
+ * through Czech CLDR — name, capital, currency names, language names, note —
+ * and no others: a population, a coordinate and a region are the same fact in
+ * any language.
+ *
+ * `capital` and `languageNames` are arrays of `LocalizedText` rather than a
+ * `LocalizedText` of arrays, so no locale can quietly disagree about how many
+ * capitals a country has or how many languages the question offers; the merge
+ * rejects a fetch where they do.
+ */
+export interface LocalizedCountry<L extends Locale = Locale> {
+  code: Iso2;
+  iso3: Iso3;
+  name: LocalizedText<L>;
+  capital: LocalizedText<L>[];
+  currency: CurrencyCode[];
+  currencyNames: LocalizedCurrencyName<L>[];
+  languages: LangCode[];
+  languageNames: LocalizedText<L>[];
+  excludeLanguages: LangCode[];
+  lat: number;
+  lon: number;
+  region: Region;
+  population: number;
+  populationYear: number;
+  populationKind: string;
+  populationSource: string;
+  note: LocalizedText<L>;
   easy: boolean;
 }
 

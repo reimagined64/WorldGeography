@@ -1,0 +1,68 @@
+{
+  "why": "Which country a Natural Earth landmass belongs to. Natural Earth is a generalized illustrative basemap, not a border authority, and it leaves `ISO_A3` as \"-99\" wherever a code is contested or the row is a dependency of somewhere else — so every polygon named here arrives unattributed and is attributed by hand. A rule selects by `iso3`, narrowed by `near`: a `{lat, lon}` degrees point that has to fall inside exactly one candidate polygon's bounding box. Matching zero polygons, or more than one, fails the build and names the rule rather than guessing — that is the point of the layer, because it is how an upstream release that split, merged or dropped a landmass gets noticed instead of silently redrawing the map. `reassign` sets `to`; the sentinel \"-99\" means the polygon stays unattributed, which draws it as ordinary land that no country question can ever highlight. `drop` removes a polygon outright.",
+  "polygons": {
+    "reassign": [
+      {
+        "iso3": "-99",
+        "near": { "lat": 47, "lon": 2 },
+        "to": "FRA",
+        "why": "Metropolitan France. Natural Earth files France without a code because the row covers the overseas departments too; the game treats all of them as France."
+      },
+      {
+        "iso3": "-99",
+        "near": { "lat": 42, "lon": 9 },
+        "to": "FRA",
+        "why": "Corsica, the second ring of the same unattributed French row."
+      },
+      {
+        "iso3": "-99",
+        "near": { "lat": 4, "lon": -53 },
+        "to": "FRA",
+        "why": "French Guiana, the third ring of the same row. It is why France is the one country whose polygons straddle two continents, and why the population note under FR exists."
+      },
+      {
+        "iso3": "-99",
+        "near": { "lat": 65, "lon": 20 },
+        "to": "NOR",
+        "why": "Mainland Norway. Natural Earth leaves the Norwegian row uncoded because it carries Svalbard and Jan Mayen with it."
+      },
+      {
+        "iso3": "-99",
+        "near": { "lat": 78, "lon": 12 },
+        "to": "NOR",
+        "why": "Spitsbergen, the largest Svalbard island. Svalbard is Norwegian under the 1920 treaty and the game does not separate it."
+      },
+      {
+        "iso3": "-99",
+        "near": { "lat": 80, "lon": 26 },
+        "to": "NOR",
+        "why": "Nordaustlandet, the second Svalbard island of the same row."
+      },
+      {
+        "iso3": "-99",
+        "near": { "lat": 77.8, "lon": 23 },
+        "to": "NOR",
+        "why": "Edgeøya and Barentsøya, the third Svalbard ring of the same row."
+      },
+      {
+        "iso3": "-99",
+        "near": { "lat": 35.2, "lon": 33.5 },
+        "to": "-99",
+        "why": "Northern Cyprus. Recognised only by Türkiye, so it is not a country in this game, and the Cyprus the game asks about is the republic. Leaving the polygon unattributed draws the whole island as land while highlighting only the republic's own polygon for a Cyprus question. Setting `to` to \"CYP\" would make the map claim the north for the republic; that is a position, and it is not this game's."
+      },
+      {
+        "iso3": "-99",
+        "near": { "lat": 9.5, "lon": 45 },
+        "to": "-99",
+        "why": "Somaliland. Self-declared since 1991 and recognised by no UN member, so it is not a country in this game. Left unattributed: a Somalia question highlights the polygon Natural Earth codes SOM and no more. Set `to` to \"SOM\" to have the map show Somalia at its claimed extent."
+      },
+      {
+        "iso3": "-99",
+        "near": { "lat": 42.6, "lon": 21 },
+        "to": "-99",
+        "why": "Kosovo. Recognised by most but not all UN members and not a UN member itself, so it is outside the game's country list, which is the 193 UN members plus the Vatican and Palestine. Left unattributed rather than folded into Serbia, which would be the opposite editorial call. Set `to` to \"SRB\", or to a Kosovo code once one is in the country list, to change that."
+      }
+    ],
+    "drop": []
+  }
+}
