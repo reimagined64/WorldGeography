@@ -1,0 +1,60 @@
+/*
+ * The right-hand column as the setup screen fills it: section titles, the
+ * player and difficulty controls, the survival rule card and the category row.
+ *
+ * `.side-panel` itself lives here because this is the screen that defines its
+ * shape; the game screen only overrides padding inside it.
+ */
+
+.side-panel{border:1px solid var(--line);background:linear-gradient(120deg,#1c353a,var(--panel));border-radius:4px;padding:27px 29px;min-height:656px}
+.section-title{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.section-title .number{color:var(--accent);font:13px var(--mono)}
+.section-title h2{font:29px var(--serif);letter-spacing:-.6px}
+.panel-intro{color:var(--muted);font-size:13px;margin-top:8px;max-width:340px}
+.settings-section{margin-top:22px}
+.segmented{display:flex;gap:7px}
+.segmented button{flex:1;padding:12px 8px;border:1px solid var(--line);border-radius:3px;text-align:center;font-size:12px;transition:background .15s}
+.segmented button[aria-pressed=true]{background:var(--ink);color:var(--dark);border-color:var(--ink)}
+.segmented button:hover:not([aria-pressed=true]){background:var(--panel2)}
+.setting-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:20px}
+.players-fields{margin-top:12px;display:flex;gap:10px}
+.players-fields label{flex:1;min-width:0}
+.players-fields input{font-size:13px}
+.length-note{font-size:11px;color:var(--muted);margin-top:8px;min-height:18px}
+.category-row{display:flex;flex-wrap:wrap;margin-top:20px;padding-top:18px;border-top:1px solid var(--line);gap:5px}
+.category-chip{border:1px solid var(--line);padding:4px 8px;border-radius:20px;font:10px var(--mono);color:var(--muted);font-size:8px}
+.setup-bottom{margin-top:17px;display:flex;justify-content:space-between;color:var(--muted);font:9px var(--mono);letter-spacing:.4px;gap:12px;line-height:1.7;flex-wrap:wrap}
+.setup-bottom strong{color:var(--ink);font-weight:500}
+@media(min-width:1450px){
+  .side-panel{padding:30px 36px}
+}
+@media(max-width:1150px){
+  .side-panel{padding:24px}
+}
+@media(max-width:840px){
+  .side-panel{padding:22px 20px}
+  .setting-row{gap:8px}
+}
+.sound-note{font:10px/1.5 var(--mono);color:var(--muted);margin-top:14px}
+.arcade-rule{display:flex;align-items:flex-start;gap:10px;border:1px solid var(--line);background:rgba(238,160,128,.045);padding:12px;margin-top:18px;border-radius:4px}
+.arcade-rule p{font-size:11px;line-height:1.55;color:var(--muted)}
+.arcade-rule strong{color:var(--ink);font-weight:500}
+.rule-icon{font-size:22px;color:var(--accent);line-height:1}
+.arcade-rule+.category-row{margin-top:18px}
+@media(min-width:701px){
+  .game-active .side-panel{min-height:690px}
+}
+.survival-rule{border:1px solid #617964;background:linear-gradient(130deg,#b9cfa20c,transparent);border-radius:5px;margin-top:21px;padding:14px 15px}
+.survival-rule-top{display:flex;align-items:center;gap:11px;flex-wrap:wrap}
+.survival-rule-top>span:first-child{font:9px var(--mono);letter-spacing:1px;color:var(--muted)}
+.survival-rule-top>strong{font:14px var(--mono);color:var(--green);margin-left:auto}
+.survival-rule p{font-size:11px;line-height:1.7;margin-top:10px;color:var(--muted)}
+.survival-rule b{color:var(--ink);font-weight:500}
+.motion-setting{display:block;margin-top:21px}
+.motion-setting .field-label{line-height:1.5;letter-spacing:.6px}
+.motion-setting select{width:100%;font-size:11px}
+.bonus-chip{color:var(--green);border-color:#617964!important}
+.flying .side-panel{min-height:0}
+@media(max-width:1050px){
+  .motion-setting select{font-size:10px}
+}

@@ -1,0 +1,134 @@
+/*
+ * The game screen: score chips, question head, the instrument panel that shows
+ * the clock, the answers, the feedback block, the pause card and the arrival
+ * card.
+ *
+ * One file rather than four because they are one screen and they share state
+ * classes — `.urgent` reaches from the timing panel into the track, `.flying`
+ * and `.question-paused` swap the whole panel — and splitting them would put
+ * two halves of one cascade in two files.
+ *
+ * `@keyframes orbit-symbol` is at the bottom, next to its only user.
+ */
+
+.score-chips{display:flex;margin-top:18px;gap:10px}
+.score-chip{border:1px solid var(--line);border-radius:3px;color:var(--muted);font-size:11px;align-items:center;gap:14px;display:block;flex:1;max-width:285px;padding:11px 13px;min-width:0}
+.score-chip b{font:17px var(--mono);color:var(--ink);white-space:nowrap}
+.score-chip.active{border-color:var(--accent);color:var(--ink);background:rgba(238,160,128,.08)}
+.score-chip.active:before{content:'';width:5px;height:5px;background:var(--accent);border-radius:50%;flex-shrink:0}
+.score-chip .player-name{overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.question-head{display:flex;align-items:center;justify-content:space-between;gap:15px;font:11px var(--mono);color:var(--muted)}
+.question-head strong{color:var(--accent);font-weight:400}
+.steps{display:flex;margin-top:23px;margin-bottom:28px;gap:6px}
+.step{width:20%;height:3px;background:var(--line);border-radius:2px}
+.step.current{background:var(--accent)}
+.step.done{background:var(--green)}
+.question-category{display:flex;align-items:center;gap:9px;color:var(--green);font:10px var(--mono);letter-spacing:1.5px;text-transform:uppercase}
+.question-category .category-number{border:1px solid var(--line);border-radius:50%;width:23px;height:23px;display:inline-flex;align-items:center;justify-content:center;letter-spacing:0}
+.question-title{font:30px/1.15 var(--serif);letter-spacing:-.7px;margin-top:16px;min-height:102px;max-width:400px}
+.answer-list{display:flex;flex-direction:column;gap:10px;margin-top:15px}
+.answer{width:100%;padding:14px 15px;min-height:63px;display:flex;align-items:center;gap:16px;text-align:left;border:1px solid #4b6365;border-radius:3px;transition:background .15s,transform .15s}
+.answer:not(:disabled):hover{background:var(--panel2);transform:translateX(3px);border-color:var(--ink)}
+.answer.key-selected:not(:disabled){border-color:var(--accent)}
+.answer-letter{width:26px;height:26px;display:flex;justify-content:center;align-items:center;border:1px solid var(--line);border-radius:2px;font:11px var(--mono);color:var(--muted);flex-shrink:0}
+.answer-text{font-size:14px;line-height:1.35;overflow-wrap:anywhere}
+.answer-mark{margin-left:auto;font-size:18px}
+.answer.correct{background:rgba(185,207,162,.16);border-color:var(--green)}
+.answer.correct .answer-letter{background:var(--green);color:var(--dark);border-color:var(--green)}
+.answer.wrong{border-color:var(--accent);background:rgba(238,160,128,.08)}
+.answer.wrong .answer-letter{background:var(--accent);color:var(--dark);border-color:var(--accent)}
+.answer.dim{opacity:.48}
+.feedback{margin-top:20px;border-top:1px solid var(--line);padding-top:16px}
+.feedback-title{color:var(--green);font-size:14px}
+.feedback-title.incorrect{color:var(--accent)}
+.feedback p{color:var(--muted);font-size:12px;line-height:1.6;margin-top:7px}
+.feedback a{font-size:10px;display:inline-block;margin-top:7px}
+.question-tip{color:var(--muted);font:10px/1.7 var(--mono);margin-top:20px;border-top:1px solid var(--line);padding-top:16px}
+.kbd{display:inline-block;font:10px var(--mono);padding:3px 6px;border:1px solid var(--line);border-radius:3px;margin:0 1px;color:var(--ink)}
+.game-footer{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:21px}
+.review-mode{color:var(--accent)}
+@media(max-width:1150px){
+  .question-title{font-size:28px}
+}
+@media(max-width:840px){
+  .question-title{font-size:26px;min-height:100px}
+  .answer{padding:12px 10px;gap:11px}
+  .answer-text{font-size:13px}
+}
+.game-active .steps{margin-bottom:19px}
+.timing-panel{position:relative;display:grid;grid-template-columns:1fr 1.12fr 34px;gap:2px 12px;padding:14px 14px 10px;margin-bottom:23px;background:rgba(6,23,29,.58);border:1px solid #55716d;border-radius:5px}
+.instrument-label{display:block;font:9px/1.5 var(--mono);letter-spacing:.8px;color:var(--muted);white-space:nowrap}
+.time-readout strong{display:flex;gap:6px;align-items:baseline;font:27px/1.4 var(--mono);font-variant-numeric:tabular-nums;color:var(--ink);white-space:nowrap}
+.reward-readout strong{display:flex;gap:6px;align-items:baseline;font:27px/1.4 var(--mono);font-variant-numeric:tabular-nums;white-space:nowrap;color:var(--green)}
+.time-readout small,.reward-readout small{font:10px var(--mono);color:var(--muted)}
+.pause-button{width:34px;height:37px;align-self:center;justify-self:end;border:1px solid var(--line);border-radius:4px;font:18px var(--mono);color:var(--ink);background:var(--panel2)}
+.pause-button:hover{border-color:var(--accent);color:var(--accent)}
+.time-track{grid-column:1/-1;margin-top:8px;height:5px;background:var(--line);border-radius:3px;overflow:hidden}
+.time-track span{display:block;width:100%;height:100%;background:var(--green);transform-origin:left center}
+.timing-note{grid-column:1/-1;font:9px/1.6 var(--mono);color:var(--muted);margin-top:6px}
+.timing-panel.urgent{border-color:var(--accent);background:rgba(153,62,35,.12)}
+.urgent .time-readout strong{color:var(--accent)}
+.urgent .time-track span{background:var(--accent)}
+.timing-panel.finished{grid-template-columns:1fr 1fr;border-color:var(--line)}
+.finished .time-track{opacity:.55}
+.answer-timing{font:10px/1.65 var(--mono);color:var(--green);margin-top:7px}
+.flight-card{text-align:center;padding:16px 0 12px}
+.flight-orbit{height:93px;display:flex;align-items:center;justify-content:center;color:var(--accent)}
+.flight-orbit span{font:74px/1 var(--serif);display:inline-block;animation:orbit-symbol 4s linear infinite}
+.flight-card .eyebrow{font-size:9px;line-height:1.7;margin-top:7px}
+.flight-card h2{font:34px/1.15 var(--serif);letter-spacing:-.8px;margin:13px 0;margin-top:24px}
+.flight-card>p{font:13px/1.65 var(--sans);color:var(--muted);min-height:44px;max-width:320px;margin:0 auto}
+.flight-steps{display:flex;gap:8px;justify-content:center;margin:24px 0 22px}
+.flight-steps span{font:8px/1.7 var(--mono);color:var(--muted);border-top:2px solid var(--line);padding-top:8px;flex:1}
+.flight-steps span.active{border-color:var(--accent);color:var(--accent)}
+.flight-card .flight-footnote{font:10px/1.8 var(--mono)}
+.paused-card{padding:28px 0 36px;text-align:center}
+.pause-emblem{display:block;font:46px var(--mono);color:var(--accent);margin-bottom:19px}
+.paused-card h2{font:34px var(--serif);margin-bottom:13px}
+.paused-card>p{font:13px/1.7 var(--sans);color:var(--muted);max-width:305px;margin:0 auto}
+.paused-card .pause-shortcut{font:10px var(--mono);margin-top:16px}
+@media(min-width:701px){
+  .game-active .question-title{min-height:82px;margin-bottom:14px}
+}
+@media(max-width:1050px){
+  .timing-panel{gap:3px 8px;padding:12px 10px}
+  .instrument-label{font-size:8px;letter-spacing:.4px}
+  .time-readout strong,.reward-readout strong{font-size:24px}
+  .reward-readout small{font-size:9px}
+}
+.score-top{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.score-top b{font-variant-numeric:tabular-nums}
+.score-lives{display:flex;align-items:center;justify-content:space-between;gap:9px;margin-top:6px;font:10px var(--mono);color:var(--green)}
+.score-chip.eliminated{opacity:.55;border-style:dashed}
+.score-chip.eliminated .score-lives{color:var(--accent)}
+.question-lives{display:flex;justify-content:space-between;align-items:center;gap:8px;margin:-3px 0 18px;font:10px var(--mono);color:var(--green)}
+.question-lives>span:first-child{display:flex;align-items:center;gap:6px}
+.question-lives>span:last-child{font-size:8px;color:var(--muted);text-align:right}
+.question-lives .life-pips{gap:3px}
+.question-lives .life-pips i{width:6px;height:6px}
+.bonus-step{background:#526343}
+.bonus-step.current{background:var(--green)}
+.bonus-flag-card{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:13px;border:1px solid #617964;background:linear-gradient(130deg,#b9cfa212,#0b232900);padding:18px;border-radius:5px;margin-bottom:19px}
+.bonus-flag{width:180px;height:135px;filter:drop-shadow(0 6px 9px #06181e70)}
+.bonus-reward{font:9px var(--mono);letter-spacing:.5px;color:var(--green);text-align:center;line-height:1.6}
+.flag-question .question-category{color:var(--green)}
+.flag-question .category-number{border-color:var(--green);color:var(--green)}
+.flag-question .question-title{min-height:0}
+.life-feedback{font:13px/1.6 var(--sans);padding:10px 12px;border:1px solid var(--line);border-radius:3px;margin:12px 0}
+.life-feedback.life-earned{color:var(--green);border-color:var(--green);background:#b9cfa20a}
+.life-feedback.life-lost{color:var(--accent);border-color:#eea08060}
+.rest-countdown{display:flex;justify-content:center;align-items:baseline;gap:10px;margin:20px 0 15px;font-variant-numeric:tabular-nums}
+.rest-countdown strong{font:76px/.95 var(--mono);letter-spacing:-5px;color:var(--green)}
+.rest-countdown>span{font:11px var(--mono);color:var(--muted)}
+.rest-track{height:4px;background:var(--line);border-radius:3px;margin:23px 0 0;overflow:hidden}
+.rest-track>span{display:block;width:100%;height:100%;background:var(--green);transform:scaleX(0);transform-origin:left}
+.rest-detail{font:10px/1.7 var(--mono);color:var(--green);margin-bottom:14px}
+.motion-flight{font-size:11px;margin-top:19px;color:var(--muted)}
+.flying .question-lives{margin-bottom:20px}
+@media(max-width:1050px){
+  .score-lives{font-size:9px}
+  .score-chip{padding:9px 10px}
+  .bonus-flag{width:156px;height:117px}
+}
+
+@keyframes orbit-symbol{to{transform:rotate(360deg)}}

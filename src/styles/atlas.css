@@ -1,0 +1,25 @@
+/*
+ * The atlas: the search field, the country list, and the fact card the globe
+ * follows.
+ */
+
+.atlas-search{margin-top:19px}
+.atlas-list{max-height:213px;overflow:auto;margin-top:12px;scrollbar-width:thin;scrollbar-color:var(--line) transparent;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.atlas-item{display:flex;width:100%;justify-content:space-between;gap:10px;align-items:center;padding:11px 8px;border-bottom:1px solid rgba(56,80,86,.55);font-size:12px;text-align:left}
+.atlas-item span:last-child{color:var(--muted);font:10px var(--mono)}
+.atlas-item.active{color:var(--accent);background:var(--panel2)}
+.atlas-item:hover{background:var(--panel2)}
+.atlas-details{margin-top:23px}
+.atlas-details h3{font:27px var(--serif);letter-spacing:-.4px;margin-bottom:16px}
+.fact-row{display:grid;grid-template-columns:110px minmax(0,1fr);gap:12px;margin-top:12px}
+.fact-label{color:var(--muted);font:10px var(--mono);padding-top:2px}
+.fact-value{font-size:12px;overflow-wrap:anywhere}
+.fact-value small{color:var(--muted);display:block;font-size:10px;margin-top:4px}
+.atlas-note{font-size:11px;color:var(--muted);margin-top:17px;padding-top:15px;border-top:1px solid var(--line);line-height:1.6}
+.empty{color:var(--muted);font-size:12px;padding:17px 8px}
+.atlas-country-name{display:flex;align-items:center;gap:10px;min-width:0}
+.atlas-item .country-flag{width:30px;height:24px;filter:none}
+.atlas-flag-heading{display:flex;align-items:center;gap:15px;margin-bottom:19px}
+.atlas-flag-heading h3{margin:0}
+.atlas-flag-heading .country-flag{width:84px;height:63px}
+.flag-caveat{font:11px/1.7 var(--sans);color:var(--accent);border-left:2px solid var(--accent);padding:0 0 0 12px;margin-bottom:15px}

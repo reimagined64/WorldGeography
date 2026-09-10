@@ -8,8 +8,10 @@
  */
 import { describe, expect, it } from 'vitest';
 import { execFileSync } from 'node:child_process';
-import { readFileSync, readdirSync } from 'node:fs';
+import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
+import { STYLE_FILES, readStylesheet } from '../../scripts/build.ts';
+import { DECLARED_STYLE_CHANGES, canonicalDifferences, parseStylesheet } from '../helpers/css.ts';
 
 const root = fileURLToPath(new URL('../..', import.meta.url));
 const read = (p: string) => readFileSync(new URL(p, `file://${root}`));
@@ -36,10 +38,25 @@ describe('rescued assets', () => {
     expect(listing('data')).toEqual(['countries.json', 'flags.json', 'map.json', 'sources.json']);
   });
 
-  it('keeps the live style.css byte-identical to the frozen copy', () => {
-    // U2 builds from the frozen copy; the build only reproduces the v7 hash
-    // while the live input it will later use still matches it.
-    expect(read('src/style.css').equals(read('tests/fixtures/baseline/style.css'))).toBe(true);
+  it('resolves the split stylesheet to what the frozen copy resolved to', () => {
+    // Until U7 this was a byte-identity check, and it stopped being one the
+    // moment the monolith was split by component. What survives it is the claim
+    // it was standing in for: every selector still resolves to the declarations
+    // it had, apart from the five `DECLARED_STYLE_CHANGES` names and explains.
+    // `tests/browser/styles.spec.ts` is the other half, and the half that can
+    // say the rules are still in the right order.
+    const differences = canonicalDifferences(
+      parseStylesheet(read('tests/fixtures/baseline/style.css').toString('utf8')),
+      parseStylesheet(readStylesheet()),
+    );
+    expect(differences).toEqual([...DECLARED_STYLE_CHANGES]);
+  });
+
+  it('leaves no monolith for the build to inline twice', () => {
+    expect(existsSync(new URL('src/style.css', `file://${root}`))).toBe(false);
+    expect(readdirSync(new URL('src/styles', `file://${root}`)).sort()).toEqual(
+      STYLE_FILES.map((relative) => relative.slice('src/styles/'.length)).sort(),
+    );
   });
 
   it('tracks the committed baseline dataset', () => {

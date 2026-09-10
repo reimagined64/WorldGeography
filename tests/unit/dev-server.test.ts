@@ -51,7 +51,7 @@ describe('dev server', () => {
     // Register the waiter first: the watcher can fire before the append
     // returns, and a rebuild that finished early would otherwise be missed.
     const rebuilt = dev.nextBuild();
-    appendFileSync(join(tree.root, 'src/style.css'), `\n${marker}\n`);
+    appendFileSync(join(tree.root, 'src/styles/base.css'), `\n${marker}\n`);
     await rebuilt;
 
     expect(await (await fetch(dev.url)).text()).toContain(marker);

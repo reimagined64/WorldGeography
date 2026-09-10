@@ -1,0 +1,75 @@
+/*
+ * The world panel: the heading above the globe, the canvas and its controls,
+ * the caption under it, and the legend.
+ *
+ * The `.game-active`, `.atlas-active`, `.flying` and `.question-paused`
+ * variants are here rather than with the screens that switch them on, because
+ * what they restyle is this panel. Ownership follows the element being styled,
+ * not the state doing the styling.
+ */
+
+.world-panel{min-width:0;position:relative;align-self:stretch;display:flex;flex-direction:column}
+.world-heading h1{font:normal clamp(36px,3.7vw,57px)/1.06 var(--serif);letter-spacing:-1.8px;margin-top:15px}
+.world-heading h1 em{font-style:italic;color:var(--green)}
+.world-heading .intro-line{color:var(--muted);max-width:450px;font-size:13px;margin-top:14px}
+.world-heading{position:relative;z-index:1;pointer-events:none;min-height:155px}
+.canvas-wrap{position:relative;width:100%;height:440px;min-height:330px;margin-top:-6px;flex:1}
+.canvas-wrap canvas{display:block;width:100%;height:100%;position:absolute;inset:0;cursor:grab;touch-action:none}
+.canvas-wrap canvas:active{cursor:grabbing}
+.globe-controls{display:flex;position:absolute;bottom:8px;right:0;border:1px solid var(--line);border-radius:24px;background:var(--bg);overflow:hidden}
+.globe-controls button{height:36px;width:37px;font-size:18px;color:var(--muted)}
+.globe-controls button:hover{color:var(--ink);background:var(--panel)}
+.world-caption{margin-top:0;display:flex;justify-content:space-between;align-items:end;min-height:43px;gap:13px}
+.caption-title{font:24px var(--serif);color:var(--ink)}
+.caption-sub{font:10px var(--mono);letter-spacing:1.3px;color:var(--muted);margin-top:8px}
+.map-legend{border-top:1px solid var(--line);padding-top:14px;margin-top:18px;display:flex;gap:18px;color:var(--muted);font:10px var(--mono);align-items:center}
+.map-legend span:last-child{margin-left:auto;text-align:right;max-width:180px}
+.map-legend i{display:inline-block;height:6px;width:6px;background:#a3bca9;margin-right:7px}
+.map-legend .target-legend i{background:var(--accent)}
+.globe-stats{display:flex;gap:30px}
+.globe-stats strong{font:23px var(--serif);display:block}
+.globe-stats span{font:9px var(--mono);color:var(--muted);text-transform:uppercase;letter-spacing:1px}
+.game-heading{display:flex;justify-content:space-between;align-items:start;gap:16px}
+.game-heading h1{font:40px/1.1 var(--serif);letter-spacing:-1px}
+.game-heading h1 span{color:var(--accent)}
+.game-heading .eyebrow{margin-bottom:14px}
+.round-note{padding:9px 12px;border:1px solid var(--line);font:10px var(--mono);color:var(--muted);border-radius:3px}
+.atlas-heading h1{font-size:48px}
+@media(min-width:1450px){
+  .canvas-wrap{height:480px}
+  .world-heading h1{font-size:62px}
+}
+@media(max-width:1150px){
+  .world-heading h1{font-size:43px}
+  .map-legend{gap:10px;font-size:9px}
+  .canvas-wrap{height:405px}
+  .globe-stats{gap:22px}
+}
+@media(max-width:840px){
+  .canvas-wrap{height:350px;min-height:290px}
+  .world-heading h1{font-size:36px}
+  .world-heading .intro-line{font-size:12px}
+  .world-heading{min-height:174px}
+  .map-legend span:last-child{display:none}
+  .globe-stats{gap:17px}
+  .globe-stats strong{font-size:21px}
+}
+.flight-status{position:absolute;left:50%;bottom:12px;transform:translateX(-50%);padding:9px 16px;border:1px solid var(--accent);border-radius:3px;background:rgba(12,32,39,.94);font:10px var(--mono);letter-spacing:1px;white-space:nowrap;pointer-events:none;border-color:#8aa985;color:var(--green)}
+.flying #globe{cursor:default}
+.flying .globe-controls{opacity:.25}
+.globe-controls button:disabled{cursor:default}
+.question-paused #globe{visibility:hidden}
+.question-paused .globe-controls{visibility:hidden}
+.question-paused .canvas-wrap::after{content:'Ⅱ  PAUZA';position:absolute;top:48%;left:50%;transform:translate(-50%,-50%);font:17px var(--mono);letter-spacing:3px;color:var(--muted)}
+.game-heading h1 em{font-style:italic;color:var(--green)}
+.country-flag{display:block;width:66px;height:50px;object-fit:contain;flex-shrink:0;filter:drop-shadow(0 3px 5px #06181e50)}
+.country-caption{display:flex;align-items:center;gap:17px;min-width:0}
+.country-caption>div{min-width:0}
+.game-active .caption-title{overflow-wrap:anywhere}
+.game-active .world-caption>.coord{flex-shrink:0;white-space:nowrap}
+.flying .canvas-wrap{min-height:450px}
+.game-active .world-heading{pointer-events:auto}
+@media(max-width:1050px){
+  .country-caption{gap:11px}
+  .game-active .world-caption>.coord{font-size:8px}
+}

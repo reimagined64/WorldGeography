@@ -1,0 +1,38 @@
+/*
+ * The one `<dialog>` and the three things it is filled with: the rules, the
+ * data-and-methodology text, and the sound settings.
+ *
+ * `.audio-disclaimer` carries two `!important` declarations that beat nothing:
+ * one class already outranks `dialog p`, and no later rule touches it. They
+ * stay because removing a declaration is not a rule this unit may move, and
+ * because they still have to win — which is what the suite checks.
+ */
+
+dialog{border:1px solid var(--line);background:#193137;color:var(--ink);border-radius:5px;max-width:710px;width:calc(100% - 32px);max-height:85vh;padding:28px 30px;box-shadow:0 30px 100px #07141688}
+dialog::backdrop{background:rgba(4,14,19,.75);backdrop-filter:blur(4px)}
+.dialog-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px}
+.dialog-top .icon-button{height:32px;width:32px;font-size:21px}
+.dialog-top .eyebrow{font-size:9px}
+dialog h2{font:32px var(--serif);margin-bottom:20px}
+dialog h3{font-size:14px;margin:23px 0 7px}
+dialog p{font-size:13px;color:var(--muted);margin-bottom:12px;line-height:1.7}
+.source-item{margin-top:19px;padding-top:15px;border-top:1px solid var(--line)}
+.source-item a{font-size:13px}
+.source-item p{font-size:11px;margin-top:5px}
+.dialog-controls{display:flex;gap:12px;justify-content:flex-end;margin-top:22px}
+.dialog-controls .primary{width:auto;margin:0}
+.dialog-controls .secondary{margin:0}
+.help-step{display:grid;grid-template-columns:30px 1fr;gap:15px;margin-top:18px}
+.help-step>span{color:var(--accent);font:17px var(--mono)}
+.help-step p{margin-top:4px;font-size:12px}
+.help-step strong{font-size:14px;font-weight:500}
+.license-details{margin:24px 0;font-size:13px}
+.license-details summary{cursor:pointer;color:var(--cream)}
+.license-details pre{white-space:pre-wrap;overflow-wrap:anywhere;font:11px/1.6 ui-monospace,monospace;max-height:350px;overflow:auto;padding:12px;border:1px solid var(--line)}
+.audio-toggle{display:flex;align-items:center;justify-content:space-between;gap:16px;font-size:13px;padding:16px 0;border-bottom:1px solid var(--line)}
+.audio-toggle input{width:19px;height:19px;accent-color:var(--accent);flex-shrink:0}
+.audio-volume{display:block;padding:22px 0 12px}
+.audio-volume>span{display:flex;justify-content:space-between;font-size:13px}
+.audio-volume b{font:13px var(--mono);color:var(--accent)}
+.audio-volume input{width:100%;margin-top:16px;accent-color:var(--accent);padding:0;height:25px}
+.audio-disclaimer{margin-top:18px!important;font-size:11px!important}

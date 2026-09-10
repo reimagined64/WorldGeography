@@ -45,17 +45,37 @@ export const TEMPLATE_FILE = 'src/index.template.html';
 export const READABLE_OUTPUT = 'build/readable/index.html';
 
 /**
- * Marker tag to repo-relative path. Property order is the substitution order,
- * and `BUNDLE` is absent because it is not read from disk.
+ * The stylesheet, split by component and concatenated in this order.
+ *
+ * The order *is* the cascade, so it is a contract rather than a listing.
+ * `tokens.css` is first because every other file reads the custom properties it
+ * declares. `mobile.css` is last because it is the whole phone sheet kept
+ * together — the `max-width` blocks at 700, 390 and 360 px, which are a layout
+ * override that has to land on top of the component rules rather than be
+ * scattered back among them. The file's own header says why the two narrower
+ * blocks cannot be left behind.
  */
-export const SOURCE_FILES: Readonly<Record<Exclude<MarkerTag, 'BUNDLE'>, string>> = {
+export const STYLE_FILES: readonly string[] = [
+  'tokens', 'base', 'header', 'globe', 'panel', 'question', 'results', 'atlas', 'dialog', 'mobile',
+].map((name) => `src/styles/${name}.css`);
+
+/**
+ * Marker tag to repo-relative path. Property order is the substitution order.
+ * `BUNDLE` is absent because it is not read from disk, and `CSS` because it is
+ * ten files rather than one — `readStylesheet` is where that lives.
+ */
+export const SOURCE_FILES: Readonly<Record<Exclude<MarkerTag, 'BUNDLE' | 'CSS'>, string>> = {
   NOTICES: 'data/embedded-notices.txt',
-  CSS: 'src/style.css',
   COUNTRIES: 'data/build/countries.json',
   FLAGS: 'data/build/flags.json',
   MAP: 'data/build/map.json',
   SOURCES: 'data/build/sources.json',
 };
+
+/** The ten component sheets, concatenated in `STYLE_FILES` order. */
+export function readStylesheet(root: string = REPO_ROOT): string {
+  return STYLE_FILES.map((relative) => readFileSync(join(root, relative), 'utf8')).join('\n');
+}
 
 /** Everything a rebuild depends on, for `scripts/dev.ts` to watch. */
 export const WATCH_PATHS: readonly string[] = ['src', 'data/build', SOURCE_FILES.NOTICES];
@@ -199,6 +219,7 @@ export async function buildReadable(root: string = REPO_ROOT): Promise<string> {
   for (const [tag, relative] of Object.entries(SOURCE_FILES)) {
     sources[tag] = { kind: relative.endsWith('.json') ? 'json' : 'raw', text: read(relative) };
   }
+  sources['CSS'] = { kind: 'raw', text: readStylesheet(root) };
   sources['BUNDLE'] = { kind: 'raw', text: await bundleScript(root) };
 
   const html = buildDocument(read(TEMPLATE_FILE), sources);

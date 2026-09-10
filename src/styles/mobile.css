@@ -1,0 +1,190 @@
+/*
+ * The phone sheet, kept whole.
+ *
+ * Every `max-width` block below 701 px is here in its original order rather
+ * than distributed back to the components, because it is one coherent layout
+ * override rather than nine breakpoints: it shrinks the header, collapses the
+ * grid, turns the globe into a strip and puts a fixed HUD at the bottom of the
+ * screen.
+ *
+ * The 390 px and 360 px blocks come with it, and they have to. They refine the
+ * 700 px sheet and carry no extra specificity, so a component file — every one
+ * of which is loaded before this one — would put them *ahead* of the rules they
+ * exist to override, and `.header nav` would come out 13 px apart on a phone
+ * instead of 10.
+ *
+ * `.mobile-hud` is declared here too, `display:none` and all: the strip exists
+ * only on this sheet, and hiding it everywhere else is this file's statement.
+ *
+ * Three declarations here read differently from the monolith: `.score-chip`
+ * padding, `.flight-card` padding-top and `.flight-steps` margin-top. v7 wrote
+ * each of them into this sheet and then overrode it from a rule written after
+ * it — the 1050 px block and the Arcade 3 layer both came later in the file —
+ * so none of the three ever reached a pixel. A sheet that loads last would
+ * resurrect all three, so each says what v7 actually resolved to instead.
+ */
+
+@media(max-width:700px){
+  .app-shell{padding:0 20px}
+  .header{gap:12px;min-height:85px}
+  .brand{font-size:12px;letter-spacing:1px;gap:8px}
+  .brand svg{width:32px;height:32px}
+  .header nav{gap:13px}
+  .nav-button{font-size:12px}
+  .header-actions{gap:4px}
+  .icon-button{width:33px;height:33px}
+  .header-actions .icon-button{font-size:20px}
+  .sound-slash{top:1px;left:12px}
+  .main-grid{grid-template-columns:1fr;padding-top:26px;gap:27px}
+  .world-heading{min-height:0}
+  .world-heading h1{font-size:43px;margin-top:11px}
+  .world-heading .intro-line{max-width:330px}
+  .canvas-wrap{height:355px;min-height:355px;margin-top:4px;flex:none}
+  .world-caption{margin-top:-6px}
+  .globe-stats{gap:30px}
+  .globe-controls{bottom:20px}
+  .map-legend{margin-top:15px;padding-top:12px;font-size:9px}
+  .map-legend span:last-child{display:block}
+  .side-panel{min-height:0;padding:26px}
+  .footer{flex-wrap:wrap;gap:13px;padding:20px 0}
+  .footer>span:first-child{max-width:none;flex:1;font-size:8px}
+  .offline{display:none}
+  .question-title{font-size:31px;min-height:0;margin-bottom:24px}
+  .steps{margin-bottom:25px}
+  .question-head{font-size:10px}
+  .answer{padding:14px 15px;gap:15px;min-height:64px}
+  .answer-text{font-size:14px}
+  .game-heading h1{font-size:36px}
+  .game-heading .eyebrow{font-size:9px}
+  .game-heading .round-note{white-space:nowrap;font-size:8px;padding:6px}
+  .score-chips{margin-top:15px}
+  .score-chip{padding:9px 10px;gap:10px;max-width:none}
+  .game-active .canvas-wrap{margin-top:0;height:200px;min-height:200px}
+  .game-active .map-legend{margin-top:12px;display:none}
+  .game-active .world-caption{margin-top:0;min-height:49px}
+  .game-active .main-grid{padding-top:17px;gap:12px}
+  .game-active .world-heading{min-height:0}
+  .atlas-active .canvas-wrap{height:320px;min-height:320px}
+  .atlas-active .world-heading h1{font-size:39px}
+  .atlas-list{max-height:210px}
+  .result-wrap{padding:32px 0}
+  .result-top h1{font-size:39px}
+  .result-stat{padding:20px 8px}
+  .result-stat strong{font-size:27px}
+  .result-stat span{font-size:8px}
+  .result-columns{grid-template-columns:1fr;gap:20px;margin-top:28px}
+  .result-actions{flex-wrap:wrap}
+  .result-actions .primary{width:100%}
+  .result-actions .secondary{flex:1}
+  .duel-result{gap:10px}
+  .duel-result span{font-size:12px;padding:10px}
+  .caption-title{font-size:23px}
+  dialog{padding:21px}
+  dialog h2{font-size:28px}
+  .settings-section{margin-top:23px}
+  .category-row{margin-top:24px}
+  .primary{margin-top:23px}
+  .setup-bottom{font-size:9px}
+}
+@media(max-width:390px){
+  .app-shell{padding:0 14px}
+  .header nav{gap:10px}
+  .nav-button{font-size:11px}
+  .brand{font-size:10px;gap:6px}
+  .brand svg{width:29px}
+  .side-panel{padding:23px 20px}
+  .world-heading h1{font-size:39px}
+  .canvas-wrap{height:310px;min-height:310px}
+  .map-legend{font-size:8px;gap:10px}
+  .map-legend span:last-child{max-width:125px}
+  .question-title{font-size:29px}
+  .score-chip{font-size:10px}
+  .score-chip b{font-size:15px}
+  .game-heading h1{font-size:32px}
+  .globe-stats{gap:21px}
+}
+.mobile-hud.urgent strong{color:var(--accent)}
+.mobile-hud{display:none}
+@media(max-width:700px){
+  .sound-button{min-width:32px}
+  .sound-label{display:none}
+  .mixer-button{width:25px!important}
+  .game-active .world-heading h1{font-size:29px}
+  .game-active .score-chips{margin-top:10px}
+  .game-active .score-chip{padding:9px 10px}
+  .game-active.flying .canvas-wrap{height:310px;min-height:310px;margin-top:0}
+  .game-active .caption-title{font-size:20px}
+  .game-active .caption-sub{font-size:8px}
+  .game-active .coord{font-size:8px}
+  .game-active .side-panel{padding:17px 18px}
+  .game-active .steps{margin-top:13px;margin-bottom:12px}
+  .game-active .question-category{font-size:9px}
+  .game-active .question-title{font-size:26px;min-height:0;line-height:1.12;margin-top:13px;margin-bottom:16px}
+  .game-active .answer{min-height:53px;padding:10px 11px;gap:11px}
+  .game-active .answer-text{font-size:13px}
+  .game-active .answer-letter{font-size:12px}
+  .game-active .question-tip{display:none}
+  .game-active .game-footer{margin-top:17px}
+  .game-active .globe-controls{bottom:12px}
+  .timing-panel{margin-bottom:17px;padding:10px 12px 8px;grid-template-columns:1fr 1.1fr 32px}
+  .time-readout strong,.reward-readout strong{font-size:25px}
+  .timing-note{font-size:8px}
+  .game-active{padding-bottom:70px}
+  .mobile-hud{position:fixed;bottom:0;left:0;right:0;z-index:8;display:flex;justify-content:space-between;align-items:center;padding:11px 20px calc(11px + env(safe-area-inset-bottom));border-top:1px solid #658078;background:rgba(14,35,42,.97);box-shadow:0 -7px 20px #0c202c33;gap:9px}
+  .mobile-hud>div{display:flex;flex-direction:column;gap:3px}
+  .mobile-hud span{font:8px var(--mono);color:var(--muted);font-size:7px;letter-spacing:.6px}
+  .mobile-hud strong{font:15px var(--mono);color:var(--green);white-space:nowrap;font-size:14px}
+  .mobile-hud b{font-weight:500;font-variant-numeric:tabular-nums}
+  .mobile-hud .pause-button{height:34px;flex-shrink:0}
+  .flight-card{padding-top:16px}
+  .flight-orbit{height:55px}
+  .flight-orbit span{font-size:50px}
+  .flight-card h2{font-size:29px;margin-top:15px}
+  .flight-card .eyebrow{margin-top:10px}
+  .flight-steps{margin-top:24px}
+  .flight-status{font-size:8px;bottom:8px}
+  .paused-card{padding:15px 0 26px}
+  .game-active .result-wrap{padding-bottom:20px}
+  .result-timing-summary{font-size:9px}
+}
+@media(max-width:390px){
+  .mixer-button{width:21px!important}
+  .header{gap:8px}
+  .timing-panel{gap:3px 8px}
+  .reward-readout small{font-size:9px}
+  .game-active .question-title{font-size:25px}
+  .mobile-hud{padding-left:15px;padding-right:15px}
+}
+.mobile-hud .mobile-lives strong{color:var(--ink)}
+@media(max-width:700px){
+  .score-lives{margin-top:7px}
+  .score-lives .life-pips i{width:7px;height:7px}
+  .country-flag{width:54px;height:40px}
+  .country-caption{gap:12px}
+  .game-active .world-caption>.coord{font-size:7px}
+  .question-lives{margin:0 0 13px;font-size:10px}
+  .question-lives>span:last-child{font-size:7px}
+  .bonus-flag-card{padding:12px;margin-bottom:15px;gap:9px}
+  .bonus-flag{width:145px;height:108px}
+  .bonus-reward{font-size:8px}
+  .game-active.flag-question .question-title{font-size:25px}
+  .game-active .flight-card{padding-top:0}
+  .rest-countdown strong{font-size:64px}
+  .rest-countdown{margin-top:16px}
+  .rest-detail{font-size:9px}
+  .survival-rule{padding:12px}
+  .survival-rule-top{gap:9px}
+  .survival-rule p{font-size:11px}
+  .motion-setting .field-label{font-size:9px}
+  .category-chip{font-size:7px}
+}
+@media(max-width:360px){
+  .score-lives{flex-wrap:wrap;gap:5px}
+  .score-chip .player-name{font-size:10px}
+  .score-top b{font-size:13px}
+  .country-caption{gap:9px}
+  .game-active .caption-title{font-size:18px}
+  .game-active .world-caption>.coord{display:none}
+  .game-active.flying .canvas-wrap{height:280px;min-height:280px}
+  .question-lives .life-pips{display:none}
+}

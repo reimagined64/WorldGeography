@@ -1,0 +1,9 @@
+/*
+ * The palette and the three type stacks, and nothing that uses them.
+ *
+ * First in the concatenation because every other file reads these custom
+ * properties; a component sheet that loaded before them would resolve
+ * `var(--ink)` to nothing and paint black on black.
+ */
+
+:root{--bg:#10252b;--panel:#193137;--panel2:#213b40;--ink:#f2efdf;--muted:#a4b5af;--line:#385056;--accent:#eea080;--green:#b9cfa2;--dark:#122a2f;--serif:Georgia,'Times New Roman',serif;--sans:Inter,Arial,Helvetica,sans-serif;--mono:ui-monospace,SFMono-Regular,Consolas,monospace;color-scheme:dark}
