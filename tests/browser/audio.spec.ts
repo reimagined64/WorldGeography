@@ -71,6 +71,9 @@ async function audioGlobalScript(): Promise<string> {
 }
 
 test.beforeAll(async ({ browser }) => {
+  // A file-scope `test.setTimeout` raises the budget for the tests, not for
+  // this hook, and the whole render happens here.
+  test.setTimeout(600_000);
   out = mkdtempSync(join(tmpdir(), 'wg-audio-'));
   const file = join(out, 'index.html');
   await writeReadable(undefined, file);

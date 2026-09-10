@@ -29,7 +29,10 @@ jobs:
     runs-on: ubuntu-latest
     # The browser suite plays a real game with a twelve-second arrival flight;
     # the 360-minute default would let a hung Chromium sit for six hours.
-    timeout-minutes: 20
+    # The audio fixture renders 21 themes through OfflineAudioContext and the
+    # styles gate walks 16 scenes at 8 widths twice; both are several times
+    # slower here than on a developer machine.
+    timeout-minutes: 30
 
     steps:
       - name: Check out the repository

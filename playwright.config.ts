@@ -21,6 +21,13 @@ export default defineConfig({
   retries: 0,
   workers: 1,
   reporter: 'list',
+  // Playwright's 30s default is a network-test budget, and none of these are
+  // network tests. The audio render walks 21 themes through OfflineAudioContext
+  // and the styles gate renders 16 scenes at 8 widths twice over; both take
+  // seconds here and roughly three times that on a shared CI runner, where the
+  // default fails them for being slow rather than wrong. The job's own limit is
+  // what catches a genuine hang.
+  timeout: 180_000,
   use: {
     ...devices['Desktop Chrome'],
     launchOptions: { ...CHROMIUM_LAUNCH },
