@@ -1,0 +1,52 @@
+<!doctype html>
+<!--
+  The only published HTML besides the game (R7).
+
+  It lives at the repository root rather than in a `public/` directory because
+  every other published file — LICENSE, THIRD_PARTY_NOTICES.txt, licenses/ —
+  already lives there and the deploy copies all of them from the same place. A
+  directory holding one file would be a second convention, not a tidier one.
+
+  Self-contained, like the game: no stylesheet, no font, no image, no script.
+  R8 is a property of everything served from the site, not only of index.html,
+  and `deploy.yml` runs the build's own `assertSelfContained` over this file.
+
+  The home link is written out as `/WorldGeography/` because a project Pages
+  site is served from that prefix and a 404 can be served for any depth, so a
+  relative `./` would resolve against the missing path instead of the site
+  root. A custom domain would make it `/`.
+-->
+<html lang="cs">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#10252b">
+<meta name="robots" content="noindex">
+<title>Stránka nenalezena — World Geography</title>
+<style>
+:root{--bg:#10252b;--panel:#193137;--ink:#f2efdf;--muted:#a4b5af;--line:#385056;--accent:#eea080;color-scheme:dark}
+*{box-sizing:border-box}
+body{margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:32px;
+     background:var(--bg);color:var(--ink);
+     font-family:Inter,Arial,Helvetica,sans-serif;font-size:16px;line-height:1.55}
+main{max-width:560px;text-align:center}
+.code{margin:0;font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:13px;
+      letter-spacing:4px;color:var(--muted)}
+h1{margin:12px 0 20px;font-family:Georgia,'Times New Roman',serif;font-size:30px;line-height:1.2;font-weight:400}
+p{margin:0 0 16px;color:var(--muted)}
+.en{font-size:14px;color:var(--line);filter:brightness(1.6)}
+a{display:inline-block;margin-top:12px;padding:11px 22px;border:1px solid var(--line);
+  background:var(--panel);color:var(--accent);text-decoration:none;letter-spacing:.4px}
+a:hover,a:focus{border-color:var(--accent);color:var(--ink);outline:none}
+</style>
+</head>
+<body>
+<main>
+<p class="code">404</p>
+<h1>Tady žádná země není.</h1>
+<p>Tahle adresa na serveru neexistuje. Hra je jediný soubor a spouští se z úvodní stránky — i bez připojení k internetu.</p>
+<p class="en" lang="en">This address does not exist here. The game is a single file and starts from the home page; it runs without a network connection.</p>
+<p><a href="/WorldGeography/">Zpět na hru &nbsp;·&nbsp; Back to the game</a></p>
+</main>
+</body>
+</html>

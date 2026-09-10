@@ -1,0 +1,123 @@
+# Typecheck, unit suite, build and browser suite on every push and PR.
+#
+# The plan gives this file to U14, after the obfuscated build lands in U13. It
+# exists now because the deploy has to be provable today, so it is written to
+# be *extended* rather than replaced: the two commands that do not exist yet
+# are marked in place, and the Chromium cache is already keyed the way the
+# pinned audio fixture requires.
+name: CI
+
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+  workflow_dispatch:
+
+# Read the tree, write nothing. Deploying is deploy.yml's job and its alone.
+permissions:
+  contents: read
+
+# A newer push to the same ref makes the older run's verdict irrelevant.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    name: Verify
+    runs-on: ubuntu-latest
+    # The browser suite plays a real game with a twelve-second arrival flight;
+    # the 360-minute default would let a hung Chromium sit for six hours.
+    timeout-minutes: 20
+
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v4
+
+      # KTD2/RISK-15: the golden fixtures encode one Node build's ICU output,
+      # so the version comes from `.nvmrc` — the same pin developers use — and
+      # never from a floating major.
+      - name: Use the pinned Node version
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      # ── U9 ────────────────────────────────────────────────────────────────
+      # `npm run data:check` lands in U9 and belongs here: the dataset
+      # invariants are independent of any diff, and a broken dataset should
+      # fail before the suites that read it. Until then the script exits 1 by
+      # design, so it is commented out rather than merely absent.
+      #
+      #   - name: Check the dataset
+      #     run: npm run data:check
+      # ──────────────────────────────────────────────────────────────────────
+
+      - name: Unit suite
+        run: npm test
+
+      # `@playwright/test` is an exact version because `audio-golden.json` is a
+      # digest of one Chromium build's synthesis. Reading that version out of
+      # the installed tree rather than repeating it here means the bump that
+      # changes the browser is the bump that misses the cache.
+      - name: Resolve the pinned Playwright version
+        id: playwright
+        run: |
+          version="$(node -p "require('./node_modules/@playwright/test/package.json').version")"
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          echo "Playwright $version"
+
+      - name: Restore the Chromium download
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: ${{ runner.os }}-playwright-${{ steps.playwright.outputs.version }}
+
+      # Run this even on a cache hit: the cache holds the browser, not the apt
+      # libraries `--with-deps` installs, and Playwright skips a download it
+      # already has. Chromium only — no other engine has ever been verified.
+      - name: Install Chromium and its system libraries
+        run: npx playwright install --with-deps chromium
+
+      # The command the deploy uses, proven on every branch rather than only
+      # on main. U13 adds `npm run build` beside it; both stay green.
+      - name: Readable build
+        run: npm run build:readable
+
+      # ── U14 ───────────────────────────────────────────────────────────────
+      # Becomes `npm run test:browser` once that script exists. The wiring is
+      # already right: `playwright.config.ts` points at `tests/browser/`, sets
+      # `forbidOnly` from CI and pins the launch options.
+      #
+      # Expect `styles.spec.ts` to be red on the first run here. Its fixture
+      # records `width` and `height` as used values, captured on a developer
+      # machine; this runner has neither Georgia nor Inter, so every text-sized
+      # box measures differently. Pinning the browser was never going to pin
+      # the fonts. U14 decides between recapturing under the runner's own
+      # image and keying the fixture by platform — not between the two by
+      # deleting the gate.
+      # ──────────────────────────────────────────────────────────────────────
+      - name: Browser suite
+        run: npx playwright test
+
+      # `playwright.config.ts` still uses the `list` reporter — U14 owns that
+      # choice — so `playwright-report/` may not exist while `test-results/`
+      # holds what a failing spec left behind. Uploading both keeps this step
+      # correct across that change instead of quietly uploading nothing.
+      - name: Upload the Playwright report
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: |
+            playwright-report/
+            test-results/
+          if-no-files-found: ignore
+          retention-days: 7

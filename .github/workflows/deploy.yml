@@ -1,0 +1,162 @@
+# Publish the game to GitHub Pages from main.
+#
+# Requires Settings → Pages → Source = "GitHub Actions" in the repository. No
+# branch is published; the site is exactly the `dist/` this workflow assembles.
+#
+# The plan gives this file to U14, where the deploy consumes the artifact CI
+# already tested and verifies it by hash (R27/KTD18). Two gaps remain until
+# then, both marked where they occur:
+#   * the game HTML is the readable build, not the obfuscated one (U13);
+#   * this job builds its own copy instead of consuming CI's, so a push that
+#     fails CI can still publish. CI and deploy run in parallel on main.
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# One publish at a time, and never cancel one in flight: a half-applied Pages
+# deployment is worse than a queued one.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    name: Assemble the site
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v4
+
+      - name: Use the pinned Node version
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      # ══════════════════════════════════════════════════════════════════════
+      # TEMPORARY — this publishes the READABLE build, which the plan forbids.
+      #
+      # R7 and KTD18 say the obfuscated `npm run build` output is the only game
+      # HTML Pages serves, and that the readable build is never published: a
+      # readable copy on the site leaves the obfuscation nothing to protect.
+      # `npm run build` lands in U13 and exits 1 today, so publishing the
+      # readable build is the only way to prove Pages end to end before then —
+      # and an unproven deploy is the thing U13 would otherwise discover late.
+      #
+      # U13 replaces the single `run:` line below with:
+      #
+      #     run: npm run build
+      #
+      # That is the whole change. `npm run build` writes `dist/index.html`
+      # itself, which is why the build runs first and the steps after it only
+      # add files: they stay correct, and idempotent, either way.
+      # ══════════════════════════════════════════════════════════════════════
+      - name: Build the game
+        run: npm run build:readable && mkdir -p dist && cp build/readable/index.html dist/index.html
+
+      - name: Assemble the published directory
+        run: |
+          mkdir -p dist dist/licenses
+
+          # Jekyll would reformat what it serves. That is a correctness issue
+          # rather than hygiene once U13 lands: `selfDefending` invalidates a
+          # bundle edited after obfuscation.
+          touch dist/.nojekyll
+
+          cp 404.html dist/404.html
+
+          # Required, not decoration. The notices embedded in the game send the
+          # reader to `licenses/Noto-Emoji-NOTICE.txt` and
+          # `licenses/Apache-2.0.txt`; if the site does not serve those paths
+          # the attribution the game prints is false.
+          cp LICENSE THIRD_PARTY_NOTICES.txt dist/
+          cp -R licenses/. dist/licenses/
+
+          # An artifact deploy publishes exactly this directory and nothing
+          # else, so a custom domain added later needs its `CNAME` written here
+          # too — otherwise the next deploy removes it.
+          echo "Published directory:"
+          find dist -type f | sort
+
+      - name: Record the published artifact
+        run: |
+          sha="$(sha256sum dist/index.html | cut -d ' ' -f 1)"
+          bytes="$(wc -c < dist/index.html)"
+
+          # U14 compares this digest against the artifact CI tested. Until
+          # then it is still the record of what actually went live, which is
+          # what makes a rollback diagnosable.
+          {
+            echo "### Published artifact"
+            echo
+            echo "| File | sha256 | Bytes |"
+            echo "| --- | --- | --- |"
+            echo "| \`dist/index.html\` | \`$sha\` | $bytes |"
+            echo
+            echo "Commit \`${{ github.sha }}\`, built by \`npm run build:readable\` (temporary — U13 switches this to \`npm run build\`)."
+          } >> "$GITHUB_STEP_SUMMARY"
+
+          echo "dist/index.html  $sha  $bytes bytes"
+
+      - name: Smoke-test the assembled site
+        run: |
+          set -e
+          test -s dist/index.html || { echo "dist/index.html is missing or empty"; exit 1; }
+
+          # A build that emits a stub rather than the game is still non-empty.
+          # The smallest plausible artifact is far above this floor — the flag
+          # payload alone is over a megabyte — so the check costs nothing and
+          # catches a truncated or half-written file.
+          bytes="$(wc -c < dist/index.html)"
+          test "$bytes" -ge 1000000 || { echo "dist/index.html is only $bytes bytes"; exit 1; }
+
+          for path in .nojekyll 404.html LICENSE THIRD_PARTY_NOTICES.txt \
+                      licenses/Apache-2.0.txt licenses/Noto-Emoji-NOTICE.txt; do
+            test -f "dist/$path" || { echo "dist/$path is missing"; exit 1; }
+          done
+
+          # R8 is a property of everything published, not only of the game, so
+          # both documents go through the build's own rule rather than a second
+          # copy of it that could drift.
+          node --input-type=module -e "
+            import { readFileSync } from 'node:fs';
+            const { assertSelfContained } = await import('./scripts/build.ts');
+            for (const file of ['dist/index.html', 'dist/404.html']) {
+              assertSelfContained(readFileSync(file, 'utf8'));
+              console.log(\`self-contained: \${file}\`);
+            }
+          "
+
+      - name: Upload the Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+  deploy:
+    name: Publish
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    # `actions/deploy-pages` requires this environment; it is also what puts
+    # the live URL on the run summary and in the Environments tab.
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
