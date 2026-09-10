@@ -349,6 +349,41 @@ const SCENES: readonly Scene[] = [
  * The measurement
  * ------------------------------------------------------------------ */
 
+/**
+ * Hold `performance.now()` at a constant for the length of one measurement.
+ *
+ * Restoring it afterwards matters: a scene that still has to advance -- the
+ * twelve-second flight, a resumed clock -- needs real time back between widths.
+ */
+async function freezeTime(page: Page): Promise<void> {
+  await page.evaluate(() => {
+    const w = window as unknown as { __realNow?: () => number };
+    if (w.__realNow) return;
+    w.__realNow = performance.now.bind(performance);
+    const held = w.__realNow();
+    performance.now = () => held;
+    // Freezing the clock's time source is not enough on its own: the countdown
+    // loop is what writes the readout, so it also has to stop being called.
+    const raf = window as unknown as { __realRaf?: typeof requestAnimationFrame };
+    raf.__realRaf = window.requestAnimationFrame.bind(window);
+    window.requestAnimationFrame = (() => 0) as unknown as typeof requestAnimationFrame;
+  });
+}
+
+async function thawTime(page: Page): Promise<void> {
+  await page.evaluate(() => {
+    const w = window as unknown as { __realNow?: () => number };
+    if (!w.__realNow) return;
+    performance.now = w.__realNow;
+    delete w.__realNow;
+    const raf = window as unknown as { __realRaf?: typeof requestAnimationFrame };
+    if (raf.__realRaf) {
+      window.requestAnimationFrame = raf.__realRaf;
+      delete raf.__realRaf;
+    }
+  });
+}
+
 /** A property map, plus a nested one per pseudo-element that exists. */
 type ElementRecord = Record<string, string | Record<string, string>>;
 
@@ -578,12 +613,21 @@ test.describe('computed styles', () => {
       const declared: string[] = [];
 
       const measure = async (where: string): Promise<void> => {
+        // Freeze the clock across both passes. The countdown reschedules itself
+        // through `requestAnimationFrame` and reads `performance.now()`, and the
+        // points readout is live text -- so on a slow runner the two passes
+        // straddle a tick, the readout goes "1 000" -> "970", and the span's
+        // width moves for a reason that has nothing to do with CSS. The gate is
+        // only sound if the two renders differ in the stylesheet and nothing else.
+        await freezeTime(page);
         await useStylesheet(page, FROZEN);
         const beforeElements = await readPass(page, PROPERTIES, PSEUDO_ELEMENTS);
         const beforeStates = await readPseudoStates(cdp, targets);
         await useStylesheet(page, SPLIT);
         const afterElements = await readPass(page, PROPERTIES, PSEUDO_ELEMENTS);
         const afterStates = await readPseudoStates(cdp, targets);
+
+        await thawTime(page);
 
         for (const difference of [
           ...diffGroup(where, beforeElements, afterElements),
