@@ -53,15 +53,11 @@ jobs:
       - name: Typecheck
         run: npm run typecheck
 
-      # ── U9 ────────────────────────────────────────────────────────────────
-      # `npm run data:check` lands in U9 and belongs here: the dataset
-      # invariants are independent of any diff, and a broken dataset should
-      # fail before the suites that read it. Until then the script exits 1 by
-      # design, so it is commented out rather than merely absent.
-      #
-      #   - name: Check the dataset
-      #     run: npm run data:check
-      # ──────────────────────────────────────────────────────────────────────
+      # R28: the dataset invariants are independent of any diff, and a broken
+      # dataset should fail before the suites that read it.
+      - name: Check the dataset
+        run: npm run data:check
+
 
       - name: Unit suite
         run: npm test

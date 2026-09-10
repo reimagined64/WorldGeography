@@ -5,29 +5,24 @@
     "use": "Rozsah základní sady: 193 členských států; přidány Palestina a Vatikán/Svatý stolec. Kontrola 7. 9. 2026."
   },
   {
-    "name": "Worldometer – Population by Country (2026)",
-    "url": "https://www.worldometers.info/world-population/population-by-country/",
-    "use": "Přímý zdroj 195 populačních hodnot pro rok 2026. Tabulka odkazuje na OSN Population Division. Přepis čísel ověřen 7. 9. 2026; hodnoty se používají jako projekce, nikoli jako dnešní sčítání."
+    "name": "OSN – World Population Prospects 2024 (CSV, střední varianta)",
+    "url": "https://population.un.org/wpp/assets/Excel%20Files/1_Indicator%20(Standard)/CSV_FILES/WPP2024_Demographic_Indicators_Medium.csv.gz",
+    "use": "Přímý zdroj 195 populačních hodnot: sloupec TPopulation1July pro rok 2026, uváděný v tisících a násobený tisícem. Soubor je připnutý otiskem sha256 286ac36bb141… (16557272 B), staženo 2026-09-10. Jde o projekce střední varianty WPP 2024, nikoli o dnešní sčítání."
   },
   {
-    "name": "OSN – World Population Prospects 2024",
-    "url": "https://population.un.org/wpp/",
-    "use": "Metodický původ populační řady. WPP 2024 rozlišuje historické odhady a projekce. Projekt neoznačuje rok edice WPP za rok konkrétního populačního údaje."
+    "name": "Natural Earth – 1:110m Admin 0, v5.1.2",
+    "url": "https://raw.githubusercontent.com/nvkelso/natural-earth-vector/v5.1.2/geojson/ne_110m_admin_0_countries.geojson",
+    "use": "Generalizovaný mapový podklad 1:110m, public domain. Připnuto na značku v5.1.2, otisk sha256 6866c877d39c… (838726 B), staženo 2026-09-10. Kód země se čte z pole ISO_A3; polygony, které upstream nechává nepřiřazené, rozhoduje data/overrides/territory.json. Podklad není zdrojem právního vymezení hranic."
   },
   {
-    "name": "Unicode CLDR – Territory-Language Information",
-    "url": "https://www.unicode.org/cldr/charts/latest/supplemental/territory_language_information.html",
-    "use": "Referenční jazyky a vyloučení nejednoznačných jazykových možností. Lokální balíček Babel 2.18.0; ručně doplněné vybrané hlavní jazyky. Nejde o úplný zákonný seznam."
+    "name": "world-countries – referenční databáze (ODC-ODbL 1.0)",
+    "url": "https://github.com/mledoze/countries",
+    "use": "Balíček 5.1.0: ISO kódy, anglické názvy hlavních měst, měny, jazyky, světadíl a orientační polohy. Data jsou pod ODC-ODbL 1.0, proto je data/build/countries.json odvozená databáze a šíří se pod toutéž licencí; plné znění je v licenses/ODbL-1.0.txt. Ověřeno 2026-09-10."
   },
   {
-    "name": "Unicode CLDR – Supplemental Data",
-    "url": "https://www.unicode.org/cldr/charts/latest/supplemental/index.html",
-    "use": "České názvy zemí, jazyků a měn a časová platnost měn prostřednictvím balíčku Babel. Změny, které lokální CLDR neobsahoval, byly doplněny ručně."
-  },
-  {
-    "name": "CountryInfo – referenční databáze",
-    "url": "https://pypi.org/project/countryinfo/",
-    "use": "Lokální balíček 0.1.2: výchozí názvy hlavních měst a orientační polohy. Jeho staré populace nejsou použity. Současná hlavní města a známé změny opravuje scripts/prepare_data.py."
+    "name": "Unicode CLDR – prostřednictvím ICU v Node.js",
+    "url": "https://cldr.unicode.org/",
+    "use": "České a anglické názvy zemí, měn a jazyků přes Intl.DisplayNames: icu 78.2 / cldr 48.0 / node 24.14.0. Verze ICU rozhoduje o znění popisků, proto je Node připnutý v .nvmrc. Ověřeno 2026-09-10."
   },
   {
     "name": "Rada EU – přistoupení k eurozóně",
@@ -43,11 +38,6 @@
     "name": "Indonéský státní sekretariát – rozvoj Nusantary",
     "url": "https://setneg.go.id/baca/index/mensesneg_tekankan_komitmen_presiden_prabowo_untuk_percepatan_pembangunan_ikn",
     "use": "Primární zdroj o pokračující výstavbě Nusantary (13. 1. 2026). Herní otázka se ptá na jméno budovaného města, nikoli na sporné datum právního přesunu."
-  },
-  {
-    "name": "Natural Earth – terms of use",
-    "url": "https://www.naturalearthdata.com/about/terms-of-use/",
-    "use": "Generalizovaný mapový podklad 1:110m, public domain. Lokální geometrie z testovací sady pyogrio; podklad není zdrojem současného právního vymezení hranic."
   },
   {
     "name": "COMPUTE!, leden 1991 – původní World Geography",

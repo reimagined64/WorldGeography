@@ -1,0 +1,27 @@
+{
+  "why": "Content pins for everything the data pipeline reads. A version pin is not enough: a git tag can be force-moved, a release asset retagged, and the UN republishes WPP revisions in place at the same URL with the same columns and different numbers. Each remote entry records the URL after redirects, the sha256 of the bytes as downloaded (still gzipped where the source is gzipped) and the byte length, so `npm run data:refresh` can tell \"upstream published new numbers\" apart from \"we read a different dataset\". A hash that no longer matches stops the run until a maintainer passes --accept-source-change. The two local entries are not downloads: `world-countries` is a devDependency pinned exactly in package.json, and CLDR arrives through the ICU compiled into Node, whose version decides the wording of every Czech and English label in the game. Machine-written by `npm run data:refresh -- --accept`; do not hand-edit.",
+  "remote": {
+    "un-wpp": {
+      "url": "https://population.un.org/wpp/assets/Excel%20Files/1_Indicator%20(Standard)/CSV_FILES/WPP2024_Demographic_Indicators_Medium.csv.gz",
+      "sha256": "286ac36bb1415e2e1ade03acfef0a29f0e4c087e2f78e38c48f50c5df89082bc",
+      "bytes": 16557272,
+      "accessed": "2026-09-10"
+    },
+    "natural-earth": {
+      "url": "https://raw.githubusercontent.com/nvkelso/natural-earth-vector/v5.1.2/geojson/ne_110m_admin_0_countries.geojson",
+      "sha256": "6866c877d39cba9c357620878839b336d569f8c662d3cfab4cb1dbe2d39c977f",
+      "bytes": 838726,
+      "accessed": "2026-09-10"
+    }
+  },
+  "local": {
+    "world-countries": {
+      "version": "5.1.0",
+      "accessed": "2026-09-10"
+    },
+    "icu-cldr": {
+      "version": "icu 78.2 / cldr 48.0 / node 24.14.0",
+      "accessed": "2026-09-10"
+    }
+  }
+}

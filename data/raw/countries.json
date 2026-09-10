@@ -1,0 +1,7582 @@
+{
+  "why": "One accepted fetch, normalized and reduced, before any override. `npm run data:apply` re-merges this with data/overrides/ offline, which is how an editorial edit reaches data/build/ without a network round trip. This first snapshot is not a fetch: it is the committed v7 dataset read back as if a fetch had just produced it, so that data:apply is a verified no-op on a clean tree from the day it lands. The first accepted `npm run data:refresh -- --accept` replaces it wholesale. Machine-written; do not hand-edit.",
+  "fetchedAt": "2026-09-07",
+  "year": 2026,
+  "countries": [
+    {
+      "code": "AF",
+      "iso3": "AFG",
+      "currency": [
+        "AFN"
+      ],
+      "languages": [
+        "fa",
+        "ps"
+      ],
+      "excludeLanguages": [
+        "fa",
+        "haz",
+        "prd",
+        "ps",
+        "tk",
+        "uz"
+      ],
+      "lat": 33,
+      "lon": 65,
+      "region": "Asia",
+      "population": 45047069,
+      "populationYear": 2026,
+      "populationKind": "projekce",
+      "populationSource": "worldometer-un-2026",
+      "text": {
+        "cs": {
+          "name": "Afghánistán",
+          "capital": [
+            "Kábul"
+          ],
+          "currencyNames": {
+            "AFN": "afghánský afghán"
+          },
+          "languageNames": {
+            "fa": "perština",
+            "ps": "paštština"
+          }
+        }
+      }
+    },
+    {
+      "code": "AL",
+      "iso3": "ALB",
+      "currency": [
+        "ALL"
+      ],
+      "languages": [
+        "sq"
+      ],
+      "excludeLanguages": [
+        "el",
+        "sq"
+      ],
+      "lat": 41,
+      "lon": 20,
+      "region": "Europe",
+      "population": 2751025,
+      "populationYear": 2026,
+      "populationKind": "projekce",
+      "populationSource": "worldometer-un-2026",
+      "text": {
+        "cs": {
+          "name": "Albánie",
+          "capital": [
+            "Tirana"
+          ],
+          "currencyNames": {
+            "ALL": "albánský lek"
+          },
+          "languageNames": {
+            "sq": "albánština"
+          }
+        }
+      }
+    },
+    {
+      "code": "DZ",
+      "iso3": "DZA",
+      "currency": [
+        "DZD"
+      ],
+      "languages": [
+        "ar",
+        "tzm"
+      ],
+      "excludeLanguages": [
+        "ar",
+        "arq",
+        "en",
+        "fr",
+        "kab",
+        "tzm"
+      ],
+      "lat": 28,
+      "lon": 3,
+      "region": "Africa",
+      "population": 48028334,
+      "populationYear": 2026,
+      "populationKind": "projekce",
+      "populationSource": "worldometer-un-2026",
+      "text": {
+        "cs": {
+          "name": "Alžírsko",
+          "capital": [
+            "Alžír"
+          ],
+          "currencyNames": {
+            "DZD": "alžírský dinár"
+          },
+          "languageNames": {
+            "ar": "arabština",
+            "tzm": "berberština (tamazight)"
+          }
+        }
+      }
+    },
+    {
+      "code": "AD",
+      "iso3": "AND",
+      "currency": [
+        "EUR"
+      ],
+      "languages": [
+        "ca"
+      ],
+      "excludeLanguages": [
+        "ca",
+        "es",
+        "fr"
+      ],
+      "lat": 42.54,
+      "lon": 1.58,
+      "region": "Europe",
+      "population": 83753,
+      "populationYear": 2026,
+      "populationKind": "projekce",
+      "populationSource": "worldometer-un-2026",
+      "text": {
+        "cs": {
+          "name": "Andorra",
+          "capital": [
+            "Andorra la Vella"
+          ],
+          "currencyNames": {
+            "EUR": "euro"
+          },
+          "languageNames": {
+            "ca": "katalánština"
+          }
+        }
+      }
+    },
+    {
+      "code": "AO",
+      "iso3": "AGO",
+      "currency": [
+        "AOA"
+      ],
+      "languages": [
+        "pt"
+      ],
+      "excludeLanguages": [
+        "kmb",
+        "pt",
+        "umb"
+      ],
+      "lat": -12.5,
+      "lon": 18.5,
+      "region": "Africa",
+      "population": 40215179,
+      "populationYear": 2026,
+      "populationKind": "projekce",
+      "populationSource": "worldometer-un-2026",
+      "text": {
+        "cs": {
+          "name": "Angola",
+          "capital": [
+            "Luanda"
+          ],
+          "currencyNames": {
+            "AOA": "angolská kwanza"
+          },
+          "languageNames": {
+            "pt": "portugalština"
+          }
+        }
+      }
+    },
+    {
+      "code": "AG",
+      "iso3": "ATG",
+      "currency": [
+        "XCD"
+      ],
+      "languages": [
+        "en"
+      ],
+      "excludeLanguages": [
+        "en",
+        "pt"
+      ],
+      "lat": 17.05,
+      "lon": -61.8,
+      "region": "North America",
+      "population": 94626,
+      "populationYear": 2026,
+      "populationKind": "projekce",
+      "populationSource": "worldometer-un-2026",
+      "text": {
+        "cs": {
+          "name": "Antigua a Barbuda",
+          "capital": [
+            "Saint John’s"
+          ],
+          "currencyNames": {
+            "XCD": "východokaribský dolar"
+          },
+          "languageNames": {
+            "en": "angličtina"
+          }
+        }
+      }
+    },
+    {
+      "code": "AR",
+      "iso3": "ARG",
+      "currency": [
+        "ARS"
+      ],
+      "languages": [
+        "es"
+      ],
+      "excludeLanguages": [
+        "en",
+        "es"
+      ],
+      "lat": -34,
+      "lon": -64,
+      "region": "South America",
+      "population": 46003734,
+      "populationYear": 2026,
+      "populationKind": "projekce",
+      "populationSource": "worldometer-un-2026",
+      "text": {
+        "cs": {
+          "name": "Argentina",
+          "capital": [
+            "Buenos Aires"
+          ],
+          "currencyNames": {
+            "ARS": "argentinské peso"
+          },
+          "languageNames": {
+            "es": "španělština"
+          }
+        }
+      }
+    },
+    {
+      "code": "AM",
+      "iso3": "ARM",
+      "currency": [
+        "AMD"
+      ],
+      "languages": [
+        "hy"
+      ],
+      "excludeLanguages": [
+        "hy",
+        "ku"
+      ],
+      "lat": 40,
+      "lon": 45,
+      "region": "Asia",
+      "population": 2930915,
+      "populationYear": 2026,
+      "populationKind": "projekce",
+      "populationSource": "worldometer-un-2026",
+      "text": {
+        "cs": {
+          "name": "Arménie",
+          "capital": [
+            "Jerevan"
+          ],
+          "currencyNames": {
+            "AMD": "arménský dram"
+          },
+          "languageNames": {
+            "hy": "arménština"
+          }
+        }
+      }
+    },
+    {
+      "code": "AU",
+      "iso3": "AUS",
+      "currency": [
+        "AUD"
+      ],
+      "languages": [
+        "en"
+      ],
+      "excludeLanguages": [
+        "en",
+        "it",
+        "zh"
+      ],
+      "lat": -27,
+      "lon": 133,
+      "region": "Oceania",
+      "population": 27227096,
+      "populationYear": 2026,
+      "populationKind": "projekce",
+      "populationSource": "worldometer-un-2026",
+      "text": {
+        "cs": {
+          "name": "Austrálie",
+          "capital": [
+            "Canberra"
+          ],
+          "currencyNames": {
+            "AUD": "australský dolar"
+          },
+          "languageNames": {
+            "en": "angličtina"
+          }
+        }
+      }
+    },
+    {
+      "code": "BS",
+      "iso3": "BHS",
+      "currency": [
+        "BSD"
+      ],
+      "languages": [
+        "en"
+      ],
+      "excludeLanguages": [
+        "en"
+      ],
+      "lat": 24.25,
+      "lon": -76,
+      "region": "North America",
+      "population": 404628,
+      "populationYear": 2026,
+      "populationKind": "projekce",
+      "populationSource": "worldometer-un-2026",
+      "text": {
+        "cs": {
+          "name": "Bahamy",
+          "capital": [
+            "Nassau"
+          ],
+          "currencyNames": {
+            "BSD": "bahamský dolar"
+          },
+          "languageNames": {
+            "en": "angličtina"
+          }
+        }
+      }
+    },
+    {
+      "code": "BH",
+      "iso3": "BHR",
+      "currency": [
+        "BHD"
+      ],
+      "languages": [
+        "ar"
+      ],
+      "excludeLanguages": [
+        "ar",
+        "ml"
+      ],
+      "lat": 26.05,
+      "lon": 50.55,
+      "region": "Asia",
+      "population": 1675572,
+      "populationYear": 2026,
+      "populationKind": "projekce",
+      "populationSource": "worldometer-un-2026",
+      "text": {
+        "cs": {
+          "name": "Bahrajn",
+          "capital": [
+            "Manáma"
+          ],
+          "currencyNames": {
+            "BHD": "bahrajnský dinár"
+          },
+          "languageNames": {
+            "ar": "arabština"
+          }
+        }
+      }
+    },
+    {
+      "code": "BD",
+      "iso3": "BGD",
+      "currency": [
+        "BDT"
+      ],
+      "languages": [
+        "bn"
+      ],
+      "excludeLanguages": [
+        "bn",
+        "en",
+        "rkt",
+        "syl"
+      ],
+      "lat": 24,
+      "lon": 90,
+      "region": "Asia",
+      "population": 177818044,
+      "populationYear": 2026,
+      "populationKind": "projekce",
+      "populationSource": "worldometer-un-2026",
+      "text": {
+        "cs": {
+          "name": "Bangladéš",
+          "capital": [
+            "Dháka"
+          ],
+          "currencyNames": {
+            "BDT": "bangladéšská taka"
+          },
+          "languageNames": {
+            "bn": "bengálština"
+          }
+        }
+      }
+    },
+    {
+      "code": "BB",
+      "iso3": "BRB",
+      "currency": [
+        "BBD"
+      ],
+      "languages": [
+        "en"
+      ],
+      "excludeLanguages": [
+        "en"
+      ],
+      "lat": 13.16666666,
+      "lon": -59.53333333,
+      "region": "North America",
+      "population": 282724,
+      "populationYear": 2026,
+      "populationKind": "projekce",
+      "populationSource": "worldometer-un-2026",
+      "text": {
+        "cs": {
+          "name": "Barbados",
+          "capital": [
+            "Bridgetown"
+          ],
+          "currencyNames": {
+            "BBD": "barbadoský dolar"
+          },
+          "languageNames": {
+            "en": "angličtina"
+          }
+        }
+      }
+    },
+    {
+      "code": "BE",
+      "iso3": "BEL",
+      "currency": [
+        "EUR"
+      ],
+      "languages": [
+        "nl",
+        "fr",
+        "de"
+      ],
+      "excludeLanguages": [
+        "de",
+        "en",
+        "fr",
+        "nl",
+        "vls",
+        "wa"
+      ],
+      "lat": 50.83333333,
+      "lon": 4,
+      "region": "Europe",
+      "population": 11774642,
+      "populationYear": 2026,
+      "populationKind": "projekce",
+      "populationSource": "worldometer-un-2026",
+      "text": {
+        "cs": {
+          "name": "Belgie",
+          "capital": [
+            "Brusel"
+          ],
+          "currencyNames": {
+            "EUR": "euro"
+          },
+          "languageNames": {
+            "nl": "nizozemština",
+            "fr": "francouzština",
+            "de": "němčina"
+          }
+        }
+      }
+    },
+    {
+      "code": "BZ",
+      "iso3": "BLZ",
+      "currency": [
+        "BZD"
+      ],
+      "languages": [
+        "en"
+      ],
+      "excludeLanguages": [
+        "en",
+        "es"
+      ],
+      "lat": 17.25,
+      "lon": -88.75,
+      "region": "North America",
+      "population": 428644,
+      "populationYear": 2026,
+      "populationKind": "projekce",
+      "populationSource": "worldometer-un-2026",
+      "text": {
+        "cs": {
+          "name": "Belize",
+          "capital": [
+            "Belmopan"
+          ],
+          "currencyNames": {
+            "BZD": "belizský dolar"
+          },
+          "languageNames": {
+            "en": "angličtina"
+          }
+        }
+      }
+    },
+    {
+      "code": "BJ",
+      "iso3": "BEN",
+      "currency": [
+        "XOF"
+      ],
+      "languages": [
+        "fr"
+      ],
+      "excludeLanguages": [
+        "fon",
+        "fr",
+        "yo"
+      ],
+      "lat": 9.5,
+      "lon": 2.25,
+      "region": "Africa",
+      "population": 15170419,
+      "populationYear": 2026,
+      "populationKind": "projekce",
+      "populationSource": "worldometer-un-2026",
+      "text": {
+        "cs": {
+          "name": "Benin",
+          "capital": [
+            "Porto-Novo"
+          ],
+          "currencyNames": {
+            "XOF": "CFA/BCEAO frank"
+          },
+          "languageNames": {
+            "fr": "francouzština"
+          }
+        }
+      }
+    },
+    {
+      "code": "BT",
+      "iso3": "BTN",
+      "currency": [
+        "BTN",
+        "INR"
+      ],
+      "languages": [
+        "dz"
+      ],
+      "excludeLanguages": [
+        "dz",
+        "en",
+        "lep",
+        "ne",
+        "tsj"
+      ],
+      "lat": 27.5,
+      "lon": 90.5,
+      "region": "Asia",
+      "population": 802214,
+      "populationYear": 2026,
+      "populationKind": "projekce",
+      "populationSource": "worldometer-un-2026",
+      "text": {
+        "cs": {
+          "name": "Bhútán",
+          "capital": [
+            "Thimphu"
+          ],
+          "currencyNames": {
+            "BTN": "bhútánský ngultrum",
+            "INR": "indická rupie"
+          },
+          "languageNames": {
+            "dz": "dzongkä"
+          }
+        }
+      }
+    },
+    {
+      "code": "BO",
+      "iso3": "BOL",
+      "currency": [
+        "BOB"
+      ],
+      "languages": [
+        "es",
+        "qu",
+        "ay"
+      ],
+      "excludeLanguages": [
+        "ay",
+        "es",
+        "qu"
+      ],
+      "lat": -17,
+      "lon": -65,
+      "region": "South America",
+      "population": 12749291,
+      "populationYear": 2026,
+      "populationKind": "projekce",
+      "populationSource": "worldometer-un-2026",
+      "text": {
+        "cs": {
+          "name": "Bolívie",
+          "capital": [
+            "Sucre"
+          ],
+          "currencyNames": {
+            "BOB": "bolivijský boliviano"
+          },
+          "languageNames": {
+            "es": "španělština",
+            "qu": "kečuánština",
+            "ay": "ajmarština"
+          }
+        }
+      }
+    },
+    {
+      "code": "BA",
+      "iso3": "BIH",
+      "currency": [
+        "BAM"
+      ],
+      "languages": [
+        "bs",
+        "hr",
+        "sr"
+      ],
+      "excludeLanguages": [
+        "bs",
+        "en",
+        "hr",
+        "sr"
+      ],
+      "lat": 44,
+      "lon": 18,
+      "region": "Europe",
+      "population": 3114242,
+      "populationYear": 2026,
+      "populationKind": "projekce",
+      "populationSource": "worldometer-un-2026",
+      "text": {
+        "cs": {
+          "name": "Bosna a Hercegovina",
+          "capital": [
+            "Sarajevo"
+          ],
+          "currencyNames": {
+            "BAM": "bosenská konvertibilní marka"
+          },
+          "languageNames": {
+            "bs": "bosenština",
+            "hr": "chorvatština",
+            "sr": "srbština"
+          }
+        }
+      }
+    },
+    {
+      "code": "BW",
+      "iso3": "BWA",
+      "currency": [
+        "BWP"
+      ],
+      "languages": [
+        "en",
+        "tn"
+      ],
+      "excludeLanguages": [
+        "en",
+        "tn"
+      ],
+      "lat": -22,
+      "lon": 24,
+      "region": "Africa",
+      "population": 2603388,
+      "populationYear": 2026,
+      "populationKind": "projekce",
+      "populationSource": "worldometer-un-2026",
+      "text": {
+        "cs": {
+          "name": "Botswana",
+          "capital": [
+            "Gaborone"
+          ],
+          "currencyNames": {
+            "BWP": "botswanská pula"
+          },
+          "languageNames": {
+            "en": "angličtina",
+            "tn": "setswanština"
+          }
+        }
+      }
+    },
+    {
+      "code": "BR",
+      "iso3": "BRA",
+      "currency": [
+        "BRL"
+      ],
+      "languages": [
+        "pt"
+      ],
+      "excludeLanguages": [
+        "en",
+        "pt",
+        "vec"
+      ],
+      "lat": -10,
+      "lon": -55,
+      "region": "South America",
+      "population": 213562666,
+      "populationYear": 2026,
+      "populationKind": "projekce",
+      "populationSource": "worldometer-un-2026",
+      "text": {
+        "cs": {
+          "name": "Brazílie",
+          "capital": [
+            "Brasília"
+          ],
+          "currencyNames": {
+            "BRL": "brazilský real"
+          },
+          "languageNames": {
+            "pt": "portugalština"
+          }
+        }
+      }
+    },
+    {
+      "code": "BN",
+      "iso3": "BRN",
+      "currency": [
+        "BND"
+      ],
+      "languages": [
+        "ms"
+      ],
+      "excludeLanguages": [
+        "en",
+        "ms",
+        "zh"
+      ],
+      "lat": 4.5,
+      "lon": 114.66666666,
+      "region": "Asia",
+      "population": 469775,
+      "populationYear": 2026,
+      "populationKind": "projekce",
+      "populationSource": "worldometer-un-2026",
+      "text": {
+        "cs": {
+          "name": "Brunej",
+          "capital": [
+            "Bandar Seri Begawan"
+          ],
+          "currencyNames": {
+            "BND": "brunejský dolar"
+          },
+          "languageNames": {
+            "ms": "malajština"
+          }
+        }
+      }
+    },
+    {
+      "code": "BG",
+      "iso3": "BGR",
+      "currency": [
+        "EUR"
+      ],
+      "languages": [
+        "bg"
+      ],
+      "excludeLanguages": [
+        "bg",
+        "de",
+        "en",
+        "ru",
+        "tr"
+      ],
+      "lat": 43,
+      "lon": 25,
+      "region": "Europe",
+      "population": 6667659,
+      "populationYear": 2026,
+      "populationKind": "projekce",
+      "populationSource": "worldometer-un-2026",
+      "text": {
+        "cs": {
+          "name": "Bulharsko",
+          "capital": [
+            "Sofie"
+          ],
+          "currencyNames": {
+            "EUR": "euro"
+          },
+          "languageNames": {
+            "bg": "bulharština"
+          }
+        }
+      }
+    },
+    {
+      "code": "BF",
+      "iso3": "BFA",
+      "currency": [
+        "XOF"
+      ],
+      "languages": [
+        "mos",
+        "fr"
+      ],
+      "excludeLanguages": [
+        "dyu",
+        "fr",
+        "mos"
+      ],
+      "lat": 13,
+      "lon": -2,
+      "region": "Africa",
+      "population": 24601700,
+      "populationYear": 2026,
+      "populationKind": "projekce",
+      "populationSource": "worldometer-un-2026",
+      "text": {
+        "cs": {
+          "name": "Burkina Faso",
+          "capital": [
+            "Ouagadougou"
+          ],
+          "currencyNames": {
+            "XOF": "CFA/BCEAO frank"
+          },
+          "languageNames": {
+            "mos": "mosi",
+            "fr": "francouzština"
+          }
+        }
+      }
+    },
+    {
+      "code": "BI",
+      "iso3": "BDI",
+      "currency": [
+        "BIF"
+      ],
+      "languages": [
+        "rn",
+        "fr",
+        "en"
+      ],
+      "excludeLanguages": [
+        "en",
+        "fr",
+        "rn"
+      ],
+      "lat": -3.5,
+      "lon": 30,
+      "region": "Africa",
+      "population": 14729157,
+      "populationYear": 2026,
+      "populationKind": "projekce",
+      "populationSource": "worldometer-un-2026",
+      "text": {
+        "cs": {
+          "name": "Burundi",
+          "capital": [
+            "Gitega"
+          ],
+          "currencyNames": {
+            "BIF": "burundský frank"
+          },
+          "languageNames": {
+            "rn": "kirundština",
+            "fr": "francouzština",
+            "en": "angličtina"
+          }
+        }
+      }
+    },
+    {
+      "code": "BY",
+      "iso3": "BLR",
+      "currency": [
+        "BYN"
+      ],
+      "languages": [
+        "be",
+        "ru"
+      ],
+      "excludeLanguages": [
+        "be",
+        "ru"
+      ],
+      "lat": 53,
+      "lon": 28,
+      "region": "Europe",
+      "population": 8937018,
+      "populationYear": 2026,
+      "populationKind": "projekce",
+      "populationSource": "worldometer-un-2026",
+      "text": {
+        "cs": {
+          "name": "Bělorusko",
+          "capital": [
+            "Minsk"
+          ],
+          "currencyNames": {
+            "BYN": "běloruský rubl"
+          },
+          "languageNames": {
+            "be": "běloruština",
+            "ru": "ruština"
+          }
+        }
+      }
+    },
+    {
+      "code": "CL",
+      "iso3": "CHL",
+      "currency": [
+        "CLP"
+      ],
+      "languages": [
+        "es"
+      ],
+      "excludeLanguages": [
+        "arn",
+        "en",
+        "es"
+      ],
+      "lat": -30,
+      "lon": -71,
+      "region": "South America",
+      "population": 19945850,
+      "populationYear": 2026,
+      "populationKind": "projekce",
+      "populationSource": "worldometer-un-2026",
+      "text": {
+        "cs": {
+          "name": "Chile",
+          "capital": [
+            "Santiago"
+          ],
+          "currencyNames": {
+            "CLP": "chilské peso"
+          },
+          "languageNames": {
+            "es": "španělština"
+          }
+        }
+      }
+    },
+    {
+      "code": "HR",
+      "iso3": "HRV",
+      "currency": [
+        "EUR"
+      ],
+      "languages": [
+        "hr"
+      ],
+      "excludeLanguages": [
+        "en",
+        "hr",
+        "it",
+        "vec"
+      ],
+      "lat": 45.16666666,
+      "lon": 15.5,
+      "region": "Europe",
+      "population": 3822345,
+      "populationYear": 2026,
+      "populationKind": "projekce",
+      "populationSource": "worldometer-un-2026",
+      "text": {
+        "cs": {
+          "name": "Chorvatsko",
+          "capital": [
+            "Záhřeb"
+          ],
+          "currencyNames": {
+            "EUR": "euro"
+          },
+          "languageNames": {
+            "hr": "chorvatština"
+          }
+        }
+      }
+    },
+    {
+      "code": "CD",
+      "iso3": "COD",
+      "currency": [
+        "CDF"
+      ],
+      "languages": [
+        "fr"
+      ],
+      "excludeLanguages": [
+        "fr",
+        "kg",
+        "ln",
+        "lu",
+        "lua",
+        "sw"
+      ],
+      "lat": 0,
+      "lon": 25,
+      "region": "Africa",
+      "population": 116452162,
+      "populationYear": 2026,
+      "populationKind": "projekce",
+      "populationSource": "worldometer-un-2026",
+      "text": {
+        "cs": {
+          "name": "Demokratická republika Kongo",
+          "capital": [
+            "Kinshasa"
+          ],
+          "currencyNames": {
+            "CDF": "konžský frank"
+          },
+          "languageNames": {
+            "fr": "francouzština"
+          }
+        }
+      }
+    },
+    {
+      "code": "DM",
+      "iso3": "DMA",
+      "currency": [
+        "XCD"
+      ],
+      "languages": [
+        "en"
+      ],
+      "excludeLanguages": [
+        "en"
+      ],
+      "lat": 15.41666666,
+      "lon": -61.33333333,
+      "region": "North America",
+      "population": 65511,
+      "populationYear": 2026,
+      "populationKind": "projekce",
+      "populationSource": "worldometer-un-2026",
+      "text": {
+        "cs": {
+          "name": "Dominika",
+          "capital": [
+            "Roseau"
+          ],
+          "currencyNames": {
+            "XCD": "východokaribský dolar"
+          },
+          "languageNames": {
+            "en": "angličtina"
+          }
+        }
+      }
+    },
+    {
+      "code": "DO",
+      "iso3": "DOM",
+      "currency": [
+        "DOP"
+      ],
+      "languages": [
+        "es"
+      ],
+      "excludeLanguages": [
+        "es"
+      ],
+      "lat": 19,
+      "lon": -70.66666666,
+      "region": "North America",
+      "population": 11609500,
+      "populationYear": 2026,
+      "populationKind": "projekce",
+      "populationSource": "worldometer-un-2026",
+      "text": {
+        "cs": {
+          "name": "Dominikánská republika",
+          "capital": [
+            "Santo Domingo"
+          ],
+          "currencyNames": {
+            "DOP": "dominikánské peso"
+          },
+          "languageNames": {
+            "es": "španělština"
+          }
+        }
+      }
+    },
+    {
+      "code": "DK",
+      "iso3": "DNK",
+      "currency": [
+        "DKK"
+      ],
+      "languages": [
+        "da"
+      ],
+      "excludeLanguages": [
+        "da",
+        "de",
+        "en",
+        "kl",
+        "sv"
+      ],
+      "lat": 56,
+      "lon": 10,
+      "region": "Europe",
+      "population": 6023520,
+      "populationYear": 2026,
+      "populationKind": "projekce",
+      "populationSource": "worldometer-un-2026",
+      "text": {
+        "cs": {
+          "name": "Dánsko",
+          "capital": [
+            "Kodaň"
+          ],
+          "currencyNames": {
+            "DKK": "dánská koruna"
+          },
+          "languageNames": {
+            "da": "dánština"
+          }
+        }
+      }
+    },
+    {
+      "code": "DJ",
+      "iso3": "DJI",
+      "currency": [
+        "DJF"
+      ],
+      "languages": [
+        "fr",
+        "ar"
+      ],
+      "excludeLanguages": [
+        "aa",
+        "ar",
+        "fr",
+        "so"
+      ],
+      "lat": 11.5,
+      "lon": 43,
+      "region": "Africa",
+      "population": 1199459,
+      "populationYear": 2026,
+      "populationKind": "projekce",
+      "populationSource": "worldometer-un-2026",
+      "text": {
+        "cs": {
+          "name": "Džibutsko",
+          "capital": [
+            "Džibuti"
+          ],
+          "currencyNames": {
+            "DJF": "džibutský frank"
+          },
+          "languageNames": {
+            "fr": "francouzština",
+            "ar": "arabština"
+          }
+        }
+      }
+    },
+    {
+      "code": "EG",
+      "iso3": "EGY",
+      "currency": [
+        "EGP"
+      ],
+      "languages": [
+        "ar"
+      ],
+      "excludeLanguages": [
+        "ar",
+        "arz",
+        "cop",
+        "en"
+      ],
+      "lat": 27,
+      "lon": 30,
+      "region": "Africa",
+      "population": 120101175,
+      "populationYear": 2026,
+      "populationKind": "projekce",
+      "populationSource": "worldometer-un-2026",
+      "text": {
+        "cs": {
+          "name": "Egypt",
+          "capital": [
+            "Káhira"
+          ],
+          "currencyNames": {
+            "EGP": "egyptská libra"
+          },
+          "languageNames": {
+            "ar": "arabština"
+          }
+        }
+      }
+    },
+    {
+      "code": "EC",
+      "iso3": "ECU",
+      "currency": [
+        "USD"
+      ],
+      "languages": [
+        "es",
+        "qu"
+      ],
+      "excludeLanguages": [
+        "es",
+        "qu",
+        "qug"
+      ],
+      "lat": -2,
+      "lon": -77.5,
+      "region": "South America",
+      "population": 18444506,
+      "populationYear": 2026,
+      "populationKind": "projekce",
+      "populationSource": "worldometer-un-2026",
+      "text": {
+        "cs": {
+          "name": "Ekvádor",
+          "capital": [
+            "Quito"
+          ],
+          "currencyNames": {
+            "USD": "americký dolar"
+          },
+          "languageNames": {
+            "es": "španělština",
+            "qu": "kečuánština"
+          }
+        }
+      }
+    },
+    {
+      "code": "ER",
+      "iso3": "ERI",
+      "currency": [
+        "ERN"
+      ],
+      "languages": [
+        "ti",
+        "ar",
+        "en"
+      ],
+      "excludeLanguages": [
+        "aa",
+        "ar",
+        "byn",
+        "en",
+        "ssy",
+        "ti",
+        "tig"
+      ],
+      "lat": 15,
+      "lon": 39,
+      "region": "Africa",
+      "population": 3682669,
+      "populationYear": 2026,
+      "populationKind": "projekce",
+      "populationSource": "worldometer-un-2026",
+      "text": {
+        "cs": {
+          "name": "Eritrea",
+          "capital": [
+            "Asmara"
+          ],
+          "currencyNames": {
+            "ERN": "eritrejská nakfa"
+          },
+          "languageNames": {
+            "ti": "tigrinijština",
+            "ar": "arabština",
+            "en": "angličtina"
+          }
+        }
+      }
+    },
+    {
+      "code": "EE",
+      "iso3": "EST",
+      "currency": [
+        "EUR"
+      ],
+      "languages": [
+        "et"
+      ],
+      "excludeLanguages": [
+        "en",
+        "et",
+        "fi",
+        "ru",
+        "vro"
+      ],
+      "lat": 59,
+      "lon": 26,
+      "region": "Europe",
+      "population": 1331062,
+      "populationYear": 2026,
+      "populationKind": "projekce",
+      "populationSource": "worldometer-un-2026",
+      "text": {
+        "cs": {
+          "name": "Estonsko",
+          "capital": [
+            "Tallinn"
+          ],
+          "currencyNames": {
+            "EUR": "euro"
+          },
+          "languageNames": {
+            "et": "estonština"
+          }
+        }
+      }
+    },
+    {
+      "code": "SZ",
+      "iso3": "SWZ",
+      "currency": [
+        "SZL",
+        "ZAR"
+      ],
+      "languages": [
+        "en",
+        "ss"
+      ],
+      "excludeLanguages": [
+        "en",
+        "ss",
+        "ts",
+        "zu"
+      ],
+      "lat": -26.5,
+      "lon": 31.5,
+      "region": "Africa",
+      "population": 1269859,
+      "populationYear": 2026,
+      "populationKind": "projekce",
+      "populationSource": "worldometer-un-2026",
+      "text": {
+        "cs": {
+          "name": "Eswatini",
+          "capital": [
+            "Mbabane",
+            "Lobamba"
+          ],
+          "currencyNames": {
+            "SZL": "svazijský lilangeni",
+            "ZAR": "jihoafrický rand"
+          },
+          "languageNames": {
+            "en": "angličtina",
+            "ss": "siswatština"
+          }
+        }
+      }
+    },
+    {
+      "code": "ET",
+      "iso3": "ETH",
+      "currency": [
+        "ETB"
+      ],
+      "languages": [
+        "am",
+        "om",
+        "so",
+        "ti",
+        "aa"
+      ],
+      "excludeLanguages": [
+        "aa",
+        "am",
+        "en",
+        "om",
+        "sid",
+        "so",
+        "ti",
+        "wal"
+      ],
+      "lat": 8,
+      "lon": 38,
+      "region": "Africa",
+      "population": 138902185,
+      "populationYear": 2026,
+      "populationKind": "projekce",
+      "populationSource": "worldometer-un-2026",
+      "text": {
+        "cs": {
+          "name": "Etiopie",
+          "capital": [
+            "Addis Abeba"
+          ],
+          "currencyNames": {
+            "ETB": "etiopský birr"
+          },
+          "languageNames": {
+            "am": "amharština",
+            "om": "oromština",
+            "so": "somálština",
+            "ti": "tigrinijština",
+            "aa": "afarština"
+          }
+        }
+      }
+    },
+    {
+      "code": "FJ",
+      "iso3": "FJI",
+      "currency": [
+        "FJD"
+      ],
+      "languages": [
+        "en",
+        "fj",
+        "hi"
+      ],
+      "excludeLanguages": [
+        "en",
+        "fj",
+        "hi",
+        "hif"
+      ],
+      "lat": -18,
+      "lon": 175,
+      "region": "Oceania",
+      "population": 937282,
+      "populationYear": 2026,
+      "populationKind": "projekce",
+      "populationSource": "worldometer-un-2026",
+      "text": {
+        "cs": {
+          "name": "Fidži",
+          "capital": [
+            "Suva"
+          ],
+          "currencyNames": {
+            "FJD": "fidžijský dolar"
+          },
+          "languageNames": {
+            "en": "angličtina",
+            "fj": "fidžijština",
+            "hi": "hindština"
+          }
+        }
+      }
+    },
+    {
+      "code": "PH",
+      "iso3": "PHL",
+      "currency": [
+        "PHP"
+      ],
+      "languages": [
+        "fil",
+        "en"
+      ],
+      "excludeLanguages": [
+        "bik",
+        "ceb",
+        "en",
+        "es",
+        "fbl",
+        "fil",
+        "hil",
+        "ilo",
+        "mdh",
+        "pag",
+        "pam",
+        "tsg",
+        "war"
+      ],
+      "lat": 13,
+      "lon": 122,
+      "region": "Asia",
+      "population": 117724471,
+      "populationYear": 2026,
+      "populationKind": "projekce",
+      "populationSource": "worldometer-un-2026",
+      "text": {
+        "cs": {
+          "name": "Filipíny",
+          "capital": [
+            "Manila"
+          ],
+          "currencyNames": {
+            "PHP": "filipínské peso"
+          },
+          "languageNames": {
+            "fil": "filipínština",
+            "en": "angličtina"
+          }
+        }
+      }
+    },
+    {
+      "code": "FI",
+      "iso3": "FIN",
+      "currency": [
+        "EUR"
+      ],
+      "languages": [
+        "fi",
+        "sv"
+      ],
+      "excludeLanguages": [
+        "de",
+        "en",
+        "fi",
+        "sms",
+        "sv"
+      ],
+      "lat": 64,
+      "lon": 26,
+      "region": "Europe",
+      "population": 5621739,
+      "populationYear": 2026,
+      "populationKind": "projekce",
+      "populationSource": "worldometer-un-2026",
+      "text": {
+        "cs": {
+          "name": "Finsko",
+          "capital": [
+            "Helsinky"
+          ],
+          "currencyNames": {
+            "EUR": "euro"
+          },
+          "languageNames": {
+            "fi": "finština",
+            "sv": "švédština"
+          }
+        }
+      }
+    },
+    {
+      "code": "FR",
+      "iso3": "FRA",
+      "currency": [
+        "EUR"
+      ],
+      "languages": [
+        "fr"
+      ],
+      "excludeLanguages": [
+        "de",
+        "en",
+        "es",
+        "fr",
+        "it",
+        "oc",
+        "pcd",
+        "pt"
+      ],
+      "lat": 46.7,
+      "lon": 2.4,
+      "region": "Europe",
+      "population": 66746401,
+      "populationYear": 2026,
+      "populationKind": "projekce",
+      "populationSource": "worldometer-un-2026",
+      "text": {
+        "cs": {
+          "name": "Francie",
+          "capital": [
+            "Paříž"
+          ],
+          "currencyNames": {
+            "EUR": "euro"
+          },
+          "languageNames": {
+            "fr": "francouzština"
+          }
+        }
+      }
+    },
+    {
+      "code": "GA",
+      "iso3": "GAB",
+      "currency": [
+        "XAF"
+      ],
+      "languages": [
+        "fr"
+      ],
+      "excludeLanguages": [
+        "fr",
+        "puu"
+      ],
+      "lat": -1,
+      "lon": 11.75,
+      "region": "Africa",
+      "population": 2647399,
+      "populationYear": 2026,
+      "populationKind": "projekce",
+      "populationSource": "worldometer-un-2026",
+      "text": {
+        "cs": {
+          "name": "Gabon",
+          "capital": [
+            "Libreville"
+          ],
+          "currencyNames": {
+            "XAF": "CFA/BEAC frank"
+          },
+          "languageNames": {
+            "fr": "francouzština"
+          }
+        }
+      }
+    },
+    {
+      "code": "GM",
+      "iso3": "GMB",
+      "currency": [
+        "GMD"
+      ],
+      "languages": [
+        "en"
+      ],
+      "excludeLanguages": [
+        "en",
+        "man"
+      ],
+      "lat": 13.46666666,
+      "lon": -16.56666666,
+      "region": "Africa",
+      "population": 2884079,
+      "populationYear": 2026,
+      "populationKind": "projekce",
+      "populationSource": "worldometer-un-2026",
+      "text": {
+        "cs": {
+          "name": "Gambie",
+          "capital": [
+            "Banjul"
+          ],
+          "currencyNames": {
+            "GMD": "gambijský dalasi"
+          },
+          "languageNames": {
+            "en": "angličtina"
+          }
+        }
+      }
+    },
+    {
+      "code": "GH",
+      "iso3": "GHA",
+      "currency": [
+        "GHS"
+      ],
+      "languages": [
+        "en"
+      ],
+      "excludeLanguages": [
+        "abr",
+        "ada",
+        "ak",
+        "ee",
+        "en",
+        "gaa",
+        "gur",
+        "nzi"
+      ],
+      "lat": 8,
+      "lon": -2,
+      "region": "Africa",
+      "population": 35697557,
+      "populationYear": 2026,
+      "populationKind": "projekce",
+      "populationSource": "worldometer-un-2026",
+      "text": {
+        "cs": {
+          "name": "Ghana",
+          "capital": [
+            "Accra"
+          ],
+          "currencyNames": {
+            "GHS": "ghanský cedi"
+          },
+          "languageNames": {
+            "en": "angličtina"
+          }
+        }
+      }
+    },
+    {
+      "code": "GD",
+      "iso3": "GRD",
+      "currency": [
+        "XCD"
+      ],
+      "languages": [
+        "en"
+      ],
+      "excludeLanguages": [
+        "en"
+      ],
+      "lat": 12.11666666,
+      "lon": -61.66666666,
+      "region": "North America",
+      "population": 117362,
+      "populationYear": 2026,
+      "populationKind": "projekce",
+      "populationSource": "worldometer-un-2026",
+      "text": {
+        "cs": {
+          "name": "Grenada",
+          "capital": [
+            "Saint George’s"
+          ],
+          "currencyNames": {
+            "XCD": "východokaribský dolar"
+          },
+          "languageNames": {
+            "en": "angličtina"
+          }
+        }
+      }
+    },
+    {
+      "code": "GE",
+      "iso3": "GEO",
+      "currency": [
+        "GEL"
+      ],
+      "languages": [
+        "ka"
+      ],
+      "excludeLanguages": [
+        "ab",
+        "hy",
+        "ka",
+        "os",
+        "ru",
+        "xmf"
+      ],
+      "lat": 42,
+      "lon": 43.5,
+      "region": "Asia",
+      "population": 3804642,
+      "populationYear": 2026,
+      "populationKind": "projekce",
+      "populationSource": "worldometer-un-2026",
+      "text": {
+        "cs": {
+          "name": "Gruzie",
+          "capital": [
+            "Tbilisi"
+          ],
+          "currencyNames": {
+            "GEL": "gruzínské lari"
+          },
+          "languageNames": {
+            "ka": "gruzínština"
+          }
+        }
+      }
+    },
+    {
+      "code": "GT",
+      "iso3": "GTM",
+      "currency": [
+        "GTQ"
+      ],
+      "languages": [
+        "es"
+      ],
+      "excludeLanguages": [
+        "es",
+        "quc"
+      ],
+      "lat": 15.5,
+      "lon": -90.25,
+      "region": "North America",
+      "population": 18967978,
+      "populationYear": 2026,
+      "populationKind": "projekce",
+      "populationSource": "worldometer-un-2026",
+      "text": {
+        "cs": {
+          "name": "Guatemala",
+          "capital": [
+            "Ciudad de Guatemala"
+          ],
+          "currencyNames": {
+            "GTQ": "guatemalský quetzal"
+          },
+          "languageNames": {
+            "es": "španělština"
+          }
+        }
+      }
+    },
+    {
+      "code": "GN",
+      "iso3": "GIN",
+      "currency": [
+        "GNF"
+      ],
+      "languages": [
+        "fr"
+      ],
+      "excludeLanguages": [
+        "ff",
+        "fr",
+        "kpe",
+        "man",
+        "nqo",
+        "sus"
+      ],
+      "lat": 11,
+      "lon": -10,
+      "region": "Africa",
+      "population": 15441993,
+      "populationYear": 2026,
+      "populationKind": "projekce",
+      "populationSource": "worldometer-un-2026",
+      "text": {
+        "cs": {
+          "name": "Guinea",
+          "capital": [
+            "Conakry"
+          ],
+          "currencyNames": {
+            "GNF": "guinejský frank"
+          },
+          "languageNames": {
+            "fr": "francouzština"
+          }
+        }
+      }
+    },
+    {
+      "code": "GW",
+      "iso3": "GNB",
+      "currency": [
+        "XOF"
+      ],
+      "languages": [
+        "pt"
+      ],
+      "excludeLanguages": [
+        "fr",
+        "knf",
+        "pt"
+      ],
+      "lat": 12,
+      "lon": -15,
+      "region": "Africa",
+      "population": 2297808,
+      "populationYear": 2026,
+      "populationKind": "projekce",
+      "populationSource": "worldometer-un-2026",
+      "text": {
+        "cs": {
+          "name": "Guinea-Bissau",
+          "capital": [
+            "Bissau"
+          ],
+          "currencyNames": {
+            "XOF": "CFA/BCEAO frank"
+          },
+          "languageNames": {
+            "pt": "portugalština"
+          }
+        }
+      }
+    },
+    {
+      "code": "GY",
+      "iso3": "GUY",
+      "currency": [
+        "GYD"
+      ],
+      "languages": [
+        "en"
+      ],
+      "excludeLanguages": [
+        "en"
+      ],
+      "lat": 5,
+      "lon": -59,
+      "region": "South America",
+      "population": 840890,
+      "populationYear": 2026,
+      "populationKind": "projekce",
+      "populationSource": "worldometer-un-2026",
+      "text": {
+        "cs": {
+          "name": "Guyana",
+          "capital": [
+            "Georgetown"
+          ],
+          "currencyNames": {
+            "GYD": "guyanský dolar"
+          },
+          "languageNames": {
+            "en": "angličtina"
+          }
+        }
+      }
+    },
+    {
+      "code": "HT",
+      "iso3": "HTI",
+      "currency": [
+        "HTG",
+        "USD"
+      ],
+      "languages": [
+        "ht",
+        "fr"
+      ],
+      "excludeLanguages": [
+        "fr",
+        "ht"
+      ],
+      "lat": 19,
+      "lon": -72.41666666,
+      "region": "North America",
+      "population": 12037506,
+      "populationYear": 2026,
+      "populationKind": "projekce",
+      "populationSource": "worldometer-un-2026",
+      "text": {
+        "cs": {
+          "name": "Haiti",
+          "capital": [
+            "Port-au-Prince"
+          ],
+          "currencyNames": {
+            "HTG": "haitský gourde",
+            "USD": "americký dolar"
+          },
+          "languageNames": {
+            "ht": "haitština",
+            "fr": "francouzština"
+          }
+        }
+      }
+    },
+    {
+      "code": "HN",
+      "iso3": "HND",
+      "currency": [
+        "HNL"
+      ],
+      "languages": [
+        "es"
+      ],
+      "excludeLanguages": [
+        "es"
+      ],
+      "lat": 15,
+      "lon": -86.5,
+      "region": "North America",
+      "population": 11184760,
+      "populationYear": 2026,
+      "populationKind": "projekce",
+      "populationSource": "worldometer-un-2026",
+      "text": {
+        "cs": {
+          "name": "Honduras",
+          "capital": [
+            "Tegucigalpa"
+          ],
+          "currencyNames": {
+            "HNL": "honduraská lempira"
+          },
+          "languageNames": {
+            "es": "španělština"
+          }
+        }
+      }
+    },
+    {
+      "code": "IN",
+      "iso3": "IND",
+      "currency": [
+        "INR"
+      ],
+      "languages": [
+        "hi",
+        "en"
+      ],
+      "excludeLanguages": [
+        "as",
+        "awa",
+        "bgc",
+        "bho",
+        "bn",
+        "en",
+        "gu",
+        "hi",
+        "hne",
+        "kha",
+        "kn",
+        "kok",
+        "ks",
+        "mag",
+        "mai",
+        "ml",
+        "mr",
+        "mwr",
+        "ne",
+        "or",
+        "pa",
+        "sa",
+        "sat",
+        "sd",
+        "ta",
+        "te",
+        "ur"
+      ],
+      "lat": 20,
+      "lon": 77,
+      "region": "Asia",
+      "population": 1476625576,
+      "populationYear": 2026,
+      "populationKind": "projekce",
+      "populationSource": "worldometer-un-2026",
+      "text": {
+        "cs": {
+          "name": "Indie",
+          "capital": [
+            "Nové Dillí"
+          ],
+          "currencyNames": {
+            "INR": "indická rupie"
+          },
+          "languageNames": {
+            "hi": "hindština",
+            "en": "angličtina"
+          }
+        }
+      }
+    },
+    {
+      "code": "ID",
+      "iso3": "IDN",
+      "currency": [
+        "IDR"
+      ],
+      "languages": [
+        "id"
+      ],
+      "excludeLanguages": [
+        "ace",
+        "ban",
+        "bew",
+        "bjn",
+        "bug",
+        "id",
+        "jv",
+        "mad",
+        "min",
+        "ms",
+        "su"
+      ],
+      "lat": -5,
+      "lon": 120,
+      "region": "Asia",
+      "population": 287886782,
+      "populationYear": 2026,
+      "populationKind": "projekce",
+      "populationSource": "worldometer-un-2026",
+      "text": {
+        "cs": {
+          "name": "Indonésie",
+          "capital": [
+            "Jakarta"
+          ],
+          "currencyNames": {
+            "IDR": "indonéská rupie"
+          },
+          "languageNames": {
+            "id": "indonéština"
+          }
+        }
+      }
+    },
+    {
+      "code": "IE",
+      "iso3": "IRL",
+      "currency": [
+        "EUR"
+      ],
+      "languages": [
+        "ga",
+        "en"
+      ],
+      "excludeLanguages": [
+        "en",
+        "fr",
+        "ga"
+      ],
+      "lat": 53,
+      "lon": -8,
+      "region": "Europe",
+      "population": 5356950,
+      "populationYear": 2026,
+      "populationKind": "projekce",
+      "populationSource": "worldometer-un-2026",
+      "text": {
+        "cs": {
+          "name": "Irsko",
+          "capital": [
+            "Dublin"
+          ],
+          "currencyNames": {
+            "EUR": "euro"
+          },
+          "languageNames": {
+            "ga": "irština",
+            "en": "angličtina"
+          }
+        }
+      }
+    },
+    {
+      "code": "IQ",
+      "iso3": "IRQ",
+      "currency": [
+        "IQD"
+      ],
+      "languages": [
+        "ar",
+        "ku"
+      ],
+      "excludeLanguages": [
+        "ar",
+        "az",
+        "ckb",
+        "en",
+        "ku"
+      ],
+      "lat": 33,
+      "lon": 44,
+      "region": "Asia",
+      "population": 48007437,
+      "populationYear": 2026,
+      "populationKind": "projekce",
+      "populationSource": "worldometer-un-2026",
+      "text": {
+        "cs": {
+          "name": "Irák",
+          "capital": [
+            "Bagdád"
+          ],
+          "currencyNames": {
+            "IQD": "irácký dinár"
+          },
+          "languageNames": {
+            "ar": "arabština",
+            "ku": "kurdština"
+          }
+        }
+      }
+    },
+    {
+      "code": "IS",
+      "iso3": "ISL",
+      "currency": [
+        "ISK"
+      ],
+      "languages": [
+        "is"
+      ],
+      "excludeLanguages": [
+        "is"
+      ],
+      "lat": 65,
+      "lon": -18,
+      "region": "Europe",
+      "population": 402329,
+      "populationYear": 2026,
+      "populationKind": "projekce",
+      "populationSource": "worldometer-un-2026",
+      "text": {
+        "cs": {
+          "name": "Island",
+          "capital": [
+            "Reykjavík"
+          ],
+          "currencyNames": {
+            "ISK": "islandská koruna"
+          },
+          "languageNames": {
+            "is": "islandština"
+          }
+        }
+      }
+    },
+    {
+      "code": "IT",
+      "iso3": "ITA",
+      "currency": [
+        "EUR"
+      ],
+      "languages": [
+        "it"
+      ],
+      "excludeLanguages": [
+        "de",
+        "en",
+        "fr",
+        "it",
+        "lmo",
+        "sc",
+        "vec"
+      ],
+      "lat": 42.83333333,
+      "lon": 12.83333333,
+      "region": "Europe",
+      "population": 58926166,
+      "populationYear": 2026,
+      "populationKind": "projekce",
+      "populationSource": "worldometer-un-2026",
+      "text": {
+        "cs": {
+          "name": "Itálie",
+          "capital": [
+            "Řím"
+          ],
+          "currencyNames": {
+            "EUR": "euro"
+          },
+          "languageNames": {
+            "it": "italština"
+          }
+        }
+      }
+    },
+    {
+      "code": "IL",
+      "iso3": "ISR",
+      "currency": [
+        "ILS"
+      ],
+      "languages": [
+        "he",
+        "ar"
+      ],
+      "excludeLanguages": [
+        "apc",
+        "ar",
+        "en",
+        "he",
+        "hu",
+        "lad",
+        "pl",
+        "ro",
+        "ru",
+        "yi"
+      ],
+      "lat": 31.5,
+      "lon": 34.75,
+      "region": "Asia",
+      "population": 9647689,
+      "populationYear": 2026,
+      "populationKind": "projekce",
+      "populationSource": "worldometer-un-2026",
+      "text": {
+        "cs": {
+          "name": "Izrael",
+          "capital": [
+            "Jeruzalém"
+          ],
+          "currencyNames": {
+            "ILS": "izraelský nový šekel"
+          },
+          "languageNames": {
+            "he": "hebrejština",
+            "ar": "arabština"
+          }
+        }
+      }
+    },
+    {
+      "code": "JM",
+      "iso3": "JAM",
+      "currency": [
+        "JMD"
+      ],
+      "languages": [
+        "en"
+      ],
+      "excludeLanguages": [
+        "en",
+        "jam"
+      ],
+      "lat": 18.25,
+      "lon": -77.5,
+      "region": "North America",
+      "population": 2833403,
+      "populationYear": 2026,
+      "populationKind": "projekce",
+      "populationSource": "worldometer-un-2026",
+      "text": {
+        "cs": {
+          "name": "Jamajka",
+          "capital": [
+            "Kingston"
+          ],
+          "currencyNames": {
+            "JMD": "jamajský dolar"
+          },
+          "languageNames": {
+            "en": "angličtina"
+          }
+        }
+      }
+    },
+    {
+      "code": "JP",
+      "iso3": "JPN",
+      "currency": [
+        "JPY"
+      ],
+      "languages": [
+        "ja"
+      ],
+      "excludeLanguages": [
+        "ja"
+      ],
+      "lat": 36,
+      "lon": 138,
+      "region": "Asia",
+      "population": 122427731,
+      "populationYear": 2026,
+      "populationKind": "projekce",
+      "populationSource": "worldometer-un-2026",
+      "text": {
+        "cs": {
+          "name": "Japonsko",
+          "capital": [
+            "Tokio"
+          ],
+          "currencyNames": {
+            "JPY": "japonský jen"
+          },
+          "languageNames": {
+            "ja": "japonština"
+          }
+        }
+      }
+    },
+    {
+      "code": "YE",
+      "iso3": "YEM",
+      "currency": [
+        "YER"
+      ],
+      "languages": [
+        "ar"
+      ],
+      "excludeLanguages": [
+        "ar",
+        "en"
+      ],
+      "lat": 15,
+      "lon": 48,
+      "region": "Asia",
+      "population": 42961653,
+      "populationYear": 2026,
+      "populationKind": "projekce",
+      "populationSource": "worldometer-un-2026",
+      "text": {
+        "cs": {
+          "name": "Jemen",
+          "capital": [
+            "Saná"
+          ],
+          "currencyNames": {
+            "YER": "jemenský rijál"
+          },
+          "languageNames": {
+            "ar": "arabština"
+          }
+        }
+      }
+    },
+    {
+      "code": "ZA",
+      "iso3": "ZAF",
+      "currency": [
+        "ZAR"
+      ],
+      "languages": [
+        "zu",
+        "xh",
+        "af",
+        "en",
+        "st",
+        "tn",
+        "ts",
+        "ss",
+        "ve",
+        "nr",
+        "nso"
+      ],
+      "excludeLanguages": [
+        "af",
+        "en",
+        "hi",
+        "nr",
+        "nso",
+        "ss",
+        "st",
+        "tn",
+        "ts",
+        "ve",
+        "xh",
+        "zu"
+      ],
+      "lat": -29,
+      "lon": 24,
+      "region": "Africa",
+      "population": 65453084,
+      "populationYear": 2026,
+      "populationKind": "projekce",
+      "populationSource": "worldometer-un-2026",
+      "text": {
+        "cs": {
+          "name": "Jihoafrická republika",
+          "capital": [
+            "Pretoria",
+            "Kapské Město",
+            "Bloemfontein"
+          ],
+          "currencyNames": {
+            "ZAR": "jihoafrický rand"
+          },
+          "languageNames": {
+            "zu": "zuluština",
+            "xh": "xhoština",
+            "af": "afrikánština",
+            "en": "angličtina",
+            "st": "sotština (jižní)",
+            "tn": "setswanština",
+            "ts": "tsonga",
+            "ss": "siswatština",
+            "ve": "venda",
+            "nr": "ndebele (Jižní Afrika)",
+            "nso": "severní sotština"
+          }
+        }
+      }
+    },
+    {
+      "code": "KR",
+      "iso3": "KOR",
+      "currency": [
+        "KRW"
+      ],
+      "languages": [
+        "ko"
+      ],
+      "excludeLanguages": [
+        "ko"
+      ],
+      "lat": 37,
+      "lon": 127.5,
+      "region": "Asia",
+      "population": 51600388,
+      "populationYear": 2026,
+      "populationKind": "projekce",
+      "populationSource": "worldometer-un-2026",
+      "text": {
+        "cs": {
+          "name": "Jižní Korea",
+          "capital": [
+            "Soul"
+          ],
+          "currencyNames": {
+            "KRW": "jihokorejský won"
+          },
+          "languageNames": {
+            "ko": "korejština"
+          }
+        }
+      }
+    },
+    {
+      "code": "SS",
+      "iso3": "SSD",
+      "currency": [
+        "SSP"
+      ],
+      "languages": [
+        "en"
+      ],
+      "excludeLanguages": [
+        "ar",
+        "en",
+        "nus"
+      ],
+      "lat": 7,
+      "lon": 30,
+      "region": "Africa",
+      "population": 12436037,
+      "populationYear": 2026,
+      "populationKind": "projekce",
+      "populationSource": "worldometer-un-2026",
+      "text": {
+        "cs": {
+          "name": "Jižní Súdán",
+          "capital": [
+            "Džuba"
+          ],
+          "currencyNames": {
+            "SSP": "jihosúdánská libra"
+          },
+          "languageNames": {
+            "en": "angličtina"
+          }
+        }
+      }
+    },
+    {
+      "code": "JO",
+      "iso3": "JOR",
+      "currency": [
+        "JOD"
+      ],
+      "languages": [
+        "ar"
+      ],
+      "excludeLanguages": [
+        "apc",
+        "ar",
+        "en"
+      ],
+      "lat": 31,
+      "lon": 36,
+      "region": "Asia",
+      "population": 11589532,
+      "populationYear": 2026,
+      "populationKind": "projekce",
+      "populationSource": "worldometer-un-2026",
+      "text": {
+        "cs": {
+          "name": "Jordánsko",
+          "capital": [
+            "Ammán"
+          ],
+          "currencyNames": {
+            "JOD": "jordánský dinár"
+          },
+          "languageNames": {
+            "ar": "arabština"
+          }
+        }
+      }
+    },
+    {
+      "code": "KH",
+      "iso3": "KHM",
+      "currency": [
+        "KHR"
+      ],
+      "languages": [
+        "km"
+      ],
+      "excludeLanguages": [
+        "cja",
+        "km"
+      ],
+      "lat": 13,
+      "lon": 105,
+      "region": "Asia",
+      "population": 18051219,
+      "populationYear": 2026,
+      "populationKind": "projekce",
+      "populationSource": "worldometer-un-2026",
+      "text": {
+        "cs": {
+          "name": "Kambodža",
+          "capital": [
+            "Phnompenh"
+          ],
+          "currencyNames": {
+            "KHR": "kambodžský riel"
+          },
+          "languageNames": {
+            "km": "khmérština"
+          }
+        }
+      }
+    },
+    {
+      "code": "CM",
+      "iso3": "CMR",
+      "currency": [
+        "XAF"
+      ],
+      "languages": [
+        "fr",
+        "en"
+      ],
+      "excludeLanguages": [
+        "bas",
+        "bax",
+        "bbj",
+        "bkm",
+        "bum",
+        "byv",
+        "en",
+        "ewo",
+        "ff",
+        "fr",
+        "mua",
+        "nnh",
+        "ybb"
+      ],
+      "lat": 6,
+      "lon": 12,
+      "region": "Africa",
+      "population": 30640817,
+      "populationYear": 2026,
+      "populationKind": "projekce",
+      "populationSource": "worldometer-un-2026",
+      "text": {
+        "cs": {
+          "name": "Kamerun",
+          "capital": [
+            "Yaoundé"
+          ],
+          "currencyNames": {
+            "XAF": "CFA/BEAC frank"
+          },
+          "languageNames": {
+            "fr": "francouzština",
+            "en": "angličtina"
+          }
+        }
+      }
+    },
+    {
+      "code": "CA",
+      "iso3": "CAN",
+      "currency": [
+        "CAD"
+      ],
+      "languages": [
+        "en",
+        "fr"
+      ],
+      "excludeLanguages": [
+        "ar",
+        "chp",
+        "crk",
+        "de",
+        "den",
+        "dgr",
+        "en",
+        "es",
+        "fil",
+        "fr",
+        "gwi",
+        "hi",
+        "it",
+        "iu",
+        "pa",
+        "ur",
+        "yue",
+        "zh"
+      ],
+      "lat": 60,
+      "lon": -95,
+      "region": "North America",
+      "population": 40467728,
+      "populationYear": 2026,
+      "populationKind": "projekce",
+      "populationSource": "worldometer-un-2026",
+      "text": {
+        "cs": {
+          "name": "Kanada",
+          "capital": [
+            "Ottawa"
+          ],
+          "currencyNames": {
+            "CAD": "kanadský dolar"
+          },
+          "languageNames": {
+            "en": "angličtina",
+            "fr": "francouzština"
+          }
+        }
+      }
+    },
+    {
+      "code": "CV",
+      "iso3": "CPV",
+      "currency": [
+        "CVE"
+      ],
+      "languages": [
+        "pt"
+      ],
+      "excludeLanguages": [
+        "kea",
+        "pt"
+      ],
+      "lat": 16,
+      "lon": -24,
+      "region": "Africa",
+      "population": 529630,
+      "populationYear": 2026,
+      "populationKind": "projekce",
+      "populationSource": "worldometer-un-2026",
+      "text": {
+        "cs": {
+          "name": "Kapverdy",
+          "capital": [
+            "Praia"
+          ],
+          "currencyNames": {
+            "CVE": "kapverdské escudo"
+          },
+          "languageNames": {
+            "pt": "portugalština"
+          }
+        }
+      }
+    },
+    {
+      "code": "QA",
+      "iso3": "QAT",
+      "currency": [
+        "QAR"
+      ],
+      "languages": [
+        "ar"
+      ],
+      "excludeLanguages": [
+        "ar",
+        "fa"
+      ],
+      "lat": 25.5,
+      "lon": 51.25,
+      "region": "Asia",
+      "population": 3173559,
+      "populationYear": 2026,
+      "populationKind": "projekce",
+      "populationSource": "worldometer-un-2026",
+      "text": {
+        "cs": {
+          "name": "Katar",
+          "capital": [
+            "Dauhá"
+          ],
+          "currencyNames": {
+            "QAR": "katarský rijál"
+          },
+          "languageNames": {
+            "ar": "arabština"
+          }
+        }
+      }
+    },
+    {
+      "code": "KZ",
+      "iso3": "KAZ",
+      "currency": [
+        "KZT"
+      ],
+      "languages": [
+        "kk",
+        "ru"
+      ],
+      "excludeLanguages": [
+        "de",
+        "en",
+        "kk",
+        "ru",
+        "ug"
+      ],
+      "lat": 48,
+      "lon": 68,
+      "region": "Asia",
+      "population": 21083626,
+      "populationYear": 2026,
+      "populationKind": "projekce",
+      "populationSource": "worldometer-un-2026",
+      "text": {
+        "cs": {
+          "name": "Kazachstán",
+          "capital": [
+            "Astana"
+          ],
+          "currencyNames": {
+            "KZT": "kazašské tenge"
+          },
+          "languageNames": {
+            "kk": "kazaština",
+            "ru": "ruština"
+          }
+        }
+      }
+    },
+    {
+      "code": "KE",
+      "iso3": "KEN",
+      "currency": [
+        "KES"
+      ],
+      "languages": [
+        "sw",
+        "en"
+      ],
+      "excludeLanguages": [
+        "ebu",
+        "en",
+        "guz",
+        "kam",
+        "ki",
+        "kln",
+        "luo",
+        "luy",
+        "mas",
+        "mer",
+        "so",
+        "sw"
+      ],
+      "lat": 1,
+      "lon": 38,
+      "region": "Africa",
+      "population": 58636412,
+      "populationYear": 2026,
+      "populationKind": "projekce",
+      "populationSource": "worldometer-un-2026",
+      "text": {
+        "cs": {
+          "name": "Keňa",
+          "capital": [
+            "Nairobi"
+          ],
+          "currencyNames": {
+            "KES": "keňský šilink"
+          },
+          "languageNames": {
+            "sw": "svahilština",
+            "en": "angličtina"
+          }
+        }
+      }
+    },
+    {
+      "code": "KI",
+      "iso3": "KIR",
+      "currency": [
+        "AUD"
+      ],
+      "languages": [
+        "gil",
+        "en"
+      ],
+      "excludeLanguages": [
+        "en",
+        "gil"
+      ],
+      "lat": 1.45,
+      "lon": 173,
+      "region": "Oceania",
+      "population": 138445,
+      "populationYear": 2026,
+      "populationKind": "projekce",
+      "populationSource": "worldometer-un-2026",
+      "text": {
+        "cs": {
+          "name": "Kiribati",
+          "capital": [
+            "Jižní Tarawa"
+          ],
+          "currencyNames": {
+            "AUD": "australský dolar"
+          },
+          "languageNames": {
+            "gil": "kiribatština",
+            "en": "angličtina"
+          }
+        }
+      }
+    },
+    {
+      "code": "CO",
+      "iso3": "COL",
+      "currency": [
+        "COP"
+      ],
+      "languages": [
+        "es"
+      ],
+      "excludeLanguages": [
+        "es"
+      ],
+      "lat": 4,
+      "lon": -72,
+      "region": "South America",
+      "population": 53936226,
+      "populationYear": 2026,
+      "populationKind": "projekce",
+      "populationSource": "worldometer-un-2026",
+      "text": {
+        "cs": {
+          "name": "Kolumbie",
+          "capital": [
+            "Bogotá"
+          ],
+          "currencyNames": {
+            "COP": "kolumbijské peso"
+          },
+          "languageNames": {
+            "es": "španělština"
+          }
+        }
+      }
+    },
+    {
+      "code": "KM",
+      "iso3": "COM",
+      "currency": [
+        "KMF"
+      ],
+      "languages": [
+        "ar",
+        "fr"
+      ],
+      "excludeLanguages": [
+        "ar",
+        "fr",
+        "wni",
+        "zdj"
+      ],
+      "lat": -12.16666666,
+      "lon": 44.25,
+      "region": "Africa",
+      "population": 899010,
+      "populationYear": 2026,
+      "populationKind": "projekce",
+      "populationSource": "worldometer-un-2026",
+      "text": {
+        "cs": {
+          "name": "Komory",
+          "capital": [
+            "Moroni"
+          ],
+          "currencyNames": {
+            "KMF": "komorský frank"
+          },
+          "languageNames": {
+            "ar": "arabština",
+            "fr": "francouzština"
+          }
+        }
+      }
+    },
+    {
+      "code": "CG",
+      "iso3": "COG",
+      "currency": [
+        "XAF"
+      ],
+      "languages": [
+        "fr"
+      ],
+      "excludeLanguages": [
+        "fr",
+        "ln"
+      ],
+      "lat": -1,
+      "lon": 15,
+      "region": "Africa",
+      "population": 6637785,
+      "populationYear": 2026,
+      "populationKind": "projekce",
+      "populationSource": "worldometer-un-2026",
+      "text": {
+        "cs": {
+          "name": "Konžská republika",
+          "capital": [
+            "Brazzaville"
+          ],
+          "currencyNames": {
+            "XAF": "CFA/BEAC frank"
+          },
+          "languageNames": {
+            "fr": "francouzština"
+          }
+        }
+      }
+    },
+    {
+      "code": "CR",
+      "iso3": "CRI",
+      "currency": [
+        "CRC"
+      ],
+      "languages": [
+        "es"
+      ],
+      "excludeLanguages": [
+        "es"
+      ],
+      "lat": 10,
+      "lon": -84,
+      "region": "North America",
+      "population": 5174789,
+      "populationYear": 2026,
+      "populationKind": "projekce",
+      "populationSource": "worldometer-un-2026",
+      "text": {
+        "cs": {
+          "name": "Kostarika",
+          "capital": [
+            "San José"
+          ],
+          "currencyNames": {
+            "CRC": "kostarický colón"
+          },
+          "languageNames": {
+            "es": "španělština"
+          }
+        }
+      }
+    },
+    {
+      "code": "CU",
+      "iso3": "CUB",
+      "currency": [
+        "CUP"
+      ],
+      "languages": [
+        "es"
+      ],
+      "excludeLanguages": [
+        "es"
+      ],
+      "lat": 21.5,
+      "lon": -80,
+      "region": "North America",
+      "population": 10892659,
+      "populationYear": 2026,
+      "populationKind": "projekce",
+      "populationSource": "worldometer-un-2026",
+      "text": {
+        "cs": {
+          "name": "Kuba",
+          "capital": [
+            "Havana"
+          ],
+          "currencyNames": {
+            "CUP": "kubánské peso"
+          },
+          "languageNames": {
+            "es": "španělština"
+          }
+        }
+      }
+    },
+    {
+      "code": "KW",
+      "iso3": "KWT",
+      "currency": [
+        "KWD"
+      ],
+      "languages": [
+        "ar"
+      ],
+      "excludeLanguages": [
+        "ar"
+      ],
+      "lat": 29.5,
+      "lon": 45.75,
+      "region": "Asia",
+      "population": 5102773,
+      "populationYear": 2026,
+      "populationKind": "projekce",
+      "populationSource": "worldometer-un-2026",
+      "text": {
+        "cs": {
+          "name": "Kuvajt",
+          "capital": [
+            "Kuvajt"
+          ],
+          "currencyNames": {
+            "KWD": "kuvajtský dinár"
+          },
+          "languageNames": {
+            "ar": "arabština"
+          }
+        }
+      }
+    },
+    {
+      "code": "CY",
+      "iso3": "CYP",
+      "currency": [
+        "EUR"
+      ],
+      "languages": [
+        "el",
+        "tr"
+      ],
+      "excludeLanguages": [
+        "el",
+        "en",
+        "fr",
+        "tr"
+      ],
+      "lat": 35,
+      "lon": 33,
+      "region": "Asia",
+      "population": 1382334,
+      "populationYear": 2026,
+      "populationKind": "projekce",
+      "populationSource": "worldometer-un-2026",
+      "text": {
+        "cs": {
+          "name": "Kypr",
+          "capital": [
+            "Nikósie"
+          ],
+          "currencyNames": {
+            "EUR": "euro"
+          },
+          "languageNames": {
+            "el": "řečtina",
+            "tr": "turečtina"
+          }
+        }
+      }
+    },
+    {
+      "code": "KG",
+      "iso3": "KGZ",
+      "currency": [
+        "KGS"
+      ],
+      "languages": [
+        "ky",
+        "ru"
+      ],
+      "excludeLanguages": [
+        "ky",
+        "ru"
+      ],
+      "lat": 41,
+      "lon": 75,
+      "region": "Asia",
+      "population": 7400465,
+      "populationYear": 2026,
+      "populationKind": "projekce",
+      "populationSource": "worldometer-un-2026",
+      "text": {
+        "cs": {
+          "name": "Kyrgyzstán",
+          "capital": [
+            "Biškek"
+          ],
+          "currencyNames": {
+            "KGS": "kyrgyzský som"
+          },
+          "languageNames": {
+            "ky": "kyrgyzština",
+            "ru": "ruština"
+          }
+        }
+      }
+    },
+    {
+      "code": "LA",
+      "iso3": "LAO",
+      "currency": [
+        "LAK"
+      ],
+      "languages": [
+        "lo"
+      ],
+      "excludeLanguages": [
+        "hnj",
+        "kjg",
+        "lo"
+      ],
+      "lat": 18,
+      "lon": 105,
+      "region": "Asia",
+      "population": 7974017,
+      "populationYear": 2026,
+      "populationKind": "projekce",
+      "populationSource": "worldometer-un-2026",
+      "text": {
+        "cs": {
+          "name": "Laos",
+          "capital": [
+            "Vientiane"
+          ],
+          "currencyNames": {
+            "LAK": "laoský kip"
+          },
+          "languageNames": {
+            "lo": "laoština"
+          }
+        }
+      }
+    },
+    {
+      "code": "LS",
+      "iso3": "LSO",
+      "currency": [
+        "LSL",
+        "ZAR"
+      ],
+      "languages": [
+        "st",
+        "en"
+      ],
+      "excludeLanguages": [
+        "en",
+        "ss",
+        "st",
+        "zu"
+      ],
+      "lat": -29.5,
+      "lon": 28.5,
+      "region": "Africa",
+      "population": 2389336,
+      "populationYear": 2026,
+      "populationKind": "projekce",
+      "populationSource": "worldometer-un-2026",
+      "text": {
+        "cs": {
+          "name": "Lesotho",
+          "capital": [
+            "Maseru"
+          ],
+          "currencyNames": {
+            "LSL": "lesothský loti",
+            "ZAR": "jihoafrický rand"
+          },
+          "languageNames": {
+            "st": "sotština (jižní)",
+            "en": "angličtina"
+          }
+        }
+      }
+    },
+    {
+      "code": "LB",
+      "iso3": "LBN",
+      "currency": [
+        "LBP"
+      ],
+      "languages": [
+        "ar"
+      ],
+      "excludeLanguages": [
+        "apc",
+        "ar",
+        "en",
+        "fr",
+        "hy",
+        "ku"
+      ],
+      "lat": 33.83333333,
+      "lon": 35.83333333,
+      "region": "Asia",
+      "population": 5897467,
+      "populationYear": 2026,
+      "populationKind": "projekce",
+      "populationSource": "worldometer-un-2026",
+      "text": {
+        "cs": {
+          "name": "Libanon",
+          "capital": [
+            "Bejrút"
+          ],
+          "currencyNames": {
+            "LBP": "libanonská libra"
+          },
+          "languageNames": {
+            "ar": "arabština"
+          }
+        }
+      }
+    },
+    {
+      "code": "LY",
+      "iso3": "LBY",
+      "currency": [
+        "LYD"
+      ],
+      "languages": [
+        "ar"
+      ],
+      "excludeLanguages": [
+        "ar"
+      ],
+      "lat": 25,
+      "lon": 17,
+      "region": "Africa",
+      "population": 7539851,
+      "populationYear": 2026,
+      "populationKind": "projekce",
+      "populationSource": "worldometer-un-2026",
+      "text": {
+        "cs": {
+          "name": "Libye",
+          "capital": [
+            "Tripolis"
+          ],
+          "currencyNames": {
+            "LYD": "libyjský dinár"
+          },
+          "languageNames": {
+            "ar": "arabština"
+          }
+        }
+      }
+    },
+    {
+      "code": "LR",
+      "iso3": "LBR",
+      "currency": [
+        "LRD",
+        "USD"
+      ],
+      "languages": [
+        "en"
+      ],
+      "excludeLanguages": [
+        "en",
+        "kpe",
+        "vai"
+      ],
+      "lat": 6.5,
+      "lon": -9.5,
+      "region": "Africa",
+      "population": 5853949,
+      "populationYear": 2026,
+      "populationKind": "projekce",
+      "populationSource": "worldometer-un-2026",
+      "text": {
+        "cs": {
+          "name": "Libérie",
+          "capital": [
+            "Monrovia"
+          ],
+          "currencyNames": {
+            "LRD": "liberijský dolar",
+            "USD": "americký dolar"
+          },
+          "languageNames": {
+            "en": "angličtina"
+          }
+        }
+      }
+    },
+    {
+      "code": "LI",
+      "iso3": "LIE",
+      "currency": [
+        "CHF"
+      ],
+      "languages": [
+        "de",
+        "gsw"
+      ],
+      "excludeLanguages": [
+        "de",
+        "gsw",
+        "wae"
+      ],
+      "lat": 47.26666666,
+      "lon": 9.53333333,
+      "region": "Europe",
+      "population": 40368,
+      "populationYear": 2026,
+      "populationKind": "projekce",
+      "populationSource": "worldometer-un-2026",
+      "text": {
+        "cs": {
+          "name": "Lichtenštejnsko",
+          "capital": [
+            "Vaduz"
+          ],
+          "currencyNames": {
+            "CHF": "švýcarský frank"
+          },
+          "languageNames": {
+            "de": "němčina",
+            "gsw": "němčina (Švýcarsko)"
+          }
+        }
+      }
+    },
+    {
+      "code": "LT",
+      "iso3": "LTU",
+      "currency": [
+        "EUR"
+      ],
+      "languages": [
+        "lt"
+      ],
+      "excludeLanguages": [
+        "de",
+        "en",
+        "lt",
+        "ru"
+      ],
+      "lat": 56,
+      "lon": 24,
+      "region": "Europe",
+      "population": 2797338,
+      "populationYear": 2026,
+      "populationKind": "projekce",
+      "populationSource": "worldometer-un-2026",
+      "text": {
+        "cs": {
+          "name": "Litva",
+          "capital": [
+            "Vilnius"
+          ],
+          "currencyNames": {
+            "EUR": "euro"
+          },
+          "languageNames": {
+            "lt": "litevština"
+          }
+        }
+      }
+    },
+    {
+      "code": "LV",
+      "iso3": "LVA",
+      "currency": [
+        "EUR"
+      ],
+      "languages": [
+        "lv"
+      ],
+      "excludeLanguages": [
+        "en",
+        "ltg",
+        "lv",
+        "ru"
+      ],
+      "lat": 57,
+      "lon": 25,
+      "region": "Europe",
+      "population": 1835935,
+      "populationYear": 2026,
+      "populationKind": "projekce",
+      "populationSource": "worldometer-un-2026",
+      "text": {
+        "cs": {
+          "name": "Lotyšsko",
+          "capital": [
+            "Riga"
+          ],
+          "currencyNames": {
+            "EUR": "euro"
+          },
+          "languageNames": {
+            "lv": "lotyština"
+          }
+        }
+      }
+    },
+    {
+      "code": "LU",
+      "iso3": "LUX",
+      "currency": [
+        "EUR"
+      ],
+      "languages": [
+        "lb",
+        "fr",
+        "de"
+      ],
+      "excludeLanguages": [
+        "de",
+        "en",
+        "fr",
+        "lb",
+        "pt"
+      ],
+      "lat": 49.75,
+      "lon": 6.16666666,
+      "region": "Europe",
+      "population": 687448,
+      "populationYear": 2026,
+      "populationKind": "projekce",
+      "populationSource": "worldometer-un-2026",
+      "text": {
+        "cs": {
+          "name": "Lucembursko",
+          "capital": [
+            "Lucemburk"
+          ],
+          "currencyNames": {
+            "EUR": "euro"
+          },
+          "languageNames": {
+            "lb": "lucemburština",
+            "fr": "francouzština",
+            "de": "němčina"
+          }
+        }
+      }
+    },
+    {
+      "code": "MG",
+      "iso3": "MDG",
+      "currency": [
+        "MGA"
+      ],
+      "languages": [
+        "mg",
+        "fr"
+      ],
+      "excludeLanguages": [
+        "en",
+        "fr",
+        "mg"
+      ],
+      "lat": -20,
+      "lon": 47,
+      "region": "Africa",
+      "population": 33522052,
+      "populationYear": 2026,
+      "populationKind": "projekce",
+      "populationSource": "worldometer-un-2026",
+      "text": {
+        "cs": {
+          "name": "Madagaskar",
+          "capital": [
+            "Antananarivo"
+          ],
+          "currencyNames": {
+            "MGA": "madagaskarský ariary"
+          },
+          "languageNames": {
+            "mg": "malgaština",
+            "fr": "francouzština"
+          }
+        }
+      }
+    },
+    {
+      "code": "MY",
+      "iso3": "MYS",
+      "currency": [
+        "MYR"
+      ],
+      "languages": [
+        "ms"
+      ],
+      "excludeLanguages": [
+        "en",
+        "iba",
+        "jv",
+        "ms",
+        "ta",
+        "zh",
+        "zmi"
+      ],
+      "lat": 2.5,
+      "lon": 112.5,
+      "region": "Asia",
+      "population": 36385115,
+      "populationYear": 2026,
+      "populationKind": "projekce",
+      "populationSource": "worldometer-un-2026",
+      "text": {
+        "cs": {
+          "name": "Malajsie",
+          "capital": [
+            "Kuala Lumpur"
+          ],
+          "currencyNames": {
+            "MYR": "malajsijský ringgit"
+          },
+          "languageNames": {
+            "ms": "malajština"
+          }
+        }
+      }
+    },
+    {
+      "code": "MW",
+      "iso3": "MWI",
+      "currency": [
+        "MWK"
+      ],
+      "languages": [
+        "en",
+        "ny"
+      ],
+      "excludeLanguages": [
+        "en",
+        "ny",
+        "tum"
+      ],
+      "lat": -13.5,
+      "lon": 34,
+      "region": "Africa",
+      "population": 22785535,
+      "populationYear": 2026,
+      "populationKind": "projekce",
+      "populationSource": "worldometer-un-2026",
+      "text": {
+        "cs": {
+          "name": "Malawi",
+          "capital": [
+            "Lilongwe"
+          ],
+          "currencyNames": {
+            "MWK": "malawijská kwacha"
+          },
+          "languageNames": {
+            "en": "angličtina",
+            "ny": "ňandžština"
+          }
+        }
+      }
+    },
+    {
+      "code": "MV",
+      "iso3": "MDV",
+      "currency": [
+        "MVR"
+      ],
+      "languages": [
+        "dv"
+      ],
+      "excludeLanguages": [
+        "dv",
+        "en"
+      ],
+      "lat": 3.25,
+      "lon": 73,
+      "region": "Asia",
+      "population": 531517,
+      "populationYear": 2026,
+      "populationKind": "projekce",
+      "populationSource": "worldometer-un-2026",
+      "text": {
+        "cs": {
+          "name": "Maledivy",
+          "capital": [
+            "Malé"
+          ],
+          "currencyNames": {
+            "MVR": "maledivská rupie"
+          },
+          "languageNames": {
+            "dv": "maledivština"
+          }
+        }
+      }
+    },
+    {
+      "code": "ML",
+      "iso3": "MLI",
+      "currency": [
+        "XOF"
+      ],
+      "languages": [
+        "bm",
+        "ff",
+        "snk",
+        "fr"
+      ],
+      "excludeLanguages": [
+        "bm",
+        "dtm",
+        "ff",
+        "ffm",
+        "fr",
+        "kao",
+        "khq",
+        "mwk",
+        "ses",
+        "snk",
+        "tmh"
+      ],
+      "lat": 17,
+      "lon": -4,
+      "region": "Africa",
+      "population": 25932275,
+      "populationYear": 2026,
+      "populationKind": "projekce",
+      "populationSource": "worldometer-un-2026",
+      "text": {
+        "cs": {
+          "name": "Mali",
+          "capital": [
+            "Bamako"
+          ],
+          "currencyNames": {
+            "XOF": "CFA/BCEAO frank"
+          },
+          "languageNames": {
+            "bm": "bambarština",
+            "ff": "fulbština",
+            "snk": "soninkština",
+            "fr": "francouzština"
+          }
+        }
+      }
+    },
+    {
+      "code": "MT",
+      "iso3": "MLT",
+      "currency": [
+        "EUR"
+      ],
+      "languages": [
+        "mt",
+        "en"
+      ],
+      "excludeLanguages": [
+        "en",
+        "fr",
+        "it",
+        "mt"
+      ],
+      "lat": 35.9,
+      "lon": 14.45,
+      "region": "Europe",
+      "population": 549011,
+      "populationYear": 2026,
+      "populationKind": "projekce",
+      "populationSource": "worldometer-un-2026",
+      "text": {
+        "cs": {
+          "name": "Malta",
+          "capital": [
+            "Valletta"
+          ],
+          "currencyNames": {
+            "EUR": "euro"
+          },
+          "languageNames": {
+            "mt": "maltština",
+            "en": "angličtina"
+          }
+        }
+      }
+    },
+    {
+      "code": "MA",
+      "iso3": "MAR",
+      "currency": [
+        "MAD"
+      ],
+      "languages": [
+        "ar",
+        "tzm"
+      ],
+      "excludeLanguages": [
+        "ar",
+        "ary",
+        "en",
+        "fr",
+        "rif",
+        "shi",
+        "tzm",
+        "zgh"
+      ],
+      "lat": 32,
+      "lon": -5,
+      "region": "Africa",
+      "population": 38762441,
+      "populationYear": 2026,
+      "populationKind": "projekce",
+      "populationSource": "worldometer-un-2026",
+      "text": {
+        "cs": {
+          "name": "Maroko",
+          "capital": [
+            "Rabat"
+          ],
+          "currencyNames": {
+            "MAD": "marocký dirham"
+          },
+          "languageNames": {
+            "ar": "arabština",
+            "tzm": "berberština (tamazight)"
+          }
+        }
+      }
+    },
+    {
+      "code": "MH",
+      "iso3": "MHL",
+      "currency": [
+        "USD"
+      ],
+      "languages": [
+        "mh",
+        "en"
+      ],
+      "excludeLanguages": [
+        "en",
+        "mh"
+      ],
+      "lat": 7.1,
+      "lon": 171.2,
+      "region": "Oceania",
+      "population": 35075,
+      "populationYear": 2026,
+      "populationKind": "projekce",
+      "populationSource": "worldometer-un-2026",
+      "text": {
+        "cs": {
+          "name": "Marshallovy ostrovy",
+          "capital": [
+            "Majuro"
+          ],
+          "currencyNames": {
+            "USD": "americký dolar"
+          },
+          "languageNames": {
+            "mh": "maršálština",
+            "en": "angličtina"
+          }
+        }
+      }
+    },
+    {
+      "code": "MU",
+      "iso3": "MUS",
+      "currency": [
+        "MUR"
+      ],
+      "languages": [
+        "mfe",
+        "en",
+        "fr"
+      ],
+      "excludeLanguages": [
+        "bho",
+        "en",
+        "fr",
+        "mfe",
+        "ta",
+        "ur"
+      ],
+      "lat": -20.28333333,
+      "lon": 57.55,
+      "region": "Africa",
+      "population": 1265059,
+      "populationYear": 2026,
+      "populationKind": "projekce",
+      "populationSource": "worldometer-un-2026",
+      "text": {
+        "cs": {
+          "name": "Mauricius",
+          "capital": [
+            "Port Louis"
+          ],
+          "currencyNames": {
+            "MUR": "mauricijská rupie"
+          },
+          "languageNames": {
+            "mfe": "mauricijská kreolština",
+            "en": "angličtina",
+            "fr": "francouzština"
+          }
+        }
+      }
+    },
+    {
+      "code": "MR",
+      "iso3": "MRT",
+      "currency": [
+        "MRU"
+      ],
+      "languages": [
+        "ar"
+      ],
+      "excludeLanguages": [
+        "ar",
+        "ff",
+        "fr"
+      ],
+      "lat": 20,
+      "lon": -12,
+      "region": "Africa",
+      "population": 5461319,
+      "populationYear": 2026,
+      "populationKind": "projekce",
+      "populationSource": "worldometer-un-2026",
+      "text": {
+        "cs": {
+          "name": "Mauritánie",
+          "capital": [
+            "Nuakšott"
+          ],
+          "currencyNames": {
+            "MRU": "mauritánská ouguiya"
+          },
+          "languageNames": {
+            "ar": "arabština"
+          }
+        }
+      }
+    },
+    {
+      "code": "HU",
+      "iso3": "HUN",
+      "currency": [
+        "HUF"
+      ],
+      "languages": [
+        "hu"
+      ],
+      "excludeLanguages": [
+        "de",
+        "en",
+        "fr",
+        "hu"
+      ],
+      "lat": 47,
+      "lon": 20,
+      "region": "Europe",
+      "population": 9585818,
+      "populationYear": 2026,
+      "populationKind": "projekce",
+      "populationSource": "worldometer-un-2026",
+      "text": {
+        "cs": {
+          "name": "Maďarsko",
+          "capital": [
+            "Budapešť"
+          ],
+          "currencyNames": {
+            "HUF": "maďarský forint"
+          },
+          "languageNames": {
+            "hu": "maďarština"
+          }
+        }
+      }
+    },
+    {
+      "code": "MX",
+      "iso3": "MEX",
+      "currency": [
+        "MXN"
+      ],
+      "languages": [
+        "es"
+      ],
+      "excludeLanguages": [
+        "en",
+        "es"
+      ],
+      "lat": 23,
+      "lon": -102,
+      "region": "North America",
+      "population": 132997658,
+      "populationYear": 2026,
+      "populationKind": "projekce",
+      "populationSource": "worldometer-un-2026",
+      "text": {
+        "cs": {
+          "name": "Mexiko",
+          "capital": [
+            "Ciudad de México"
+          ],
+          "currencyNames": {
+            "MXN": "mexické peso"
+          },
+          "languageNames": {
+            "es": "španělština"
+          }
+        }
+      }
+    },
+    {
+      "code": "FM",
+      "iso3": "FSM",
+      "currency": [
+        "USD"
+      ],
+      "languages": [
+        "en"
+      ],
+      "excludeLanguages": [
+        "chk",
+        "en",
+        "kos",
+        "pon",
+        "uli",
+        "yap"
+      ],
+      "lat": 6.9,
+      "lon": 158.2,
+      "region": "Oceania",
+      "population": 114183,
+      "populationYear": 2026,
+      "populationKind": "projekce",
+      "populationSource": "worldometer-un-2026",
+      "text": {
+        "cs": {
+          "name": "Mikronésie",
+          "capital": [
+            "Palikir"
+          ],
+          "currencyNames": {
+            "USD": "americký dolar"
+          },
+          "languageNames": {
+            "en": "angličtina"
+          }
+        }
+      }
+    },
+    {
+      "code": "MD",
+      "iso3": "MDA",
+      "currency": [
+        "MDL"
+      ],
+      "languages": [
+        "ro"
+      ],
+      "excludeLanguages": [
+        "bg",
+        "gag",
+        "ro",
+        "ru",
+        "uk"
+      ],
+      "lat": 47,
+      "lon": 29,
+      "region": "Europe",
+      "population": 2961253,
+      "populationYear": 2026,
+      "populationKind": "projekce",
+      "populationSource": "worldometer-un-2026",
+      "text": {
+        "cs": {
+          "name": "Moldavsko",
+          "capital": [
+            "Kišiněv"
+          ],
+          "currencyNames": {
+            "MDL": "moldavský leu"
+          },
+          "languageNames": {
+            "ro": "rumunština"
+          }
+        }
+      }
+    },
+    {
+      "code": "MC",
+      "iso3": "MCO",
+      "currency": [
+        "EUR"
+      ],
+      "languages": [
+        "fr"
+      ],
+      "excludeLanguages": [
+        "fr"
+      ],
+      "lat": 43.73333333,
+      "lon": 7.4,
+      "region": "Europe",
+      "population": 38087,
+      "populationYear": 2026,
+      "populationKind": "projekce",
+      "populationSource": "worldometer-un-2026",
+      "text": {
+        "cs": {
+          "name": "Monako",
+          "capital": [
+            "Monako"
+          ],
+          "currencyNames": {
+            "EUR": "euro"
+          },
+          "languageNames": {
+            "fr": "francouzština"
+          }
+        }
+      }
+    },
+    {
+      "code": "MN",
+      "iso3": "MNG",
+      "currency": [
+        "MNT"
+      ],
+      "languages": [
+        "mn"
+      ],
+      "excludeLanguages": [
+        "kk",
+        "mn",
+        "zh"
+      ],
+      "lat": 46,
+      "lon": 105,
+      "region": "Asia",
+      "population": 3556798,
+      "populationYear": 2026,
+      "populationKind": "projekce",
+      "populationSource": "worldometer-un-2026",
+      "text": {
+        "cs": {
+          "name": "Mongolsko",
+          "capital": [
+            "Ulánbátar"
+          ],
+          "currencyNames": {
+            "MNT": "mongolský tugrik"
+          },
+          "languageNames": {
+            "mn": "mongolština"
+          }
+        }
+      }
+    },
+    {
+      "code": "MZ",
+      "iso3": "MOZ",
+      "currency": [
+        "MZN"
+      ],
+      "languages": [
+        "pt"
+      ],
+      "excludeLanguages": [
+        "mgh",
+        "ndc",
+        "ngl",
+        "ny",
+        "pt",
+        "rng",
+        "seh",
+        "ts",
+        "vmw",
+        "yao"
+      ],
+      "lat": -18.25,
+      "lon": 35,
+      "region": "Africa",
+      "population": 36639851,
+      "populationYear": 2026,
+      "populationKind": "projekce",
+      "populationSource": "worldometer-un-2026",
+      "text": {
+        "cs": {
+          "name": "Mosambik",
+          "capital": [
+            "Maputo"
+          ],
+          "currencyNames": {
+            "MZN": "mozambický metical"
+          },
+          "languageNames": {
+            "pt": "portugalština"
+          }
+        }
+      }
+    },
+    {
+      "code": "MM",
+      "iso3": "MMR",
+      "currency": [
+        "MMK"
+      ],
+      "languages": [
+        "my"
+      ],
+      "excludeLanguages": [
+        "kac",
+        "mnw",
+        "my",
+        "rhg",
+        "shn"
+      ],
+      "lat": 21,
+      "lon": 96,
+      "region": "Asia",
+      "population": 55184819,
+      "populationYear": 2026,
+      "populationKind": "projekce",
+      "populationSource": "worldometer-un-2026",
+      "text": {
+        "cs": {
+          "name": "Myanmar",
+          "capital": [
+            "Neipyijto"
+          ],
+          "currencyNames": {
+            "MMK": "myanmarský kyat"
+          },
+          "languageNames": {
+            "my": "barmština"
+          }
+        }
+      }
+    },
+    {
+      "code": "NA",
+      "iso3": "NAM",
+      "currency": [
+        "NAD",
+        "ZAR"
+      ],
+      "languages": [
+        "en",
+        "af"
+      ],
+      "excludeLanguages": [
+        "af",
+        "en",
+        "hz",
+        "kj",
+        "naq",
+        "ng"
+      ],
+      "lat": -22,
+      "lon": 17,
+      "region": "Africa",
+      "population": 3153246,
+      "populationYear": 2026,
+      "populationKind": "projekce",
+      "populationSource": "worldometer-un-2026",
+      "text": {
+        "cs": {
+          "name": "Namibie",
+          "capital": [
+            "Windhoek"
+          ],
+          "currencyNames": {
+            "NAD": "namibijský dolar",
+            "ZAR": "jihoafrický rand"
+          },
+          "languageNames": {
+            "en": "angličtina",
+            "af": "afrikánština"
+          }
+        }
+      }
+    },
+    {
+      "code": "NR",
+      "iso3": "NRU",
+      "currency": [
+        "AUD"
+      ],
+      "languages": [
+        "na",
+        "en"
+      ],
+      "excludeLanguages": [
+        "en",
+        "na"
+      ],
+      "lat": -0.52,
+      "lon": 166.94,
+      "region": "Oceania",
+      "population": 12101,
+      "populationYear": 2026,
+      "populationKind": "projekce",
+      "populationSource": "worldometer-un-2026",
+      "text": {
+        "cs": {
+          "name": "Nauru",
+          "capital": [
+            "Yaren (sídlo vlády)"
+          ],
+          "currencyNames": {
+            "AUD": "australský dolar"
+          },
+          "languageNames": {
+            "na": "naurština",
+            "en": "angličtina"
+          }
+        }
+      }
+    },
+    {
+      "code": "NP",
+      "iso3": "NPL",
+      "currency": [
+        "NPR"
+      ],
+      "languages": [
+        "ne"
+      ],
+      "excludeLanguages": [
+        "awa",
+        "bap",
+        "bho",
+        "dty",
+        "en",
+        "jml",
+        "lif",
+        "mai",
+        "mgp",
+        "ne",
+        "new",
+        "tdg",
+        "thl",
+        "thq",
+        "thr"
+      ],
+      "lat": 28,
+      "lon": 84,
+      "region": "Asia",
+      "population": 29629410,
+      "populationYear": 2026,
+      "populationKind": "projekce",
+      "populationSource": "worldometer-un-2026",
+      "text": {
+        "cs": {
+          "name": "Nepál",
+          "capital": [
+            "Káthmándú"
+          ],
+          "currencyNames": {
+            "NPR": "nepálská rupie"
+          },
+          "languageNames": {
+            "ne": "nepálština"
+          }
+        }
+      }
+    },
+    {
+      "code": "NE",
+      "iso3": "NER",
+      "currency": [
+        "XOF"
+      ],
+      "languages": [
+        "ha",
+        "fr"
+      ],
+      "excludeLanguages": [
+        "dje",
+        "fr",
+        "fuq",
+        "ha",
+        "tmh"
+      ],
+      "lat": 16,
+      "lon": 8,
+      "region": "Africa",
+      "population": 28814878,
+      "populationYear": 2026,
+      "populationKind": "projekce",
+      "populationSource": "worldometer-un-2026",
+      "text": {
+        "cs": {
+          "name": "Niger",
+          "capital": [
+            "Niamey"
+          ],
+          "currencyNames": {
+            "XOF": "CFA/BCEAO frank"
+          },
+          "languageNames": {
+            "ha": "hauština",
+            "fr": "francouzština"
+          }
+        }
+      }
+    },
+    {
+      "code": "NG",
+      "iso3": "NGA",
+      "currency": [
+        "NGN"
+      ],
+      "languages": [
+        "en",
+        "ha",
+        "yo",
+        "ig"
+      ],
+      "excludeLanguages": [
+        "efi",
+        "en",
+        "fuv",
+        "ha",
+        "ibb",
+        "ig",
+        "pcm",
+        "tiv",
+        "yo"
+      ],
+      "lat": 10,
+      "lon": 8,
+      "region": "Africa",
+      "population": 242431832,
+      "populationYear": 2026,
+      "populationKind": "projekce",
+      "populationSource": "worldometer-un-2026",
+      "text": {
+        "cs": {
+          "name": "Nigérie",
+          "capital": [
+            "Abuja"
+          ],
+          "currencyNames": {
+            "NGN": "nigerijská naira"
+          },
+          "languageNames": {
+            "en": "angličtina",
+            "ha": "hauština",
+            "yo": "jorubština",
+            "ig": "igboština"
+          }
+        }
+      }
+    },
+    {
+      "code": "NI",
+      "iso3": "NIC",
+      "currency": [
+        "NIO"
+      ],
+      "languages": [
+        "es"
+      ],
+      "excludeLanguages": [
+        "es"
+      ],
+      "lat": 13,
+      "lon": -85,
+      "region": "North America",
+      "population": 7097329,
+      "populationYear": 2026,
+      "populationKind": "projekce",
+      "populationSource": "worldometer-un-2026",
+      "text": {
+        "cs": {
+          "name": "Nikaragua",
+          "capital": [
+            "Managua"
+          ],
+          "currencyNames": {
+            "NIO": "nikaragujská córdoba"
+          },
+          "languageNames": {
+            "es": "španělština"
+          }
+        }
+      }
+    },
+    {
+      "code": "NL",
+      "iso3": "NLD",
+      "currency": [
+        "EUR"
+      ],
+      "languages": [
+        "nl"
+      ],
+      "excludeLanguages": [
+        "de",
+        "en",
+        "fr",
+        "fy",
+        "gos",
+        "id",
+        "li",
+        "nds",
+        "nl",
+        "rif",
+        "tr",
+        "zea"
+      ],
+      "lat": 52.5,
+      "lon": 5.75,
+      "region": "Europe",
+      "population": 18448775,
+      "populationYear": 2026,
+      "populationKind": "projekce",
+      "populationSource": "worldometer-un-2026",
+      "text": {
+        "cs": {
+          "name": "Nizozemsko",
+          "capital": [
+            "Amsterdam"
+          ],
+          "currencyNames": {
+            "EUR": "euro"
+          },
+          "languageNames": {
+            "nl": "nizozemština"
+          }
+        }
+      }
+    },
+    {
+      "code": "NO",
+      "iso3": "NOR",
+      "currency": [
+        "NOK"
+      ],
+      "languages": [
+        "nb",
+        "no",
+        "nn"
+      ],
+      "excludeLanguages": [
+        "nb",
+        "nn",
+        "no",
+        "se"
+      ],
+      "lat": 62,
+      "lon": 10,
+      "region": "Europe",
+      "population": 5652989,
+      "populationYear": 2026,
+      "populationKind": "projekce",
+      "populationSource": "worldometer-un-2026",
+      "text": {
+        "cs": {
+          "name": "Norsko",
+          "capital": [
+            "Oslo"
+          ],
+          "currencyNames": {
+            "NOK": "norská koruna"
+          },
+          "languageNames": {
+            "nb": "norština (bokmål)",
+            "no": "norština",
+            "nn": "norština (nynorsk)"
+          }
+        }
+      }
+    },
+    {
+      "code": "NZ",
+      "iso3": "NZL",
+      "currency": [
+        "NZD"
+      ],
+      "languages": [
+        "en",
+        "mi"
+      ],
+      "excludeLanguages": [
+        "en",
+        "mi"
+      ],
+      "lat": -41,
+      "lon": 174,
+      "region": "Oceania",
+      "population": 5287479,
+      "populationYear": 2026,
+      "populationKind": "projekce",
+      "populationSource": "worldometer-un-2026",
+      "text": {
+        "cs": {
+          "name": "Nový Zéland",
+          "capital": [
+            "Wellington"
+          ],
+          "currencyNames": {
+            "NZD": "novozélandský dolar"
+          },
+          "languageNames": {
+            "en": "angličtina",
+            "mi": "maorština"
+          }
+        }
+      }
+    },
+    {
+      "code": "DE",
+      "iso3": "DEU",
+      "currency": [
+        "EUR"
+      ],
+      "languages": [
+        "de"
+      ],
+      "excludeLanguages": [
+        "bar",
+        "da",
+        "de",
+        "en",
+        "es",
+        "fr",
+        "frr",
+        "gsw",
+        "it",
+        "nds",
+        "nl",
+        "ru",
+        "swg",
+        "tr",
+        "vmf"
+      ],
+      "lat": 51,
+      "lon": 9,
+      "region": "Europe",
+      "population": 83644258,
+      "populationYear": 2026,
+      "populationKind": "projekce",
+      "populationSource": "worldometer-un-2026",
+      "text": {
+        "cs": {
+          "name": "Německo",
+          "capital": [
+            "Berlín"
+          ],
+          "currencyNames": {
+            "EUR": "euro"
+          },
+          "languageNames": {
+            "de": "němčina"
+          }
+        }
+      }
+    },
+    {
+      "code": "OM",
+      "iso3": "OMN",
+      "currency": [
+        "OMR"
+      ],
+      "languages": [
+        "ar"
+      ],
+      "excludeLanguages": [
+        "ar",
+        "bal"
+      ],
+      "lat": 21,
+      "lon": 57,
+      "region": "Asia",
+      "population": 5671458,
+      "populationYear": 2026,
+      "populationKind": "projekce",
+      "populationSource": "worldometer-un-2026",
+      "text": {
+        "cs": {
+          "name": "Omán",
+          "capital": [
+            "Maskat"
+          ],
+          "currencyNames": {
+            "OMR": "ománský rijál"
+          },
+          "languageNames": {
+            "ar": "arabština"
+          }
+        }
+      }
+    },
+    {
+      "code": "PW",
+      "iso3": "PLW",
+      "currency": [
+        "USD"
+      ],
+      "languages": [
+        "pau",
+        "en"
+      ],
+      "excludeLanguages": [
+        "en",
+        "pau"
+      ],
+      "lat": 7.5,
+      "lon": 134.6,
+      "region": "Oceania",
+      "population": 17614,
+      "populationYear": 2026,
+      "populationKind": "projekce",
+      "populationSource": "worldometer-un-2026",
+      "text": {
+        "cs": {
+          "name": "Palau",
+          "capital": [
+            "Ngerulmud"
+          ],
+          "currencyNames": {
+            "USD": "americký dolar"
+          },
+          "languageNames": {
+            "pau": "palauština",
+            "en": "angličtina"
+          }
+        }
+      }
+    },
+    {
+      "code": "PS",
+      "iso3": "PSE",
+      "currency": [
+        "ILS",
+        "JOD",
+        "USD"
+      ],
+      "languages": [
+        "ar"
+      ],
+      "excludeLanguages": [
+        "apc",
+        "ar"
+      ],
+      "lat": 31.9,
+      "lon": 35.2,
+      "region": "Asia",
+      "population": 5692790,
+      "populationYear": 2026,
+      "populationKind": "projekce",
+      "populationSource": "worldometer-un-2026",
+      "text": {
+        "cs": {
+          "name": "Palestina",
+          "capital": [
+            "Východní Jeruzalém (nárokovaný)"
+          ],
+          "currencyNames": {
+            "ILS": "izraelský nový šekel",
+            "JOD": "jordánský dinár",
+            "USD": "americký dolar"
+          },
+          "languageNames": {
+            "ar": "arabština"
+          }
+        }
+      }
+    },
+    {
+      "code": "PA",
+      "iso3": "PAN",
+      "currency": [
+        "PAB",
+        "USD"
+      ],
+      "languages": [
+        "es"
+      ],
+      "excludeLanguages": [
+        "en",
+        "es"
+      ],
+      "lat": 9,
+      "lon": -80,
+      "region": "North America",
+      "population": 4625718,
+      "populationYear": 2026,
+      "populationKind": "projekce",
+      "populationSource": "worldometer-un-2026",
+      "text": {
+        "cs": {
+          "name": "Panama",
+          "capital": [
+            "Ciudad de Panamá"
+          ],
+          "currencyNames": {
+            "PAB": "panamská balboa",
+            "USD": "americký dolar"
+          },
+          "languageNames": {
+            "es": "španělština"
+          }
+        }
+      }
+    },
+    {
+      "code": "PG",
+      "iso3": "PNG",
+      "currency": [
+        "PGK"
+      ],
+      "languages": [
+        "en",
+        "tpi",
+        "ho"
+      ],
+      "excludeLanguages": [
+        "en",
+        "ho",
+        "tpi"
+      ],
+      "lat": -6,
+      "lon": 147,
+      "region": "Oceania",
+      "population": 10947848,
+      "populationYear": 2026,
+      "populationKind": "projekce",
+      "populationSource": "worldometer-un-2026",
+      "text": {
+        "cs": {
+          "name": "Papua-Nová Guinea",
+          "capital": [
+            "Port Moresby"
+          ],
+          "currencyNames": {
+            "PGK": "papuánská nová kina"
+          },
+          "languageNames": {
+            "en": "angličtina",
+            "tpi": "tok pisin",
+            "ho": "hiri motu"
+          }
+        }
+      }
+    },
+    {
+      "code": "PY",
+      "iso3": "PRY",
+      "currency": [
+        "PYG"
+      ],
+      "languages": [
+        "es",
+        "gn"
+      ],
+      "excludeLanguages": [
+        "de",
+        "es",
+        "gn"
+      ],
+      "lat": -23,
+      "lon": -58,
+      "region": "South America",
+      "population": 7095279,
+      "populationYear": 2026,
+      "populationKind": "projekce",
+      "populationSource": "worldometer-un-2026",
+      "text": {
+        "cs": {
+          "name": "Paraguay",
+          "capital": [
+            "Asunción"
+          ],
+          "currencyNames": {
+            "PYG": "paraguajské guarani"
+          },
+          "languageNames": {
+            "es": "španělština",
+            "gn": "guaranština"
+          }
+        }
+      }
+    },
+    {
+      "code": "PE",
+      "iso3": "PER",
+      "currency": [
+        "PEN"
+      ],
+      "languages": [
+        "es",
+        "qu",
+        "ay"
+      ],
+      "excludeLanguages": [
+        "ay",
+        "es",
+        "qu"
+      ],
+      "lat": -10,
+      "lon": -76,
+      "region": "South America",
+      "population": 34922148,
+      "populationYear": 2026,
+      "populationKind": "projekce",
+      "populationSource": "worldometer-un-2026",
+      "text": {
+        "cs": {
+          "name": "Peru",
+          "capital": [
+            "Lima"
+          ],
+          "currencyNames": {
+            "PEN": "peruánský sol"
+          },
+          "languageNames": {
+            "es": "španělština",
+            "qu": "kečuánština",
+            "ay": "ajmarština"
+          }
+        }
+      }
+    },
+    {
+      "code": "CI",
+      "iso3": "CIV",
+      "currency": [
+        "XOF"
+      ],
+      "languages": [
+        "fr"
+      ],
+      "excludeLanguages": [
+        "bci",
+        "dnj",
+        "fr",
+        "sef"
+      ],
+      "lat": 8,
+      "lon": -5,
+      "region": "Africa",
+      "population": 33494346,
+      "populationYear": 2026,
+      "populationKind": "projekce",
+      "populationSource": "worldometer-un-2026",
+      "text": {
+        "cs": {
+          "name": "Pobřeží slonoviny",
+          "capital": [
+            "Yamoussoukro"
+          ],
+          "currencyNames": {
+            "XOF": "CFA/BCEAO frank"
+          },
+          "languageNames": {
+            "fr": "francouzština"
+          }
+        }
+      }
+    },
+    {
+      "code": "PL",
+      "iso3": "POL",
+      "currency": [
+        "PLN"
+      ],
+      "languages": [
+        "pl"
+      ],
+      "excludeLanguages": [
+        "csb",
+        "de",
+        "en",
+        "lt",
+        "pl",
+        "ru",
+        "szl"
+      ],
+      "lat": 52,
+      "lon": 20,
+      "region": "Europe",
+      "population": 37843188,
+      "populationYear": 2026,
+      "populationKind": "projekce",
+      "populationSource": "worldometer-un-2026",
+      "text": {
+        "cs": {
+          "name": "Polsko",
+          "capital": [
+            "Varšava"
+          ],
+          "currencyNames": {
+            "PLN": "polský zlotý"
+          },
+          "languageNames": {
+            "pl": "polština"
+          }
+        }
+      }
+    },
+    {
+      "code": "PT",
+      "iso3": "PRT",
+      "currency": [
+        "EUR"
+      ],
+      "languages": [
+        "pt"
+      ],
+      "excludeLanguages": [
+        "en",
+        "es",
+        "fr",
+        "pt"
+      ],
+      "lat": 39.5,
+      "lon": -8,
+      "region": "Europe",
+      "population": 10395362,
+      "populationYear": 2026,
+      "populationKind": "projekce",
+      "populationSource": "worldometer-un-2026",
+      "text": {
+        "cs": {
+          "name": "Portugalsko",
+          "capital": [
+            "Lisabon"
+          ],
+          "currencyNames": {
+            "EUR": "euro"
+          },
+          "languageNames": {
+            "pt": "portugalština"
+          }
+        }
+      }
+    },
+    {
+      "code": "PK",
+      "iso3": "PAK",
+      "currency": [
+        "PKR"
+      ],
+      "languages": [
+        "ur",
+        "en"
+      ],
+      "excludeLanguages": [
+        "bal",
+        "brh",
+        "en",
+        "hno",
+        "lah",
+        "pa",
+        "ps",
+        "sd",
+        "skr",
+        "ur"
+      ],
+      "lat": 30,
+      "lon": 70,
+      "region": "Asia",
+      "population": 259299791,
+      "populationYear": 2026,
+      "populationKind": "projekce",
+      "populationSource": "worldometer-un-2026",
+      "text": {
+        "cs": {
+          "name": "Pákistán",
+          "capital": [
+            "Islámábád"
+          ],
+          "currencyNames": {
+            "PKR": "pákistánská rupie"
+          },
+          "languageNames": {
+            "ur": "urdština",
+            "en": "angličtina"
+          }
+        }
+      }
+    },
+    {
+      "code": "AT",
+      "iso3": "AUT",
+      "currency": [
+        "EUR"
+      ],
+      "languages": [
+        "de"
+      ],
+      "excludeLanguages": [
+        "bar",
+        "de",
+        "en",
+        "fr",
+        "hr",
+        "hu",
+        "it",
+        "sl"
+      ],
+      "lat": 47.33333333,
+      "lon": 13.33333333,
+      "region": "Europe",
+      "population": 9107266,
+      "populationYear": 2026,
+      "populationKind": "projekce",
+      "populationSource": "worldometer-un-2026",
+      "text": {
+        "cs": {
+          "name": "Rakousko",
+          "capital": [
+            "Vídeň"
+          ],
+          "currencyNames": {
+            "EUR": "euro"
+          },
+          "languageNames": {
+            "de": "němčina"
+          }
+        }
+      }
+    },
+    {
+      "code": "GQ",
+      "iso3": "GNQ",
+      "currency": [
+        "XAF"
+      ],
+      "languages": [
+        "es",
+        "fr",
+        "pt"
+      ],
+      "excludeLanguages": [
+        "bvb",
+        "es",
+        "fan",
+        "fr",
+        "pt"
+      ],
+      "lat": 2,
+      "lon": 10,
+      "region": "Africa",
+      "population": 1984468,
+      "populationYear": 2026,
+      "populationKind": "projekce",
+      "populationSource": "worldometer-un-2026",
+      "text": {
+        "cs": {
+          "name": "Rovníková Guinea",
+          "capital": [
+            "Ciudad de la Paz"
+          ],
+          "currencyNames": {
+            "XAF": "CFA/BEAC frank"
+          },
+          "languageNames": {
+            "es": "španělština",
+            "fr": "francouzština",
+            "pt": "portugalština"
+          }
+        }
+      }
+    },
+    {
+      "code": "RO",
+      "iso3": "ROU",
+      "currency": [
+        "RON"
+      ],
+      "languages": [
+        "ro"
+      ],
+      "excludeLanguages": [
+        "en",
+        "es",
+        "fr",
+        "hu",
+        "ro"
+      ],
+      "lat": 46,
+      "lon": 25,
+      "region": "Europe",
+      "population": 18800605,
+      "populationYear": 2026,
+      "populationKind": "projekce",
+      "populationSource": "worldometer-un-2026",
+      "text": {
+        "cs": {
+          "name": "Rumunsko",
+          "capital": [
+            "Bukurešť"
+          ],
+          "currencyNames": {
+            "RON": "rumunský leu"
+          },
+          "languageNames": {
+            "ro": "rumunština"
+          }
+        }
+      }
+    },
+    {
+      "code": "RU",
+      "iso3": "RUS",
+      "currency": [
+        "RUB"
+      ],
+      "languages": [
+        "ru"
+      ],
+      "excludeLanguages": [
+        "ady",
+        "av",
+        "az",
+        "ba",
+        "ce",
+        "cv",
+        "inh",
+        "kbd",
+        "koi",
+        "krc",
+        "kum",
+        "kv",
+        "lbe",
+        "lez",
+        "mdf",
+        "myv",
+        "ru",
+        "sah",
+        "tt",
+        "tyv",
+        "udm"
+      ],
+      "lat": 60,
+      "lon": 100,
+      "region": "Europe",
+      "population": 143394458,
+      "populationYear": 2026,
+      "populationKind": "projekce",
+      "populationSource": "worldometer-un-2026",
+      "text": {
+        "cs": {
+          "name": "Rusko",
+          "capital": [
+            "Moskva"
+          ],
+          "currencyNames": {
+            "RUB": "ruský rubl"
+          },
+          "languageNames": {
+            "ru": "ruština"
+          }
+        }
+      }
+    },
+    {
+      "code": "RW",
+      "iso3": "RWA",
+      "currency": [
+        "RWF"
+      ],
+      "languages": [
+        "rw",
+        "en",
+        "fr",
+        "sw"
+      ],
+      "excludeLanguages": [
+        "en",
+        "fr",
+        "rw",
+        "sw"
+      ],
+      "lat": -2,
+      "lon": 30,
+      "region": "Africa",
+      "population": 14889693,
+      "populationYear": 2026,
+      "populationKind": "projekce",
+      "populationSource": "worldometer-un-2026",
+      "text": {
+        "cs": {
+          "name": "Rwanda",
+          "capital": [
+            "Kigali"
+          ],
+          "currencyNames": {
+            "RWF": "rwandský frank"
+          },
+          "languageNames": {
+            "rw": "kiňarwandština",
+            "en": "angličtina",
+            "fr": "francouzština",
+            "sw": "svahilština"
+          }
+        }
+      }
+    },
+    {
+      "code": "SV",
+      "iso3": "SLV",
+      "currency": [
+        "USD"
+      ],
+      "languages": [
+        "es"
+      ],
+      "excludeLanguages": [
+        "es"
+      ],
+      "lat": 13.83333333,
+      "lon": -88.91666666,
+      "region": "North America",
+      "population": 6391253,
+      "populationYear": 2026,
+      "populationKind": "projekce",
+      "populationSource": "worldometer-un-2026",
+      "text": {
+        "cs": {
+          "name": "Salvador",
+          "capital": [
+            "San Salvador"
+          ],
+          "currencyNames": {
+            "USD": "americký dolar"
+          },
+          "languageNames": {
+            "es": "španělština"
+          }
+        }
+      }
+    },
+    {
+      "code": "WS",
+      "iso3": "WSM",
+      "currency": [
+        "WST"
+      ],
+      "languages": [
+        "sm",
+        "en"
+      ],
+      "excludeLanguages": [
+        "en",
+        "sm"
+      ],
+      "lat": -13.76,
+      "lon": -172.1,
+      "region": "Oceania",
+      "population": 220528,
+      "populationYear": 2026,
+      "populationKind": "projekce",
+      "populationSource": "worldometer-un-2026",
+      "text": {
+        "cs": {
+          "name": "Samoa",
+          "capital": [
+            "Apia"
+          ],
+          "currencyNames": {
+            "WST": "samojská tala"
+          },
+          "languageNames": {
+            "sm": "samojština",
+            "en": "angličtina"
+          }
+        }
+      }
+    },
+    {
+      "code": "SM",
+      "iso3": "SMR",
+      "currency": [
+        "EUR"
+      ],
+      "languages": [
+        "it"
+      ],
+      "excludeLanguages": [
+        "it"
+      ],
+      "lat": 43.76666666,
+      "lon": 12.41666666,
+      "region": "Europe",
+      "population": 33605,
+      "populationYear": 2026,
+      "populationKind": "projekce",
+      "populationSource": "worldometer-un-2026",
+      "text": {
+        "cs": {
+          "name": "San Marino",
+          "capital": [
+            "San Marino"
+          ],
+          "currencyNames": {
+            "EUR": "euro"
+          },
+          "languageNames": {
+            "it": "italština"
+          }
+        }
+      }
+    },
+    {
+      "code": "SA",
+      "iso3": "SAU",
+      "currency": [
+        "SAR"
+      ],
+      "languages": [
+        "ar"
+      ],
+      "excludeLanguages": [
+        "ar",
+        "ars"
+      ],
+      "lat": 25,
+      "lon": 45,
+      "region": "Asia",
+      "population": 35165787,
+      "populationYear": 2026,
+      "populationKind": "projekce",
+      "populationSource": "worldometer-un-2026",
+      "text": {
+        "cs": {
+          "name": "Saúdská Arábie",
+          "capital": [
+            "Rijád"
+          ],
+          "currencyNames": {
+            "SAR": "saúdský rijál"
+          },
+          "languageNames": {
+            "ar": "arabština"
+          }
+        }
+      }
+    },
+    {
+      "code": "SN",
+      "iso3": "SEN",
+      "currency": [
+        "XOF"
+      ],
+      "languages": [
+        "wo",
+        "fr"
+      ],
+      "excludeLanguages": [
+        "bjt",
+        "bsc",
+        "dyo",
+        "ff",
+        "fr",
+        "knf",
+        "mey",
+        "mfv",
+        "sav",
+        "snf",
+        "srr",
+        "tnr",
+        "wo"
+      ],
+      "lat": 14,
+      "lon": -14,
+      "region": "Africa",
+      "population": 19366548,
+      "populationYear": 2026,
+      "populationKind": "projekce",
+      "populationSource": "worldometer-un-2026",
+      "text": {
+        "cs": {
+          "name": "Senegal",
+          "capital": [
+            "Dakar"
+          ],
+          "currencyNames": {
+            "XOF": "CFA/BCEAO frank"
+          },
+          "languageNames": {
+            "wo": "wolofština",
+            "fr": "francouzština"
+          }
+        }
+      }
+    },
+    {
+      "code": "KP",
+      "iso3": "PRK",
+      "currency": [
+        "KPW"
+      ],
+      "languages": [
+        "ko"
+      ],
+      "excludeLanguages": [
+        "ko"
+      ],
+      "lat": 40,
+      "lon": 127,
+      "region": "Asia",
+      "population": 26633691,
+      "populationYear": 2026,
+      "populationKind": "projekce",
+      "populationSource": "worldometer-un-2026",
+      "text": {
+        "cs": {
+          "name": "Severní Korea",
+          "capital": [
+            "Pchjongjang"
+          ],
+          "currencyNames": {
+            "KPW": "severokorejský won"
+          },
+          "languageNames": {
+            "ko": "korejština"
+          }
+        }
+      }
+    },
+    {
+      "code": "MK",
+      "iso3": "MKD",
+      "currency": [
+        "MKD"
+      ],
+      "languages": [
+        "mk",
+        "sq"
+      ],
+      "excludeLanguages": [
+        "mk",
+        "sq",
+        "tr"
+      ],
+      "lat": 41.83333333,
+      "lon": 22,
+      "region": "Europe",
+      "population": 1804063,
+      "populationYear": 2026,
+      "populationKind": "projekce",
+      "populationSource": "worldometer-un-2026",
+      "text": {
+        "cs": {
+          "name": "Severní Makedonie",
+          "capital": [
+            "Skopje"
+          ],
+          "currencyNames": {
+            "MKD": "makedonský denár"
+          },
+          "languageNames": {
+            "mk": "makedonština",
+            "sq": "albánština"
+          }
+        }
+      }
+    },
+    {
+      "code": "SC",
+      "iso3": "SYC",
+      "currency": [
+        "SCR"
+      ],
+      "languages": [
+        "crs",
+        "en",
+        "fr"
+      ],
+      "excludeLanguages": [
+        "crs",
+        "en",
+        "fr"
+      ],
+      "lat": -4.68,
+      "lon": 55.49,
+      "region": "Africa",
+      "population": 134959,
+      "populationYear": 2026,
+      "populationKind": "projekce",
+      "populationSource": "worldometer-un-2026",
+      "text": {
+        "cs": {
+          "name": "Seychely",
+          "capital": [
+            "Victoria"
+          ],
+          "currencyNames": {
+            "SCR": "seychelská rupie"
+          },
+          "languageNames": {
+            "crs": "seychelská kreolština",
+            "en": "angličtina",
+            "fr": "francouzština"
+          }
+        }
+      }
+    },
+    {
+      "code": "SL",
+      "iso3": "SLE",
+      "currency": [
+        "SLE"
+      ],
+      "languages": [
+        "en"
+      ],
+      "excludeLanguages": [
+        "en",
+        "kri",
+        "men",
+        "tem"
+      ],
+      "lat": 8.5,
+      "lon": -11.5,
+      "region": "Africa",
+      "population": 8996745,
+      "populationYear": 2026,
+      "populationKind": "projekce",
+      "populationSource": "worldometer-un-2026",
+      "text": {
+        "cs": {
+          "name": "Sierra Leone",
+          "capital": [
+            "Freetown"
+          ],
+          "currencyNames": {
+            "SLE": "sierraleonský leone"
+          },
+          "languageNames": {
+            "en": "angličtina"
+          }
+        }
+      }
+    },
+    {
+      "code": "SG",
+      "iso3": "SGP",
+      "currency": [
+        "SGD"
+      ],
+      "languages": [
+        "en",
+        "zh",
+        "ms",
+        "ta"
+      ],
+      "excludeLanguages": [
+        "en",
+        "ms",
+        "ta",
+        "zh"
+      ],
+      "lat": 1.35,
+      "lon": 103.82,
+      "region": "Asia",
+      "population": 5905748,
+      "populationYear": 2026,
+      "populationKind": "projekce",
+      "populationSource": "worldometer-un-2026",
+      "text": {
+        "cs": {
+          "name": "Singapur",
+          "capital": [
+            "Singapur"
+          ],
+          "currencyNames": {
+            "SGD": "singapurský dolar"
+          },
+          "languageNames": {
+            "en": "angličtina",
+            "zh": "čínština",
+            "ms": "malajština",
+            "ta": "tamilština"
+          }
+        }
+      }
+    },
+    {
+      "code": "SK",
+      "iso3": "SVK",
+      "currency": [
+        "EUR"
+      ],
+      "languages": [
+        "sk"
+      ],
+      "excludeLanguages": [
+        "cs",
+        "de",
+        "en",
+        "hu",
+        "sk",
+        "uk"
+      ],
+      "lat": 48.66666666,
+      "lon": 19.5,
+      "region": "Europe",
+      "population": 5451342,
+      "populationYear": 2026,
+      "populationKind": "projekce",
+      "populationSource": "worldometer-un-2026",
+      "text": {
+        "cs": {
+          "name": "Slovensko",
+          "capital": [
+            "Bratislava"
+          ],
+          "currencyNames": {
+            "EUR": "euro"
+          },
+          "languageNames": {
+            "sk": "slovenština"
+          }
+        }
+      }
+    },
+    {
+      "code": "SI",
+      "iso3": "SVN",
+      "currency": [
+        "EUR"
+      ],
+      "languages": [
+        "sl"
+      ],
+      "excludeLanguages": [
+        "de",
+        "en",
+        "hr",
+        "sl",
+        "vec"
+      ],
+      "lat": 46.11666666,
+      "lon": 14.81666666,
+      "region": "Europe",
+      "population": 2114573,
+      "populationYear": 2026,
+      "populationKind": "projekce",
+      "populationSource": "worldometer-un-2026",
+      "text": {
+        "cs": {
+          "name": "Slovinsko",
+          "capital": [
+            "Lublaň"
+          ],
+          "currencyNames": {
+            "EUR": "euro"
+          },
+          "languageNames": {
+            "sl": "slovinština"
+          }
+        }
+      }
+    },
+    {
+      "code": "SO",
+      "iso3": "SOM",
+      "currency": [
+        "SOS"
+      ],
+      "languages": [
+        "so",
+        "ar"
+      ],
+      "excludeLanguages": [
+        "ar",
+        "so",
+        "sw"
+      ],
+      "lat": 10,
+      "lon": 49,
+      "region": "Africa",
+      "population": 20305907,
+      "populationYear": 2026,
+      "populationKind": "projekce",
+      "populationSource": "worldometer-un-2026",
+      "text": {
+        "cs": {
+          "name": "Somálsko",
+          "capital": [
+            "Mogadišo"
+          ],
+          "currencyNames": {
+            "SOS": "somálský šilink"
+          },
+          "languageNames": {
+            "so": "somálština",
+            "ar": "arabština"
+          }
+        }
+      }
+    },
+    {
+      "code": "AE",
+      "iso3": "ARE",
+      "currency": [
+        "AED"
+      ],
+      "languages": [
+        "ar"
+      ],
+      "excludeLanguages": [
+        "ar",
+        "bal",
+        "en",
+        "fa",
+        "ml",
+        "ps"
+      ],
+      "lat": 24,
+      "lon": 54,
+      "region": "Asia",
+      "population": 11574682,
+      "populationYear": 2026,
+      "populationKind": "projekce",
+      "populationSource": "worldometer-un-2026",
+      "text": {
+        "cs": {
+          "name": "Spojené arabské emiráty",
+          "capital": [
+            "Abú Zabí"
+          ],
+          "currencyNames": {
+            "AED": "SAE dirham"
+          },
+          "languageNames": {
+            "ar": "arabština"
+          }
+        }
+      }
+    },
+    {
+      "code": "GB",
+      "iso3": "GBR",
+      "currency": [
+        "GBP"
+      ],
+      "languages": [
+        "en"
+      ],
+      "excludeLanguages": [
+        "cy",
+        "de",
+        "en",
+        "es",
+        "fr",
+        "ga",
+        "gd",
+        "gu",
+        "pa",
+        "pl",
+        "sco",
+        "ta",
+        "ur"
+      ],
+      "lat": 54,
+      "lon": -2,
+      "region": "Europe",
+      "population": 69931528,
+      "populationYear": 2026,
+      "populationKind": "projekce",
+      "populationSource": "worldometer-un-2026",
+      "text": {
+        "cs": {
+          "name": "Spojené království",
+          "capital": [
+            "Londýn"
+          ],
+          "currencyNames": {
+            "GBP": "britská libra"
+          },
+          "languageNames": {
+            "en": "angličtina"
+          }
+        }
+      }
+    },
+    {
+      "code": "US",
+      "iso3": "USA",
+      "currency": [
+        "USD"
+      ],
+      "languages": [
+        "en"
+      ],
+      "excludeLanguages": [
+        "en",
+        "es",
+        "haw"
+      ],
+      "lat": 39,
+      "lon": -98,
+      "region": "North America",
+      "population": 349035494,
+      "populationYear": 2026,
+      "populationKind": "projekce",
+      "populationSource": "worldometer-un-2026",
+      "text": {
+        "cs": {
+          "name": "Spojené státy",
+          "capital": [
+            "Washington, D.C."
+          ],
+          "currencyNames": {
+            "USD": "americký dolar"
+          },
+          "languageNames": {
+            "en": "angličtina"
+          }
+        }
+      }
+    },
+    {
+      "code": "RS",
+      "iso3": "SRB",
+      "currency": [
+        "RSD"
+      ],
+      "languages": [
+        "sr"
+      ],
+      "excludeLanguages": [
+        "hr",
+        "hu",
+        "ro",
+        "sk",
+        "sq",
+        "sr",
+        "uk"
+      ],
+      "lat": 44.1305021,
+      "lon": 16.4284181,
+      "region": "Europe",
+      "population": 6641964,
+      "populationYear": 2026,
+      "populationKind": "projekce",
+      "populationSource": "worldometer-un-2026",
+      "text": {
+        "cs": {
+          "name": "Srbsko",
+          "capital": [
+            "Bělehrad"
+          ],
+          "currencyNames": {
+            "RSD": "srbský dinár"
+          },
+          "languageNames": {
+            "sr": "srbština"
+          }
+        }
+      }
+    },
+    {
+      "code": "LK",
+      "iso3": "LKA",
+      "currency": [
+        "LKR"
+      ],
+      "languages": [
+        "si",
+        "ta"
+      ],
+      "excludeLanguages": [
+        "en",
+        "si",
+        "ta"
+      ],
+      "lat": 7,
+      "lon": 81,
+      "region": "Asia",
+      "population": 23348315,
+      "populationYear": 2026,
+      "populationKind": "projekce",
+      "populationSource": "worldometer-un-2026",
+      "text": {
+        "cs": {
+          "name": "Srí Lanka",
+          "capital": [
+            "Šrí Džajavardanapura Kotte"
+          ],
+          "currencyNames": {
+            "LKR": "srílanská rupie"
+          },
+          "languageNames": {
+            "si": "sinhálština",
+            "ta": "tamilština"
+          }
+        }
+      }
+    },
+    {
+      "code": "CF",
+      "iso3": "CAF",
+      "currency": [
+        "XAF"
+      ],
+      "languages": [
+        "sg",
+        "fr"
+      ],
+      "excludeLanguages": [
+        "fr",
+        "sg"
+      ],
+      "lat": 7,
+      "lon": 21,
+      "region": "Africa",
+      "population": 5698984,
+      "populationYear": 2026,
+      "populationKind": "projekce",
+      "populationSource": "worldometer-un-2026",
+      "text": {
+        "cs": {
+          "name": "Středoafrická republika",
+          "capital": [
+            "Bangui"
+          ],
+          "currencyNames": {
+            "XAF": "CFA/BEAC frank"
+          },
+          "languageNames": {
+            "sg": "sangština",
+            "fr": "francouzština"
+          }
+        }
+      }
+    },
+    {
+      "code": "SR",
+      "iso3": "SUR",
+      "currency": [
+        "SRD"
+      ],
+      "languages": [
+        "nl"
+      ],
+      "excludeLanguages": [
+        "nl",
+        "srn",
+        "zh"
+      ],
+      "lat": 4,
+      "lon": -56,
+      "region": "South America",
+      "population": 645256,
+      "populationYear": 2026,
+      "populationKind": "projekce",
+      "populationSource": "worldometer-un-2026",
+      "text": {
+        "cs": {
+          "name": "Surinam",
+          "capital": [
+            "Paramaribo"
+          ],
+          "currencyNames": {
+            "SRD": "surinamský dolar"
+          },
+          "languageNames": {
+            "nl": "nizozemština"
+          }
+        }
+      }
+    },
+    {
+      "code": "LC",
+      "iso3": "LCA",
+      "currency": [
+        "XCD"
+      ],
+      "languages": [
+        "en"
+      ],
+      "excludeLanguages": [
+        "en"
+      ],
+      "lat": 13.88333333,
+      "lon": -60.96666666,
+      "region": "North America",
+      "population": 180488,
+      "populationYear": 2026,
+      "populationKind": "projekce",
+      "populationSource": "worldometer-un-2026",
+      "text": {
+        "cs": {
+          "name": "Svatá Lucie",
+          "capital": [
+            "Castries"
+          ],
+          "currencyNames": {
+            "XCD": "východokaribský dolar"
+          },
+          "languageNames": {
+            "en": "angličtina"
+          }
+        }
+      }
+    },
+    {
+      "code": "KN",
+      "iso3": "KNA",
+      "currency": [
+        "XCD"
+      ],
+      "languages": [
+        "en"
+      ],
+      "excludeLanguages": [
+        "en"
+      ],
+      "lat": 17.33333333,
+      "lon": -62.75,
+      "region": "North America",
+      "population": 46992,
+      "populationYear": 2026,
+      "populationKind": "projekce",
+      "populationSource": "worldometer-un-2026",
+      "text": {
+        "cs": {
+          "name": "Svatý Kryštof a Nevis",
+          "capital": [
+            "Basseterre"
+          ],
+          "currencyNames": {
+            "XCD": "východokaribský dolar"
+          },
+          "languageNames": {
+            "en": "angličtina"
+          }
+        }
+      }
+    },
+    {
+      "code": "ST",
+      "iso3": "STP",
+      "currency": [
+        "STN"
+      ],
+      "languages": [
+        "pt"
+      ],
+      "excludeLanguages": [
+        "fr",
+        "pt"
+      ],
+      "lat": 1,
+      "lon": 7,
+      "region": "Africa",
+      "population": 244994,
+      "populationYear": 2026,
+      "populationKind": "projekce",
+      "populationSource": "worldometer-un-2026",
+      "text": {
+        "cs": {
+          "name": "Svatý Tomáš a Princův ostrov",
+          "capital": [
+            "São Tomé"
+          ],
+          "currencyNames": {
+            "STN": "svatotomášská dobra"
+          },
+          "languageNames": {
+            "pt": "portugalština"
+          }
+        }
+      }
+    },
+    {
+      "code": "VC",
+      "iso3": "VCT",
+      "currency": [
+        "XCD"
+      ],
+      "languages": [
+        "en"
+      ],
+      "excludeLanguages": [
+        "en"
+      ],
+      "lat": 13.25,
+      "lon": -61.2,
+      "region": "North America",
+      "population": 99245,
+      "populationYear": 2026,
+      "populationKind": "projekce",
+      "populationSource": "worldometer-un-2026",
+      "text": {
+        "cs": {
+          "name": "Svatý Vincenc a Grenadiny",
+          "capital": [
+            "Kingstown"
+          ],
+          "currencyNames": {
+            "XCD": "východokaribský dolar"
+          },
+          "languageNames": {
+            "en": "angličtina"
+          }
+        }
+      }
+    },
+    {
+      "code": "SD",
+      "iso3": "SDN",
+      "currency": [
+        "SDG"
+      ],
+      "languages": [
+        "ar",
+        "en"
+      ],
+      "excludeLanguages": [
+        "apd",
+        "ar",
+        "bej",
+        "en",
+        "fvr",
+        "ha"
+      ],
+      "lat": 15,
+      "lon": 30,
+      "region": "Africa",
+      "population": 53282719,
+      "populationYear": 2026,
+      "populationKind": "projekce",
+      "populationSource": "worldometer-un-2026",
+      "text": {
+        "cs": {
+          "name": "Súdán",
+          "capital": [
+            "Chartúm"
+          ],
+          "currencyNames": {
+            "SDG": "súdánská libra"
+          },
+          "languageNames": {
+            "ar": "arabština",
+            "en": "angličtina"
+          }
+        }
+      }
+    },
+    {
+      "code": "SY",
+      "iso3": "SYR",
+      "currency": [
+        "SYP"
+      ],
+      "languages": [
+        "ar"
+      ],
+      "excludeLanguages": [
+        "apc",
+        "ar",
+        "fr",
+        "hy",
+        "ku"
+      ],
+      "lat": 35,
+      "lon": 38,
+      "region": "Asia",
+      "population": 26472497,
+      "populationYear": 2026,
+      "populationKind": "projekce",
+      "populationSource": "worldometer-un-2026",
+      "text": {
+        "cs": {
+          "name": "Sýrie",
+          "capital": [
+            "Damašek"
+          ],
+          "currencyNames": {
+            "SYP": "syrská libra"
+          },
+          "languageNames": {
+            "ar": "arabština"
+          }
+        }
+      }
+    },
+    {
+      "code": "TZ",
+      "iso3": "TZA",
+      "currency": [
+        "TZS"
+      ],
+      "languages": [
+        "sw",
+        "en"
+      ],
+      "excludeLanguages": [
+        "asa",
+        "bez",
+        "en",
+        "kde",
+        "ksb",
+        "mas",
+        "mgy",
+        "nym",
+        "suk",
+        "sw"
+      ],
+      "lat": -6,
+      "lon": 35,
+      "region": "Africa",
+      "population": 72563780,
+      "populationYear": 2026,
+      "populationKind": "projekce",
+      "populationSource": "worldometer-un-2026",
+      "text": {
+        "cs": {
+          "name": "Tanzanie",
+          "capital": [
+            "Dodoma"
+          ],
+          "currencyNames": {
+            "TZS": "tanzanský šilink"
+          },
+          "languageNames": {
+            "sw": "svahilština",
+            "en": "angličtina"
+          }
+        }
+      }
+    },
+    {
+      "code": "TH",
+      "iso3": "THA",
+      "currency": [
+        "THB"
+      ],
+      "languages": [
+        "th"
+      ],
+      "excludeLanguages": [
+        "en",
+        "kxm",
+        "mfa",
+        "nod",
+        "sou",
+        "th",
+        "tts",
+        "zh"
+      ],
+      "lat": 15,
+      "lon": 100,
+      "region": "Asia",
+      "population": 71559614,
+      "populationYear": 2026,
+      "populationKind": "projekce",
+      "populationSource": "worldometer-un-2026",
+      "text": {
+        "cs": {
+          "name": "Thajsko",
+          "capital": [
+            "Bangkok"
+          ],
+          "currencyNames": {
+            "THB": "thajský baht"
+          },
+          "languageNames": {
+            "th": "thajština"
+          }
+        }
+      }
+    },
+    {
+      "code": "TG",
+      "iso3": "TGO",
+      "currency": [
+        "XOF"
+      ],
+      "languages": [
+        "fr"
+      ],
+      "excludeLanguages": [
+        "ee",
+        "fr",
+        "ife"
+      ],
+      "lat": 8,
+      "lon": 1.16666666,
+      "region": "Africa",
+      "population": 9930918,
+      "populationYear": 2026,
+      "populationKind": "projekce",
+      "populationSource": "worldometer-un-2026",
+      "text": {
+        "cs": {
+          "name": "Togo",
+          "capital": [
+            "Lomé"
+          ],
+          "currencyNames": {
+            "XOF": "CFA/BCEAO frank"
+          },
+          "languageNames": {
+            "fr": "francouzština"
+          }
+        }
+      }
+    },
+    {
+      "code": "TO",
+      "iso3": "TON",
+      "currency": [
+        "TOP"
+      ],
+      "languages": [
+        "to",
+        "en"
+      ],
+      "excludeLanguages": [
+        "en",
+        "to"
+      ],
+      "lat": -21.15,
+      "lon": -175.2,
+      "region": "Oceania",
+      "population": 103291,
+      "populationYear": 2026,
+      "populationKind": "projekce",
+      "populationSource": "worldometer-un-2026",
+      "text": {
+        "cs": {
+          "name": "Tonga",
+          "capital": [
+            "Nukuʻalofa"
+          ],
+          "currencyNames": {
+            "TOP": "tonžská paanga"
+          },
+          "languageNames": {
+            "to": "tongánština",
+            "en": "angličtina"
+          }
+        }
+      }
+    },
+    {
+      "code": "TT",
+      "iso3": "TTO",
+      "currency": [
+        "TTD"
+      ],
+      "languages": [
+        "en"
+      ],
+      "excludeLanguages": [
+        "en"
+      ],
+      "lat": 11,
+      "lon": -61,
+      "region": "North America",
+      "population": 1513268,
+      "populationYear": 2026,
+      "populationKind": "projekce",
+      "populationSource": "worldometer-un-2026",
+      "text": {
+        "cs": {
+          "name": "Trinidad a Tobago",
+          "capital": [
+            "Port of Spain"
+          ],
+          "currencyNames": {
+            "TTD": "trinidadský dolar"
+          },
+          "languageNames": {
+            "en": "angličtina"
+          }
+        }
+      }
+    },
+    {
+      "code": "TN",
+      "iso3": "TUN",
+      "currency": [
+        "TND"
+      ],
+      "languages": [
+        "ar",
+        "fr"
+      ],
+      "excludeLanguages": [
+        "aeb",
+        "ar",
+        "fr"
+      ],
+      "lat": 34,
+      "lon": 9,
+      "region": "Africa",
+      "population": 12415138,
+      "populationYear": 2026,
+      "populationKind": "projekce",
+      "populationSource": "worldometer-un-2026",
+      "text": {
+        "cs": {
+          "name": "Tunisko",
+          "capital": [
+            "Tunis"
+          ],
+          "currencyNames": {
+            "TND": "tuniský dinár"
+          },
+          "languageNames": {
+            "ar": "arabština",
+            "fr": "francouzština"
+          }
+        }
+      }
+    },
+    {
+      "code": "TR",
+      "iso3": "TUR",
+      "currency": [
+        "TRY"
+      ],
+      "languages": [
+        "tr"
+      ],
+      "excludeLanguages": [
+        "apc",
+        "en",
+        "ku",
+        "tr",
+        "zza"
+      ],
+      "lat": 39,
+      "lon": 35,
+      "region": "Asia",
+      "population": 87926082,
+      "populationYear": 2026,
+      "populationKind": "projekce",
+      "populationSource": "worldometer-un-2026",
+      "text": {
+        "cs": {
+          "name": "Turecko",
+          "capital": [
+            "Ankara"
+          ],
+          "currencyNames": {
+            "TRY": "turecká lira"
+          },
+          "languageNames": {
+            "tr": "turečtina"
+          }
+        }
+      }
+    },
+    {
+      "code": "TM",
+      "iso3": "TKM",
+      "currency": [
+        "TMT"
+      ],
+      "languages": [
+        "tk"
+      ],
+      "excludeLanguages": [
+        "ru",
+        "tk",
+        "uz"
+      ],
+      "lat": 40,
+      "lon": 60,
+      "region": "Asia",
+      "population": 7736632,
+      "populationYear": 2026,
+      "populationKind": "projekce",
+      "populationSource": "worldometer-un-2026",
+      "text": {
+        "cs": {
+          "name": "Turkmenistán",
+          "capital": [
+            "Ašchabad"
+          ],
+          "currencyNames": {
+            "TMT": "turkmenský manat"
+          },
+          "languageNames": {
+            "tk": "turkmenština"
+          }
+        }
+      }
+    },
+    {
+      "code": "TV",
+      "iso3": "TUV",
+      "currency": [
+        "AUD"
+      ],
+      "languages": [
+        "tvl",
+        "en"
+      ],
+      "excludeLanguages": [
+        "en",
+        "tvl"
+      ],
+      "lat": -8.5,
+      "lon": 179.2,
+      "region": "Oceania",
+      "population": 9362,
+      "populationYear": 2026,
+      "populationKind": "projekce",
+      "populationSource": "worldometer-un-2026",
+      "text": {
+        "cs": {
+          "name": "Tuvalu",
+          "capital": [
+            "Funafuti"
+          ],
+          "currencyNames": {
+            "AUD": "australský dolar"
+          },
+          "languageNames": {
+            "tvl": "tuvalština",
+            "en": "angličtina"
+          }
+        }
+      }
+    },
+    {
+      "code": "TJ",
+      "iso3": "TJK",
+      "currency": [
+        "TJS"
+      ],
+      "languages": [
+        "tg"
+      ],
+      "excludeLanguages": [
+        "ru",
+        "tg"
+      ],
+      "lat": 39,
+      "lon": 71,
+      "region": "Asia",
+      "population": 10978599,
+      "populationYear": 2026,
+      "populationKind": "projekce",
+      "populationSource": "worldometer-un-2026",
+      "text": {
+        "cs": {
+          "name": "Tádžikistán",
+          "capital": [
+            "Dušanbe"
+          ],
+          "currencyNames": {
+            "TJS": "tádžické somoni"
+          },
+          "languageNames": {
+            "tg": "tádžičtina"
+          }
+        }
+      }
+    },
+    {
+      "code": "UG",
+      "iso3": "UGA",
+      "currency": [
+        "UGX"
+      ],
+      "languages": [
+        "sw",
+        "en"
+      ],
+      "excludeLanguages": [
+        "ach",
+        "cgg",
+        "en",
+        "laj",
+        "lg",
+        "myx",
+        "nyn",
+        "rw",
+        "sw",
+        "teo",
+        "ttj",
+        "xog"
+      ],
+      "lat": 1,
+      "lon": 32,
+      "region": "Africa",
+      "population": 52761469,
+      "populationYear": 2026,
+      "populationKind": "projekce",
+      "populationSource": "worldometer-un-2026",
+      "text": {
+        "cs": {
+          "name": "Uganda",
+          "capital": [
+            "Kampala"
+          ],
+          "currencyNames": {
+            "UGX": "ugandský šilink"
+          },
+          "languageNames": {
+            "sw": "svahilština",
+            "en": "angličtina"
+          }
+        }
+      }
+    },
+    {
+      "code": "UA",
+      "iso3": "UKR",
+      "currency": [
+        "UAH"
+      ],
+      "languages": [
+        "uk"
+      ],
+      "excludeLanguages": [
+        "pl",
+        "ru",
+        "rue",
+        "uk",
+        "yi"
+      ],
+      "lat": 49,
+      "lon": 32,
+      "region": "Europe",
+      "population": 39535849,
+      "populationYear": 2026,
+      "populationKind": "projekce",
+      "populationSource": "worldometer-un-2026",
+      "text": {
+        "cs": {
+          "name": "Ukrajina",
+          "capital": [
+            "Kyjev"
+          ],
+          "currencyNames": {
+            "UAH": "ukrajinská hřivna"
+          },
+          "languageNames": {
+            "uk": "ukrajinština"
+          }
+        }
+      }
+    },
+    {
+      "code": "UY",
+      "iso3": "URY",
+      "currency": [
+        "UYU"
+      ],
+      "languages": [
+        "es"
+      ],
+      "excludeLanguages": [
+        "es"
+      ],
+      "lat": -33,
+      "lon": -56,
+      "region": "South America",
+      "population": 3382537,
+      "populationYear": 2026,
+      "populationKind": "projekce",
+      "populationSource": "worldometer-un-2026",
+      "text": {
+        "cs": {
+          "name": "Uruguay",
+          "capital": [
+            "Montevideo"
+          ],
+          "currencyNames": {
+            "UYU": "uruguayské peso"
+          },
+          "languageNames": {
+            "es": "španělština"
+          }
+        }
+      }
+    },
+    {
+      "code": "UZ",
+      "iso3": "UZB",
+      "currency": [
+        "UZS"
+      ],
+      "languages": [
+        "uz"
+      ],
+      "excludeLanguages": [
+        "kaa",
+        "ru",
+        "uz"
+      ],
+      "lat": 41,
+      "lon": 64,
+      "region": "Asia",
+      "population": 37724223,
+      "populationYear": 2026,
+      "populationKind": "projekce",
+      "populationSource": "worldometer-un-2026",
+      "text": {
+        "cs": {
+          "name": "Uzbekistán",
+          "capital": [
+            "Taškent"
+          ],
+          "currencyNames": {
+            "UZS": "uzbecký sum"
+          },
+          "languageNames": {
+            "uz": "uzbečtina"
+          }
+        }
+      }
+    },
+    {
+      "code": "VU",
+      "iso3": "VUT",
+      "currency": [
+        "VUV"
+      ],
+      "languages": [
+        "bi",
+        "en",
+        "fr"
+      ],
+      "excludeLanguages": [
+        "bi",
+        "en",
+        "fr"
+      ],
+      "lat": -16,
+      "lon": 167,
+      "region": "Oceania",
+      "population": 342564,
+      "populationYear": 2026,
+      "populationKind": "projekce",
+      "populationSource": "worldometer-un-2026",
+      "text": {
+        "cs": {
+          "name": "Vanuatu",
+          "capital": [
+            "Port Vila"
+          ],
+          "currencyNames": {
+            "VUV": "vanuatský vatu"
+          },
+          "languageNames": {
+            "bi": "bislamština",
+            "en": "angličtina",
+            "fr": "francouzština"
+          }
+        }
+      }
+    },
+    {
+      "code": "VA",
+      "iso3": "VAT",
+      "currency": [
+        "EUR"
+      ],
+      "languages": [
+        "it",
+        "la"
+      ],
+      "excludeLanguages": [
+        "it",
+        "la"
+      ],
+      "lat": 41.9029,
+      "lon": 12.4534,
+      "region": "Europe",
+      "population": 506,
+      "populationYear": 2026,
+      "populationKind": "projekce",
+      "populationSource": "worldometer-un-2026",
+      "text": {
+        "cs": {
+          "name": "Vatikán",
+          "capital": [
+            "Vatikán"
+          ],
+          "currencyNames": {
+            "EUR": "euro"
+          },
+          "languageNames": {
+            "it": "italština",
+            "la": "latina"
+          }
+        }
+      }
+    },
+    {
+      "code": "VE",
+      "iso3": "VEN",
+      "currency": [
+        "VES"
+      ],
+      "languages": [
+        "es"
+      ],
+      "excludeLanguages": [
+        "es"
+      ],
+      "lat": 8,
+      "lon": -66,
+      "region": "South America",
+      "population": 28633711,
+      "populationYear": 2026,
+      "populationKind": "projekce",
+      "populationSource": "worldometer-un-2026",
+      "text": {
+        "cs": {
+          "name": "Venezuela",
+          "capital": [
+            "Caracas"
+          ],
+          "currencyNames": {
+            "VES": "venezuelský bolívar"
+          },
+          "languageNames": {
+            "es": "španělština"
+          }
+        }
+      }
+    },
+    {
+      "code": "VN",
+      "iso3": "VNM",
+      "currency": [
+        "VND"
+      ],
+      "languages": [
+        "vi"
+      ],
+      "excludeLanguages": [
+        "vi",
+        "zh"
+      ],
+      "lat": 16.16666666,
+      "lon": 107.83333333,
+      "region": "Asia",
+      "population": 102177431,
+      "populationYear": 2026,
+      "populationKind": "projekce",
+      "populationSource": "worldometer-un-2026",
+      "text": {
+        "cs": {
+          "name": "Vietnam",
+          "capital": [
+            "Hanoj"
+          ],
+          "currencyNames": {
+            "VND": "vietnamský dong"
+          },
+          "languageNames": {
+            "vi": "vietnamština"
+          }
+        }
+      }
+    },
+    {
+      "code": "TL",
+      "iso3": "TLS",
+      "currency": [
+        "USD"
+      ],
+      "languages": [
+        "tet",
+        "pt"
+      ],
+      "excludeLanguages": [
+        "pt",
+        "tet"
+      ],
+      "lat": -8.83333333,
+      "lon": 125.91666666,
+      "region": "Asia",
+      "population": 1436923,
+      "populationYear": 2026,
+      "populationKind": "projekce",
+      "populationSource": "worldometer-un-2026",
+      "text": {
+        "cs": {
+          "name": "Východní Timor",
+          "capital": [
+            "Dili"
+          ],
+          "currencyNames": {
+            "USD": "americký dolar"
+          },
+          "languageNames": {
+            "tet": "tetum",
+            "pt": "portugalština"
+          }
+        }
+      }
+    },
+    {
+      "code": "ZM",
+      "iso3": "ZMB",
+      "currency": [
+        "ZMW"
+      ],
+      "languages": [
+        "en"
+      ],
+      "excludeLanguages": [
+        "bem",
+        "en",
+        "kqn",
+        "leb",
+        "loz",
+        "lue",
+        "lun",
+        "nse",
+        "ny",
+        "toi",
+        "tum"
+      ],
+      "lat": -15,
+      "lon": 30,
+      "region": "Africa",
+      "population": 22521915,
+      "populationYear": 2026,
+      "populationKind": "projekce",
+      "populationSource": "worldometer-un-2026",
+      "text": {
+        "cs": {
+          "name": "Zambie",
+          "capital": [
+            "Lusaka"
+          ],
+          "currencyNames": {
+            "ZMW": "zambijská kwacha"
+          },
+          "languageNames": {
+            "en": "angličtina"
+          }
+        }
+      }
+    },
+    {
+      "code": "ZW",
+      "iso3": "ZWE",
+      "currency": [
+        "ZWG",
+        "USD"
+      ],
+      "languages": [
+        "sn",
+        "nd",
+        "en"
+      ],
+      "excludeLanguages": [
+        "en",
+        "kck",
+        "mxc",
+        "nd",
+        "ndc",
+        "ny",
+        "sn"
+      ],
+      "lat": -20,
+      "lon": 30,
+      "region": "Africa",
+      "population": 17273580,
+      "populationYear": 2026,
+      "populationKind": "projekce",
+      "populationSource": "worldometer-un-2026",
+      "text": {
+        "cs": {
+          "name": "Zimbabwe",
+          "capital": [
+            "Harare"
+          ],
+          "currencyNames": {
+            "ZWG": "zimbabwské zlato (ZiG)",
+            "USD": "americký dolar"
+          },
+          "languageNames": {
+            "sn": "šonština",
+            "nd": "ndebele (Zimbabwe)",
+            "en": "angličtina"
+          }
+        }
+      }
+    },
+    {
+      "code": "AZ",
+      "iso3": "AZE",
+      "currency": [
+        "AZN"
+      ],
+      "languages": [
+        "az"
+      ],
+      "excludeLanguages": [
+        "az",
+        "tly"
+      ],
+      "lat": 40.5,
+      "lon": 47.5,
+      "region": "Asia",
+      "population": 10454855,
+      "populationYear": 2026,
+      "populationKind": "projekce",
+      "populationSource": "worldometer-un-2026",
+      "text": {
+        "cs": {
+          "name": "Ázerbájdžán",
+          "capital": [
+            "Baku"
+          ],
+          "currencyNames": {
+            "AZN": "ázerbájdžánský manat"
+          },
+          "languageNames": {
+            "az": "ázerbájdžánština"
+          }
+        }
+      }
+    },
+    {
+      "code": "IR",
+      "iso3": "IRN",
+      "currency": [
+        "IRR"
+      ],
+      "languages": [
+        "fa"
+      ],
+      "excludeLanguages": [
+        "ar",
+        "az",
+        "bal",
+        "bqi",
+        "ckb",
+        "fa",
+        "glk",
+        "lrc",
+        "luz",
+        "mzn",
+        "rmt",
+        "sdh",
+        "tk"
+      ],
+      "lat": 32,
+      "lon": 53,
+      "region": "Asia",
+      "population": 93168497,
+      "populationYear": 2026,
+      "populationKind": "projekce",
+      "populationSource": "worldometer-un-2026",
+      "text": {
+        "cs": {
+          "name": "Írán",
+          "capital": [
+            "Teherán"
+          ],
+          "currencyNames": {
+            "IRR": "íránský rijál"
+          },
+          "languageNames": {
+            "fa": "perština"
+          }
+        }
+      }
+    },
+    {
+      "code": "TD",
+      "iso3": "TCD",
+      "currency": [
+        "XAF"
+      ],
+      "languages": [
+        "ar",
+        "fr"
+      ],
+      "excludeLanguages": [
+        "ar",
+        "fr"
+      ],
+      "lat": 15,
+      "lon": 19,
+      "region": "Africa",
+      "population": 21560380,
+      "populationYear": 2026,
+      "populationKind": "projekce",
+      "populationSource": "worldometer-un-2026",
+      "text": {
+        "cs": {
+          "name": "Čad",
+          "capital": [
+            "N’Djamena"
+          ],
+          "currencyNames": {
+            "XAF": "CFA/BEAC frank"
+          },
+          "languageNames": {
+            "ar": "arabština",
+            "fr": "francouzština"
+          }
+        }
+      }
+    },
+    {
+      "code": "ME",
+      "iso3": "MNE",
+      "currency": [
+        "EUR"
+      ],
+      "languages": [
+        "cnr",
+        "sr"
+      ],
+      "excludeLanguages": [
+        "cnr",
+        "sq",
+        "sr"
+      ],
+      "lat": 42.7,
+      "lon": 19.3,
+      "region": "Europe",
+      "population": 626233,
+      "populationYear": 2026,
+      "populationKind": "projekce",
+      "populationSource": "worldometer-un-2026",
+      "text": {
+        "cs": {
+          "name": "Černá Hora",
+          "capital": [
+            "Podgorica"
+          ],
+          "currencyNames": {
+            "EUR": "euro"
+          },
+          "languageNames": {
+            "cnr": "černohorština",
+            "sr": "srbština"
+          }
+        }
+      }
+    },
+    {
+      "code": "CZ",
+      "iso3": "CZE",
+      "currency": [
+        "CZK"
+      ],
+      "languages": [
+        "cs"
+      ],
+      "excludeLanguages": [
+        "cs",
+        "de",
+        "en",
+        "sk"
+      ],
+      "lat": 49.75,
+      "lon": 15.5,
+      "region": "Europe",
+      "population": 10527781,
+      "populationYear": 2026,
+      "populationKind": "projekce",
+      "populationSource": "worldometer-un-2026",
+      "text": {
+        "cs": {
+          "name": "Česko",
+          "capital": [
+            "Praha"
+          ],
+          "currencyNames": {
+            "CZK": "česká koruna"
+          },
+          "languageNames": {
+            "cs": "čeština"
+          }
+        }
+      }
+    },
+    {
+      "code": "CN",
+      "iso3": "CHN",
+      "currency": [
+        "CNY"
+      ],
+      "languages": [
+        "zh"
+      ],
+      "excludeLanguages": [
+        "bo",
+        "gan",
+        "hak",
+        "hsn",
+        "ko",
+        "mn",
+        "nan",
+        "ug",
+        "wuu",
+        "yue",
+        "za",
+        "zh"
+      ],
+      "lat": 35,
+      "lon": 105,
+      "region": "Asia",
+      "population": 1412914089,
+      "populationYear": 2026,
+      "populationKind": "projekce",
+      "populationSource": "worldometer-un-2026",
+      "text": {
+        "cs": {
+          "name": "Čína",
+          "capital": [
+            "Peking"
+          ],
+          "currencyNames": {
+            "CNY": "čínský jüan"
+          },
+          "languageNames": {
+            "zh": "čínština"
+          }
+        }
+      }
+    },
+    {
+      "code": "GR",
+      "iso3": "GRC",
+      "currency": [
+        "EUR"
+      ],
+      "languages": [
+        "el"
+      ],
+      "excludeLanguages": [
+        "de",
+        "el",
+        "en",
+        "fr",
+        "mk",
+        "pnt",
+        "tr"
+      ],
+      "lat": 39,
+      "lon": 22,
+      "region": "Europe",
+      "population": 9897115,
+      "populationYear": 2026,
+      "populationKind": "projekce",
+      "populationSource": "worldometer-un-2026",
+      "text": {
+        "cs": {
+          "name": "Řecko",
+          "capital": [
+            "Atény"
+          ],
+          "currencyNames": {
+            "EUR": "euro"
+          },
+          "languageNames": {
+            "el": "řečtina"
+          }
+        }
+      }
+    },
+    {
+      "code": "SB",
+      "iso3": "SLB",
+      "currency": [
+        "SBD"
+      ],
+      "languages": [
+        "en"
+      ],
+      "excludeLanguages": [
+        "en",
+        "pis",
+        "rug"
+      ],
+      "lat": -8,
+      "lon": 159,
+      "region": "Oceania",
+      "population": 858288,
+      "populationYear": 2026,
+      "populationKind": "projekce",
+      "populationSource": "worldometer-un-2026",
+      "text": {
+        "cs": {
+          "name": "Šalamounovy ostrovy",
+          "capital": [
+            "Honiara"
+          ],
+          "currencyNames": {
+            "SBD": "šalamounský dolar"
+          },
+          "languageNames": {
+            "en": "angličtina"
+          }
+        }
+      }
+    },
+    {
+      "code": "ES",
+      "iso3": "ESP",
+      "currency": [
+        "EUR"
+      ],
+      "languages": [
+        "es",
+        "ca",
+        "eu",
+        "gl"
+      ],
+      "excludeLanguages": [
+        "ast",
+        "ca",
+        "en",
+        "es",
+        "eu",
+        "gl",
+        "oc"
+      ],
+      "lat": 40,
+      "lon": -4,
+      "region": "Europe",
+      "population": 47850793,
+      "populationYear": 2026,
+      "populationKind": "projekce",
+      "populationSource": "worldometer-un-2026",
+      "text": {
+        "cs": {
+          "name": "Španělsko",
+          "capital": [
+            "Madrid"
+          ],
+          "currencyNames": {
+            "EUR": "euro"
+          },
+          "languageNames": {
+            "es": "španělština",
+            "ca": "katalánština",
+            "eu": "baskičtina",
+            "gl": "galicijština"
+          }
+        }
+      }
+    },
+    {
+      "code": "SE",
+      "iso3": "SWE",
+      "currency": [
+        "SEK"
+      ],
+      "languages": [
+        "sv"
+      ],
+      "excludeLanguages": [
+        "en",
+        "fi",
+        "sv"
+      ],
+      "lat": 62,
+      "lon": 15,
+      "region": "Europe",
+      "population": 10701047,
+      "populationYear": 2026,
+      "populationKind": "projekce",
+      "populationSource": "worldometer-un-2026",
+      "text": {
+        "cs": {
+          "name": "Švédsko",
+          "capital": [
+            "Stockholm"
+          ],
+          "currencyNames": {
+            "SEK": "švédská koruna"
+          },
+          "languageNames": {
+            "sv": "švédština"
+          }
+        }
+      }
+    },
+    {
+      "code": "CH",
+      "iso3": "CHE",
+      "currency": [
+        "CHF"
+      ],
+      "languages": [
+        "de",
+        "fr",
+        "it",
+        "rm"
+      ],
+      "excludeLanguages": [
+        "de",
+        "en",
+        "fr",
+        "gsw",
+        "it",
+        "lmo",
+        "pt",
+        "rm"
+      ],
+      "lat": 47,
+      "lon": 8,
+      "region": "Europe",
+      "population": 9007798,
+      "populationYear": 2026,
+      "populationKind": "projekce",
+      "populationSource": "worldometer-un-2026",
+      "text": {
+        "cs": {
+          "name": "Švýcarsko",
+          "capital": [
+            "Bern"
+          ],
+          "currencyNames": {
+            "CHF": "švýcarský frank"
+          },
+          "languageNames": {
+            "de": "němčina",
+            "fr": "francouzština",
+            "it": "italština",
+            "rm": "rétorománština"
+          }
+        }
+      }
+    }
+  ]
+}

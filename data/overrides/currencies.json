@@ -1,5 +1,5 @@
 {
-  "why": "CLDR supplies currency validity intervals, which lag a currency change by a release or more; a dated manual change belongs here and takes precedence. `overrides` replaces the fetched list whole. A country listing more than one code is listing them in the order a player reads.",
+  "why": "CLDR supplies currency validity intervals, which lag a currency change by a release or more; a dated manual change belongs here and takes precedence. `overrides` replaces the fetched list whole. A country listing more than one code is listing them in the order a player reads. `missingUpstream` is the other direction: a code for a country the reference database has no currency for at all. Micronesia is the only one — `world-countries` records no currency for it, and the country uses the US dollar.",
   "overrides": {
     "BG": ["EUR"],
     "BT": ["BTN", "INR"],
@@ -20,5 +20,9 @@
     "VE": ["VES"],
     "ZW": ["ZWG", "USD"]
   },
-  "missingUpstream": {}
+  "missingUpstream": {
+    "FM": [
+      "USD"
+    ]
+  }
 }
