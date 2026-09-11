@@ -23,7 +23,6 @@
 import { existsSync, mkdirSync, readFileSync, renameSync, rmSync, writeFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { pythonFloatRepr } from '../legacy-concat-build.ts';
 import {
   applyTerritory,
   loadLocaleBundle,
@@ -103,24 +102,29 @@ export const serializeCountries = (countries: readonly Country[]): string =>
   `${JSON.stringify(countries, null, 2)}\n`;
 
 /**
- * `data/build/map.json`: compact, and every coordinate carries a decimal point.
+ * `data/build/map.json`: compact, and written by `JSON.stringify` like every
+ * other file this project emits.
  *
- * The committed basemap was written by Python, which renders a whole float as
- * `180.0`; `JSON.stringify` renders it as `180`. 135 coordinates are affected,
- * so a plain re-serialization would rewrite the file on a run that changed
- * nothing — and the byte-for-byte no-op is the property that makes `data:apply`
- * trustworthy. `pythonFloatRepr` is the formatter U2 already needed to
- * reproduce the shipped v7 build, reused rather than written twice.
+ * The basemap v7 shipped was written by Python, which renders a whole float as
+ * `180.0` where `JSON.stringify` renders it as `180` — 135 coordinates of the
+ * 21,284. Until this commit `serializeMap` reproduced that with the
+ * `pythonFloatRepr` U2 wrote for the byte-identity gate, so that `data:apply`
+ * over an unchanged dataset stayed a byte-for-byte no-op.
+ *
+ * Reproducing it was the wrong way round. `180.0` and `180` parse to the same
+ * IEEE-754 double — asserted directly in `tests/unit/data-pipeline.test.ts`,
+ * over every coordinate in the file, not argued from the spec — so the `.0`
+ * never carried precision, only CPython's habit of printing it. What it did
+ * carry was a dependency: the new pipeline's one write path went through a
+ * module U15 froze as legacy, which is exactly the direction a frozen file is
+ * supposed not to flow. The 135 coordinates are normalized once, here, and the
+ * no-op property holds against the normalized file from now on.
+ *
+ * The frozen U2 fixture keeps its Python formatting. It has to: it is the input
+ * to the hash that proves the build port, and normalizing it would erase the
+ * evidence rather than the artifact.
  */
-export const serializeMap = (polygons: readonly MapPolygon[]): string =>
-  `[${polygons
-    .map(
-      (polygon) =>
-        `{"iso3":${JSON.stringify(polygon.iso3)},"points":[${polygon.points
-          .map((point) => `[${pythonFloatRepr(point[0])},${pythonFloatRepr(point[1])}]`)
-          .join(',')}]}`,
-    )
-    .join(',')}]`;
+export const serializeMap = (polygons: readonly MapPolygon[]): string => JSON.stringify(polygons);
 
 export const serializeCountrySnapshot = (snapshot: CountrySnapshot): string =>
   `${JSON.stringify(snapshot, null, 2)}\n`;

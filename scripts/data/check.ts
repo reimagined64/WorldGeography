@@ -132,6 +132,66 @@ export function datasetChecks(input: DatasetInput): CheckResult[] {
       : bad('every country is playable', list(holes, 12)),
   );
 
+  // --- every label a player reads is a word ---------------------------
+  // `Intl.DisplayNames` is configured to fall back to the code, so a tag CLDR
+  // has no Czech name for comes back as itself: `bjz`, `KID`, `TVD`. Those are
+  // not obviously wrong to any other check — they are non-empty strings of the
+  // right length in the right field — and they reach the player as an answer
+  // option reading "bjz". The committed dataset has none, which is what makes
+  // this a floor rather than an aspiration.
+  const untranslated: string[] = [];
+  for (const country of countries) {
+    const code = country.code as string;
+    country.languages.forEach((tag, i) => {
+      if (country.languageNames[i] === tag) untranslated.push(`${code} language ${tag}`);
+    });
+    for (const unit of country.currencyNames) {
+      if (unit.name === unit.code) untranslated.push(`${code} currency ${unit.code}`);
+    }
+  }
+  results.push(
+    untranslated.length === 0
+      ? ok('every label is a word', 'no language or currency falls back to its own code')
+      : bad(
+          'every label is a word',
+          `${list(untranslated, 8)}. CLDR has no name for these, so Intl.DisplayNames returned the ` +
+            `code and a player would be offered it as an answer. Give it a name in ` +
+            `data/overrides/countries.<locale>.json, or drop the code in languages.json / currencies.json.`,
+        ),
+  );
+
+  // --- the distractor filter has something to filter with -------------
+  // `makeQuestion` builds the wrong answers for a language question by taking
+  // every candidate country's languages and dropping the ones this country
+  // excludes. Two ways that produces a question with two correct answers, and
+  // this asserts against both: a language the country itself speaks that is
+  // missing from its own exclusion list, and an entry of the frozen CLDR
+  // territory-language table in `languages.json` that did not survive the
+  // merge. The second is the one worth a check of its own — nothing the
+  // fetchers read can rebuild that table, so a merge that stopped unioning it
+  // in would shrink 144 exclusion lists and fail no other invariant.
+  const narrowed: string[] = [];
+  for (const country of countries) {
+    const code = country.code as string;
+    const excluded = new Set<string>(country.excludeLanguages as readonly string[]);
+    const own = country.languages.filter((tag) => !excluded.has(tag));
+    if (own.length > 0) narrowed.push(`${code} speaks but does not exclude ${own.join(', ')}`);
+    const frozen = (overrides.languages.exclude[code] ?? []).filter((tag) => !excluded.has(tag));
+    if (frozen.length > 0) narrowed.push(`${code} dropped the frozen ${frozen.join(', ')}`);
+  }
+  results.push(
+    narrowed.length === 0
+      ? ok(
+          'exclusion lists only widen',
+          `all ${countries.length} cover their own languages and the frozen CLDR set`,
+        )
+      : bad(
+          'exclusion lists only widen',
+          `${list(narrowed, 6)}. A language the country speaks can reach the wrong answers, ` +
+            `so the question has two correct ones (R18).`,
+        ),
+  );
+
   // --- no sentinel codes reach the dataset ---------------------------
   const sentinelCountries = countries.filter(
     (country) => country.code === UNATTRIBUTED || country.iso3 === UNATTRIBUTED,
@@ -170,17 +230,22 @@ export function datasetChecks(input: DatasetInput): CheckResult[] {
   );
 
   // --- numeric shape ---------------------------------------------------
-  // Coordinates in `countries.json` are written by JSON.stringify, which emits
-  // `20` for a whole number. An integral float there means the rounding step
-  // produced `20.0` — a Python-shaped value in a JavaScript-written file, and a
-  // sign that the number went through a formatter it should not have.
-  // `map.json` is exempt by construction: it is Python-formatted end to end, so
-  // every whole coordinate in it carries a `.0` on purpose.
-  const integralFloats = countriesText.match(INTEGRAL_FLOAT) ?? [];
+  // Both files are written by JSON.stringify, which emits `20` for a whole
+  // number. An integral float in either means the value went through a
+  // formatter it should not have: `map.json` carried 135 of them until the
+  // basemap was normalized, inherited from the CPython script that first wrote
+  // it, and reproducing them kept this pipeline importing the frozen legacy
+  // builder. Nothing is exempt now, which is what lets the check be phrased as
+  // a fact about the dataset rather than about which script happened to write
+  // which file.
+  const integralFloats = [
+    ...(countriesText.match(INTEGRAL_FLOAT) ?? []),
+    ...(mapText.match(INTEGRAL_FLOAT) ?? []),
+  ];
   const exponents = [...(countriesText.match(EXPONENT) ?? []), ...(mapText.match(EXPONENT) ?? [])];
   results.push(
     integralFloats.length === 0 && exponents.length === 0
-      ? ok('numeric shape', 'no integral floats in countries.json, no exponent forms anywhere')
+      ? ok('numeric shape', 'no integral floats and no exponent forms in countries.json or map.json')
       : bad(
           'numeric shape',
           `${integralFloats.length} integral floats (${list(integralFloats, 5)}) and ` +
@@ -196,9 +261,10 @@ export function runChecks(root?: string): CheckResult[] {
   const at = paths(root);
   const countriesText = readFileSync(at.countries, 'utf8');
   const mapText = readFileSync(at.map, 'utf8');
+  const countries = JSON.parse(countriesText) as Country[];
   return [
     ...datasetChecks({
-      countries: JSON.parse(countriesText) as Country[],
+      countries,
       polygons: JSON.parse(mapText) as MapPolygon[],
       countriesText,
       mapText,
@@ -207,7 +273,7 @@ export function runChecks(root?: string): CheckResult[] {
       hasFlagFile: (code) => existsSync(join(at.root, 'assets/flags', `${code}.png`)),
     }),
     reproduction(at, countriesText, mapText),
-    ...provenance(at),
+    ...provenance(at, countries),
   ];
 }
 
@@ -237,8 +303,45 @@ function reproduction(at: ReturnType<typeof paths>, countriesText: string, mapTe
   }
 }
 
-/** The notices have to name what the fetchers read, and nothing they do not. */
-function provenance(at: ReturnType<typeof paths>): CheckResult[] {
+/**
+ * Which pipeline produced the dataset on disk, read off the dataset itself.
+ *
+ * `populationSource` is the one field that records where a row's number came
+ * from, and it is written by whichever pipeline built the row: the archived
+ * `prepare_data.py` stamped every row `worldometer-un-2026`, and `assembleFetch`
+ * stamps `un-wpp-2024-<year>`. A dataset holding both is a half-applied accept
+ * and is a failure in its own right.
+ */
+export type DatasetProvenance = 'legacy-python' | 'node-pipeline' | 'mixed';
+
+export function datasetProvenance(countries: readonly Country[]): DatasetProvenance {
+  const legacy = countries.filter((country) => country.populationSource.startsWith('worldometer-')).length;
+  const pipeline = countries.filter((country) => country.populationSource.startsWith('un-wpp-')).length;
+  if (legacy === countries.length) return 'legacy-python';
+  if (pipeline === countries.length) return 'node-pipeline';
+  return 'mixed';
+}
+
+/** Named in the notices whenever the legacy dataset is the one that ships. */
+const LEGACY_CREDITS: readonly string[] = ['Worldometer', 'CountryInfo', 'Babel'];
+
+/**
+ * The notices have to describe the dataset that ships — not the pipeline that
+ * could rebuild it.
+ *
+ * The distinction is the whole check, and getting it wrong is not hypothetical:
+ * U9 rewrote these files to credit a sha256-pinned WPP download and
+ * `world-countries` under ODbL while `data/build/countries.json` was still, byte
+ * for byte, what `prepare_data.py` produced from a Worldometer transcription and
+ * CountryInfo 0.1.2. Every player then read a provenance page naming four
+ * sources that had never touched a number in front of them, and the MIT notice
+ * of a package whose output they were actually looking at had been deleted.
+ *
+ * So the expected credits are derived from `populationSource` rather than
+ * listed here. An accepted refresh flips 195 rows and the required notices flip
+ * with them in the same commit; neither half can move alone without failing.
+ */
+function provenance(at: ReturnType<typeof paths>, countries: readonly Country[]): CheckResult[] {
   const results: CheckResult[] = [];
   const noticesText = readFileSync(at.notices, 'utf8');
   const sourcesText = readFileSync(at.sources, 'utf8');
@@ -246,6 +349,60 @@ function provenance(at: ReturnType<typeof paths>): CheckResult[] {
     { path: 'data/embedded-notices.txt', text: noticesText },
     { path: 'data/build/sources.json', text: sourcesText },
   ];
+  const kind = datasetProvenance(countries);
+
+  if (kind === 'mixed') {
+    results.push(
+      bad(
+        'provenance matches the dataset',
+        'countries.json mixes worldometer- and un-wpp- population sources. An accept writes all ' +
+          '195 rows at once, so this is a half-applied write or a hand edit — no notice can be ' +
+          'right about a dataset that is two datasets.',
+      ),
+    );
+    return results;
+  }
+
+  if (kind === 'legacy-python') {
+    // The shipped numbers are the archived script's. The notices have to say so,
+    // and must not present this pipeline's pinned downloads as their source.
+    const missing = LEGACY_CREDITS.filter((needle) => !noticesText.includes(needle));
+    const overclaimed: string[] = [];
+    try {
+      for (const [id, pin] of Object.entries(loadLock(at.lock).remote)) {
+        if (id !== 'natural-earth' && noticesText.includes(pin.sha256)) overclaimed.push(id);
+      }
+    } catch {
+      // A missing lock is the next check's problem, not this one's.
+    }
+    if (noticesText.includes('Derivative Database')) overclaimed.push('world-countries (ODbL share-alike)');
+    results.push(
+      missing.length === 0 && overclaimed.length === 0
+        ? ok(
+            'provenance matches the dataset',
+            `countries.json is the archived prepare_data.py build, and the notices credit ` +
+              `${LEGACY_CREDITS.join(', ')} — the sources that produced it`,
+          )
+        : bad(
+            'provenance matches the dataset',
+            [
+              missing.length > 0 ? `the notices no longer credit ${list(missing)}` : '',
+              overclaimed.length > 0
+                ? `the notices claim ${list(overclaimed)} produced data that predates the fetch`
+                : '',
+            ]
+              .filter((line) => line !== '')
+              .join('; ') +
+              `. The shipped populations are a Worldometer transcription; run ` +
+              `npm run data:refresh -- --accept to make the pipeline's provenance true, or restore ` +
+              `the notices that describe what is actually in data/build/.`,
+          ),
+    );
+    // The basemap is the one thing both pipelines agree on, so its pin is
+    // credited in either mode.
+    results.push(naturalEarthCredited(at, noticesText, sourcesText));
+    return results;
+  }
 
   const retired = findRetiredSources(files);
   results.push(
@@ -283,6 +440,33 @@ function provenance(at: ReturnType<typeof paths>): CheckResult[] {
       : bad('ODbL text ships', 'licenses/ODbL-1.0.txt is missing — the share-alike obligation needs the text'),
   );
   return results;
+}
+
+/**
+ * Natural Earth, credited in both modes.
+ *
+ * v7's basemap and the pinned v5.1.2 download agree to within eight coordinates
+ * of 21,284, each one rounding tie broken the other way — about a hundred metres
+ * on a 1:110m generalization. The release really is what ships, so the credit is
+ * true whichever pipeline last wrote `countries.json`.
+ */
+function naturalEarthCredited(
+  at: ReturnType<typeof paths>,
+  noticesText: string,
+  sourcesText: string,
+): CheckResult {
+  const name = 'the basemap credits Natural Earth';
+  try {
+    const pin = loadLock(at.lock).remote['natural-earth'];
+    if (pin === undefined) return bad(name, `${at.lock}: no natural-earth pin`);
+    const inNotices = noticesText.includes('NATURAL EARTH') || noticesText.includes('Natural Earth');
+    const inSources = sourcesText.includes('Natural Earth');
+    return inNotices && inSources
+      ? ok(name, 'both the embedded notices and sources.json name it')
+      : bad(name, `missing from ${[inNotices ? '' : 'the notices', inSources ? '' : 'sources.json'].filter(Boolean).join(' and ')}`);
+  } catch (error) {
+    return bad(name, error instanceof Error ? error.message : String(error));
+  }
 }
 
 export const renderChecks = (results: readonly CheckResult[]): string[] =>

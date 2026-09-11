@@ -206,19 +206,53 @@ describe('transcription from prepare_data.py', () => {
     expect(overrideJson('notes.cs.json')['notes']).toEqual(original);
   });
 
-  it('carries lang_overrides — 85 entries, in the order a player reads', () => {
+  it('carries lang_overrides — the script\'s 85 entries, in the order a player reads', () => {
     const original = table('lang_overrides');
     expect(Object.keys(original)).toHaveLength(85);
-    expect(overrides.languages.overrides).toEqual(original);
+    // Every entry the script had, unchanged. The layer may hold more than the
+    // script did; it may not hold one of these differently.
+    for (const [code, value] of Object.entries(original)) {
+      expect(overrides.languages.overrides[code]).toEqual(value);
+    }
     expect(overrides.languages.overrides['ZA']).toEqual([
       'zu', 'xh', 'af', 'en', 'st', 'tn', 'ts', 'ss', 've', 'nr', 'nso',
     ]);
   });
 
-  it('carries currency_overrides — 18 entries', () => {
+  it('carries currency_overrides — the script\'s 18 entries', () => {
     const original = table('currency_overrides');
     expect(Object.keys(original)).toHaveLength(18);
-    expect(overrides.currencies.overrides).toEqual(original);
+    for (const [code, value] of Object.entries(original)) {
+      expect(overrides.currencies.overrides[code]).toEqual(value);
+    }
+  });
+
+  it('pins the rest against upstream drift, with the shipped dataset as the oracle', () => {
+    // These are not transcriptions — `prepare_data.py` never needed them,
+    // because Babel and CountryInfo agreed with its choices. `world-countries`
+    // does not: it makes Bavarian the language of Austria, adds French to
+    // Lebanon and English to Malaysia, offers Belize Kriol and Upper Guinea
+    // Crioulo where CLDR has no Czech name at all, and invents currency codes
+    // for Kiribati and Tuvalu that no locale can render. Their oracle is the
+    // dataset that ships, so this asserts exactly that and nothing about taste.
+    const byCode = new Map(baseline.map((country) => [country.code as string, country]));
+    const added = (layer: Readonly<Record<string, readonly string[]>>, script: string) =>
+      Object.keys(layer).filter((code) => !(code in table(script)));
+
+    const languages = added(overrides.languages.overrides, 'lang_overrides');
+    expect(languages).toEqual([
+      'AR', 'AT', 'BZ', 'CD', 'CF', 'CG', 'CM', 'DJ', 'EC', 'GW', 'JM', 'KE', 'LB',
+      'LI', 'LS', 'MY', 'NO', 'SN', 'SO', 'TN', 'TO', 'TZ', 'UG',
+    ]);
+    for (const code of languages) {
+      expect(overrides.languages.overrides[code]).toEqual(byCode.get(code)?.languages);
+    }
+
+    const currencies = added(overrides.currencies.overrides, 'currency_overrides');
+    expect(currencies).toEqual(['BN', 'BS', 'HT', 'KH', 'KI', 'TV']);
+    for (const code of currencies) {
+      expect(overrides.currencies.overrides[code]).toEqual(byCode.get(code)?.currency);
+    }
   });
 
   it('carries lang_names — 14 entries', () => {
@@ -319,7 +353,7 @@ describe('precedence', () => {
   });
   const layer = (over: Partial<OverrideBundle> = {}): OverrideBundle => ({
     capitals: { overrides: {}, missingUpstream: {} },
-    languages: { overrides: {}, missingUpstream: {} },
+    languages: { overrides: {}, missingUpstream: {}, exclude: {} },
     currencies: { overrides: {}, missingUpstream: {} },
     regions: { americasSouth: [], overrides: {}, missingUpstream: {} },
     easy: { populationThreshold: 18_000_000, always: [] },
@@ -339,9 +373,44 @@ describe('precedence', () => {
   it('replaces a fetched array whole rather than merging into it', () => {
     // The failure this rules out: a hand-picked list of official languages
     // silently growing a fourth because upstream added one.
-    const { countries } = one({ languages: { overrides: { CZ: ['cs'] }, missingUpstream: {} } });
+    const { countries } = one({ languages: { overrides: { CZ: ['cs'] }, missingUpstream: {}, exclude: {} } });
     expect(countries[0]!.languages).toEqual(['cs']);
     expect(countries[0]!.languageNames).toEqual([{ cs: 'čeština' }]);
+  });
+
+  it('unions the exclusion set instead of replacing it, and never narrows one', () => {
+    // `exclude` is the one section of languages.json that is additive, and the
+    // asymmetry is the whole point: a list that replaced the fetch could drop a
+    // language the country actually speaks, and the distractor filter would
+    // then offer it as a wrong answer to a question it is a right answer to.
+    const { countries } = one({
+      languages: { overrides: {}, missingUpstream: {}, exclude: { CZ: ['pl', 'cs'] } },
+    });
+    // 'cs', 'sk' and 'de' are the fetched languages; 'pl' is the frozen CLDR
+    // entry; 'cs' overlaps and must not appear twice.
+    expect(countries[0]!.excludeLanguages).toEqual(['cs', 'de', 'pl', 'sk']);
+  });
+
+  it('excludes every language it offers, for every country in the dataset', () => {
+    // The invariant `makeQuestion` depends on: a language the country speaks
+    // can never reach `wrong`. It is asserted over the committed dataset rather
+    // than a synthetic row because that is the copy players receive.
+    const leaks = baseline.filter((country) =>
+      country.languages.some((tag) => !country.excludeLanguages.includes(tag)),
+    );
+    expect(leaks.map((country) => country.code)).toEqual([]);
+  });
+
+  it('keeps the frozen CLDR table a superset of what v7 shipped', () => {
+    // Regression guard for the loss this block exists to repair: `exclude` is
+    // not derivable from anything the fetchers read, so a refresh that dropped
+    // it would shrink 144 exclusion lists silently.
+    const frozen = overrides.languages.exclude;
+    expect(Object.keys(frozen)).toHaveLength(baseline.length);
+    const shrunk = baseline.filter(
+      (country) => !country.excludeLanguages.every((tag) => frozen[country.code]?.includes(tag)),
+    );
+    expect(shrunk.map((country) => country.code)).toEqual([]);
   });
 
   it('falls back to missingUpstream only where the fetch has nothing', () => {
@@ -376,14 +445,14 @@ describe('precedence', () => {
   });
 
   it('records a shadowed entry when an override suppresses a differing upstream value', () => {
-    const { shadowed } = one({ languages: { overrides: { CZ: ['cs'] }, missingUpstream: {} } });
+    const { shadowed } = one({ languages: { overrides: { CZ: ['cs'] }, missingUpstream: {}, exclude: {} } });
     expect(shadowed).toEqual([
       { code: 'CZ', source: 'languages.json', field: 'languages', fetched: ['cs', 'sk', 'de'], override: ['cs'] },
     ]);
   });
 
   it('records nothing when an override and the fetch agree', () => {
-    const { shadowed } = one({ languages: { overrides: { CZ: ['cs', 'sk', 'de'] }, missingUpstream: {} } });
+    const { shadowed } = one({ languages: { overrides: { CZ: ['cs', 'sk', 'de'] }, missingUpstream: {}, exclude: {} } });
     expect(shadowed).toEqual([]);
   });
 });

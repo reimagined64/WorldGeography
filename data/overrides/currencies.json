@@ -1,11 +1,16 @@
 {
-  "why": "CLDR supplies currency validity intervals, which lag a currency change by a release or more; a dated manual change belongs here and takes precedence. `overrides` replaces the fetched list whole. A country listing more than one code is listing them in the order a player reads. `missingUpstream` is the other direction: a code for a country the reference database has no currency for at all. Micronesia is the only one — `world-countries` records no currency for it, and the country uses the US dollar.",
+  "why": "CLDR supplies currency validity intervals, which lag a currency change by a release or more; a dated manual change belongs here and takes precedence. `overrides` replaces the fetched list whole. It is also what holds a curated list still: upstream reports the Kiribati and Tuvalu dollars, which have no ISO code and therefore no name in any locale, and would reach a player as an answer option reading ‚KID‘. A country listing more than one code is listing them in the order a player reads. `missingUpstream` is the other direction: a code for a country the reference database has no currency for at all. Micronesia is the only one — `world-countries` records no currency for it, and the country uses the US dollar.",
   "overrides": {
     "BG": ["EUR"],
+    "BN": ["BND"],
+    "BS": ["BSD"],
     "BT": ["BTN", "INR"],
     "BY": ["BYN"],
     "CU": ["CUP"],
     "HR": ["EUR"],
+    "HT": ["HTG", "USD"],
+    "KH": ["KHR"],
+    "KI": ["AUD"],
     "LR": ["LRD", "USD"],
     "LS": ["LSL", "ZAR"],
     "MR": ["MRU"],
@@ -16,6 +21,7 @@
     "ST": ["STN"],
     "SV": ["USD"],
     "SZ": ["SZL", "ZAR"],
+    "TV": ["AUD"],
     "VA": ["EUR"],
     "VE": ["VES"],
     "ZW": ["ZWG", "USD"]

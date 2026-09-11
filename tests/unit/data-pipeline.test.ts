@@ -51,6 +51,8 @@ import { refresh } from '../../scripts/data/refresh.ts';
 import {
   fetchPinned,
   loadLock,
+  regenerateNotices,
+  regenerateSourcesJson,
   REMOTE_SOURCES,
   serializeLock,
   sha256,
@@ -86,7 +88,7 @@ interface Fixture {
  * `assets/flags/<code>.png` *exists*, and 195 real images would put 1.5 MB
  * through the filesystem for every scenario that writes.
  */
-function fixture(options: { notices?: 'current' | 'v7' } = {}): Fixture {
+function fixture(): Fixture {
   const root = mkdtempSync(join(tmpdir(), 'wg-data-'));
   trash.push(() => rmSync(root, { recursive: true, force: true }));
   for (const dir of ['data/overrides', 'data/raw', 'data/build']) {
@@ -96,17 +98,13 @@ function fixture(options: { notices?: 'current' | 'v7' } = {}): Fixture {
   copyFileSync(at('licenses/ODbL-1.0.txt'), join(root, 'licenses/ODbL-1.0.txt'));
   mkdirSync(join(root, 'assets/flags'), { recursive: true });
   for (const country of baseline) writeFileSync(join(root, 'assets/flags', `${country.code}.png`), '');
+  copyFileSync(at('data/embedded-notices.txt'), join(root, 'data/embedded-notices.txt'));
 
-  // The frozen v7 notices still credit Worldometer, CountryInfo, Babel and the
-  // pyogrio fixture. Seeding them is how the provenance rewrite gets something
-  // real to rewrite.
-  if (options.notices === 'v7') {
-    copyFileSync(at('tests/fixtures/baseline/embedded-notices.txt'), join(root, 'data/embedded-notices.txt'));
-    copyFileSync(at('tests/fixtures/baseline/data/sources.json'), join(root, 'data/build/sources.json'));
-  } else {
-    copyFileSync(at('data/embedded-notices.txt'), join(root, 'data/embedded-notices.txt'));
-  }
-
+  // The copied notices still credit Worldometer, CountryInfo, Babel and the
+  // pyogrio fixture, because the copied dataset is still the one those produced
+  // — `data/embedded-notices.txt` is byte-identical to the frozen v7 fixture
+  // today, and stops being so on the same commit that accepts a refresh. That
+  // is what gives the provenance rewrite something real to rewrite.
   return {
     root,
     read: (relative) => readFileSync(join(root, relative), 'utf8'),
@@ -295,6 +293,44 @@ describe('geometry', () => {
     expect(serializeMap(resolved)).toBe(readFileSync(at('data/build/map.json'), 'utf8'));
   });
 
+  it('loses no precision writing the basemap, and keeps none of the Python formatting', () => {
+    // The claim `serializeMap` rests on, asserted rather than argued: dropping
+    // the `.0` that CPython printed on 135 whole coordinates changes how the
+    // file reads and not one double it parses to. Checked over every
+    // coordinate, both directions, with Object.is so -0 cannot pass as 0.
+    const text = readFileSync(at('data/build/map.json'), 'utf8');
+    const polygons = JSON.parse(text) as MapPolygon[];
+    const reparsed = JSON.parse(serializeMap(polygons)) as MapPolygon[];
+
+    let coordinates = 0;
+    for (const [i, polygon] of polygons.entries()) {
+      const back = reparsed[i] as MapPolygon;
+      expect(back.iso3).toBe(polygon.iso3);
+      expect(back.points).toHaveLength(polygon.points.length);
+      for (const [j, point] of polygon.points.entries()) {
+        for (const k of [0, 1] as const) {
+          coordinates += 1;
+          expect(Object.is(back.points[j]![k], point[k])).toBe(true);
+        }
+      }
+    }
+    expect(coordinates).toBe(21_284);
+
+    // Three decimals is what `round3` promises; a coordinate needing four would
+    // mean the rounding produced a value JSON has to print longhand.
+    const longest = Math.max(
+      ...polygons.flatMap((polygon) =>
+        polygon.points.flatMap((point) => point.map((value) => (String(value).split('.')[1] ?? '').length)),
+      ),
+    );
+    expect(longest).toBe(3);
+    expect(text).not.toMatch(/-?\d+\.0(?![0-9])/);
+
+    // …and the frozen U2 input keeps its 135, because the byte-identity hash is
+    // computed over it and normalizing it would erase the evidence.
+    expect(readFileSync(at('tests/fixtures/baseline/data/map.json'), 'utf8')).toContain('180.0');
+  });
+
   it('drops a ring of three points or fewer, and keeps the four-point one', () => {
     const tiny: MapPolygon = { iso3: 'XXA', points: [[0, 0], [1, 0], [0, 0]] };
     const small: MapPolygon = { iso3: 'XXB', points: [[0, 0], [1, 0], [1, 1], [0, 0]] };
@@ -422,6 +458,55 @@ describe('the guards, shown failing', () => {
     expect(failures(datasetChecks(datasetInput(broken)))).toContain('no -99 country codes');
   });
 
+  it('fails on an exclusion list that narrowed, in either of the two ways', () => {
+    // (1) The country speaks a language it does not exclude — the direct route
+    // to a language question with two correct answers.
+    const speaks = baseline.map((country) =>
+      country.code === 'CH'
+        ? { ...country, excludeLanguages: country.excludeLanguages.filter((tag) => tag !== 'de') }
+        : country,
+    );
+    const spoken = datasetChecks(datasetInput(speaks));
+    expect(failures(spoken)).toContain('exclusion lists only widen');
+    expect(spoken.find((result) => result.name === 'exclusion lists only widen')?.detail).toContain(
+      'CH speaks but does not exclude de',
+    );
+
+    // (2) A frozen CLDR entry that did not survive the merge. `gsw` is Swiss
+    // German: not one of the four national languages the question offers, and
+    // exactly the kind of tag a rebuilt pipeline loses.
+    const frozen = baseline.map((country) =>
+      country.code === 'CH'
+        ? { ...country, excludeLanguages: country.excludeLanguages.filter((tag) => tag !== 'gsw') }
+        : country,
+    );
+    const dropped = datasetChecks(datasetInput(frozen));
+    expect(failures(dropped)).toContain('exclusion lists only widen');
+    expect(dropped.find((result) => result.name === 'exclusion lists only widen')?.detail).toContain(
+      'CH dropped the frozen gsw',
+    );
+  });
+
+  it('fails on a label that is only a code, in either field', () => {
+    // Both are live: a refresh today gives Belize `bjz` and Tuvalu `TVD`, and
+    // CLDR has a Czech name for neither.
+    const tag = baseline.map((country) =>
+      country.code === 'BZ'
+        ? { ...country, languages: ['bjz'] as Country['languages'], languageNames: ['bjz'] }
+        : country,
+    );
+    const byTag = datasetChecks(datasetInput(tag));
+    expect(failures(byTag)).toContain('every label is a word');
+    expect(byTag.find((result) => result.name === 'every label is a word')?.detail).toContain('BZ language bjz');
+
+    const unit = baseline.map((country) =>
+      country.code === 'TV'
+        ? { ...country, currencyNames: [{ code: 'TVD' as Country['currency'][number], name: 'TVD' }] }
+        : country,
+    );
+    expect(failures(datasetChecks(datasetInput(unit)))).toContain('every label is a word');
+  });
+
   it('fails on a polygon nobody decided to leave unattributed', () => {
     const polygons = JSON.parse(readFileSync(at('data/build/map.json'), 'utf8')) as MapPolygon[];
     const orphaned = polygons.map((polygon, i) => (i === 0 ? { ...polygon, iso3: UNATTRIBUTED } : polygon));
@@ -429,9 +514,15 @@ describe('the guards, shown failing', () => {
     expect(failures(results)).toContain('every -99 polygon was decided');
   });
 
-  it('fails on an integral float in a coordinate', () => {
+  it('fails on an integral float in a coordinate, in either file', () => {
     const text = serializeCountries(baseline).replace('"lat": 33,', '"lat": 33.0,');
     expect(failures(datasetChecks({ ...datasetInput(baseline), countriesText: text }))).toContain('numeric shape');
+
+    // map.json used to be exempt from this check — it was Python-formatted end
+    // to end and held 135 of these on purpose. It is not exempt any more, and a
+    // reverted `serializeMap` would put all 135 back.
+    const mapText = datasetInput(baseline).mapText.replace('[180,', '[180.0,');
+    expect(failures(datasetChecks({ ...datasetInput(baseline), mapText }))).toContain('numeric shape');
   });
 
   it('fails when the polygon count drifts past the tolerance', () => {
@@ -454,17 +545,68 @@ describe('the guards, shown failing', () => {
     expect(result?.detail).toContain('countries.json would change');
   });
 
-  it('fails when the notices still credit a source no fetcher reads', () => {
-    const place = fixture({ notices: 'v7' });
-    const result = runChecks(place.root).find((check) => check.name === 'no retired sources credited');
+  it('fails when the notices describe a pipeline that did not produce the data', () => {
+    // The U9 defect, reproduced from the accept path rather than pasted: the
+    // provenance regen runs, `countries.json` is left as the archived script
+    // built it, and the shipped game then credits a sha256-pinned download and
+    // an ODbL derivative database for numbers neither one ever touched.
+    const place = fixture();
+    const lock = loadLock(join(place.root, 'data/raw/sources.lock.json'));
+    place.write('data/embedded-notices.txt', regenerateNotices(place.read('data/embedded-notices.txt'), lock, 2026));
+    place.write(
+      'data/build/sources.json',
+      regenerateSourcesJson(place.read('data/build/sources.json'), lock, 2026),
+    );
+
+    const result = runChecks(place.root).find((check) => check.name === 'provenance matches the dataset');
     expect(result?.ok).toBe(false);
-    for (const needle of ['worldometer', 'countryinfo', 'babel', 'pyogrio']) {
-      expect(result?.detail.toLowerCase()).toContain(needle);
-    }
+    expect(result?.detail).toContain('Worldometer');
+    expect(result?.detail).toContain('CountryInfo');
+    expect(result?.detail).toContain('un-wpp');
+    expect(result?.detail).toContain('ODbL share-alike');
   });
 
-  it('fails when the ODbL text is not shipped beside the game', () => {
+  it('fails the other way too, when the data moved and the notices did not', () => {
+    // The mirror failure: an accept that wrote `countries.json` and left the
+    // notices behind. Symmetry is the point — a check that only fires one way
+    // would let half of any future substitution through.
     const place = fixture();
+    const moved = baseline.map((country) => ({ ...country, populationSource: 'un-wpp-2024-2026' }));
+    place.write('data/build/countries.json', serializeCountries(moved));
+
+    const results = runChecks(place.root);
+    expect(failures(results)).toContain('no retired sources credited');
+    expect(failures(results)).toContain('every pinned source is credited');
+  });
+
+  it('fails on a dataset that is half one pipeline and half the other', () => {
+    const place = fixture();
+    const half = baseline.map((country, i) =>
+      i % 2 === 0 ? { ...country, populationSource: 'un-wpp-2024-2026' } : country,
+    );
+    place.write('data/build/countries.json', serializeCountries(half));
+
+    const result = runChecks(place.root).find((check) => check.name === 'provenance matches the dataset');
+    expect(result?.ok).toBe(false);
+    expect(result?.detail).toContain('half-applied');
+  });
+
+  it('fails when the ODbL text is not shipped beside a dataset that needs it', () => {
+    // Only in pipeline mode: the share-alike obligation arrives with the data
+    // that is derived from `world-countries`, not before it.
+    const place = fixture();
+    const lock = loadLock(join(place.root, 'data/raw/sources.lock.json'));
+    place.write('data/embedded-notices.txt', regenerateNotices(place.read('data/embedded-notices.txt'), lock, 2026));
+    place.write(
+      'data/build/sources.json',
+      regenerateSourcesJson(place.read('data/build/sources.json'), lock, 2026),
+    );
+    place.write(
+      'data/build/countries.json',
+      serializeCountries(baseline.map((country) => ({ ...country, populationSource: 'un-wpp-2024-2026' }))),
+    );
+    expect(failures(runChecks(place.root))).not.toContain('ODbL text ships');
+
     rmSync(join(place.root, 'licenses/ODbL-1.0.txt'));
     expect(failures(runChecks(place.root))).toContain('ODbL text ships');
   });
@@ -483,7 +625,7 @@ describe('data:refresh --accept', () => {
   });
 
   it('writes the whole set, and the result passes data:check', async () => {
-    const place = fixture({ notices: 'v7' });
+    const place = fixture();
     const upstream = pin(place);
     const before = place.read('data/build/countries.json');
 
@@ -508,7 +650,7 @@ describe('data:refresh --accept', () => {
   });
 
   it('stops crediting Worldometer, CountryInfo, Babel and pyogrio', async () => {
-    const place = fixture({ notices: 'v7' });
+    const place = fixture();
     for (const needle of ['Worldometer', 'CountryInfo', 'Babel', 'pyogrio']) {
       expect(place.read('data/embedded-notices.txt')).toContain(needle);
     }

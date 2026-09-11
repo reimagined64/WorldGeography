@@ -73,6 +73,21 @@ export interface ListOverrides {
   missingUpstream: Readonly<Record<string, readonly string[]>>;
 }
 
+/**
+ * `languages.json`, which carries one section the currency file has no use for.
+ *
+ * `exclude` is not a third way to choose a country's languages. It is the list
+ * the *distractor* filter reads: CLDR's territory-language table as
+ * `prepare_data.py` froze it, holding every language with at least 1 % of
+ * speakers or any official status. Nothing in the new pipeline can rebuild it —
+ * `world-countries` reports official languages and `Intl` exposes no territory
+ * table at all — so it is data rather than a correction, and it is unioned
+ * rather than substituted: an entry can only ever widen an exclusion.
+ */
+export interface LanguageOverrides extends ListOverrides {
+  exclude: Readonly<Record<string, readonly string[]>>;
+}
+
 /** `regions.json`. `americasSouth` splits the one upstream `Americas` region. */
 export interface RegionOverrides {
   americasSouth: readonly string[];
@@ -115,7 +130,7 @@ export interface TerritoryOverrides {
 /** The seven locale-neutral files, loaded. */
 export interface OverrideBundle {
   capitals: CapitalOverrides;
-  languages: ListOverrides;
+  languages: LanguageOverrides;
   currencies: ListOverrides;
   regions: RegionOverrides;
   easy: EasyOverrides;
@@ -319,6 +334,7 @@ export function loadOverrides(dir: string = OVERRIDE_DIR): OverrideBundle {
     languages: {
       overrides: stringListMap(languages, languagesPath, 'overrides'),
       missingUpstream: stringListMap(languages, languagesPath, 'missingUpstream'),
+      exclude: stringListMap(languages, languagesPath, 'exclude'),
     },
     currencies: {
       overrides: stringListMap(currencies, currenciesPath, 'overrides'),
@@ -535,10 +551,19 @@ export function mergeCountries<L extends Locale>(input: MergeInput<L>): MergeRes
     });
 
     // The distractor filter excludes more than the question offers: the final
-    // languages joined with every other language upstream reports for the
-    // territory. Sorted, because `prepare_data.py` sorted it and the fixtures
-    // record the order.
-    const excludeLanguages = [...new Set([...languages, ...(country.excludeLanguages ?? [])])].sort();
+    // languages, every other language upstream reports for the territory, and
+    // the frozen CLDR territory-language set in `languages.json`. A union of
+    // all three rather than a choice between them — under-excluding is what
+    // produces a question with two correct answers, so the only safe direction
+    // for this list to move is wider. Sorted, because `prepare_data.py` sorted
+    // it and the fixtures record the order.
+    const excludeLanguages = [
+      ...new Set([
+        ...languages,
+        ...(country.excludeLanguages ?? []),
+        ...(overrides.languages.exclude[code] ?? []),
+      ]),
+    ].sort();
 
     // --- position -----------------------------------------------------
     const pinnedPosition = overrides.coords.overrides[code];
