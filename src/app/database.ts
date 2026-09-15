@@ -12,20 +12,20 @@
  * is also what lets a Node suite install the real `data/build/` files and
  * render a view without a browser.
  */
-import type { Country } from '../engine/types.ts';
+import type { LocalizedCountry } from '../engine/types.ts';
 import type { SourceEntry } from './dialogs/sources.ts';
 
 export interface Database {
-  countries: Country[];
-  byCode: Readonly<Record<string, Country>>;
+  countries: LocalizedCountry[];
+  byCode: Readonly<Record<string, LocalizedCountry>>;
   flags: Readonly<Record<string, string>>;
   sources: readonly SourceEntry[];
   /** The text of the inert `#license-data` block, printed by the sources dialog. */
   licenseText: string;
 }
 
-export let countries: Country[] = [];
-export let byCode: Readonly<Record<string, Country>> = {};
+export let countries: LocalizedCountry[] = [];
+export let byCode: Readonly<Record<string, LocalizedCountry>> = {};
 export let flags: Readonly<Record<string, string>> = {};
 export let sources: readonly SourceEntry[] = [];
 export let licenseText = '';

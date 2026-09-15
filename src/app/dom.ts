@@ -14,9 +14,10 @@
  * first write refuses every later one, and a toast on each would bury the game.
  */
 import * as Core from '../engine/core.ts';
-import type { Coordinates, QuestionKind, Region } from '../engine/types.ts';
+import type { Coordinates, QuestionKind } from '../engine/types.ts';
 import { byCode, flags } from './database.ts';
 import { formatNumber, locale, regionName, t } from '../i18n/index.ts';
+import { pick } from '../i18n/questions.ts';
 import { write } from './storage.ts';
 
 /**
@@ -105,11 +106,11 @@ export function populationSourceLink(source: string): string {
 }
 
 export function regionOptions(value: string): string {
-  return `<option value="all"${value==='all'?' selected':''}>${esc(regionName('all'))}</option>`+Object.keys(Core.REGIONS).map(key=>`<option value="${key}"${value===key?' selected':''}>${esc(regionName(key as Region))}</option>`).join('');
+  return `<option value="all"${value==='all'?' selected':''}>${esc(regionName('all'))}</option>`+Core.REGIONS.map(key=>`<option value="${key}"${value===key?' selected':''}>${esc(regionName(key))}</option>`).join('');
 }
 
 export function flagImage(code: string, hiddenName = false, extra = ''): string {
-  return `<img class="country-flag ${extra}" src="${flags[code]}" alt="${hiddenName?esc(t('flag.altHidden')):esc(t('flag.alt',{name:byCode[code]!.name}))}" draggable="false" decoding="sync">`;
+  return `<img class="country-flag ${extra}" src="${flags[code]}" alt="${hiddenName?esc(t('flag.altHidden')):esc(t('flag.alt',{name:pick(byCode[code]!.name)}))}" draggable="false" decoding="sync">`;
 }
 
 let toastTimer: ReturnType<typeof setTimeout> | undefined;

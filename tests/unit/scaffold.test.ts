@@ -107,6 +107,9 @@ describe('command surface', () => {
         'data:check',
         'data:flags',
         'data:refresh',
+        // U12: the English half of the dataset is generated, so the side-by-side
+        // a reviewer signs it off from has to be generated too.
+        'data:review',
         'dev',
         'simulate',
         'test',

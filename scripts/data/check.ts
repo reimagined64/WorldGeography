@@ -23,17 +23,17 @@ import { existsSync, readFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { REGIONS } from '../../src/engine/core.ts';
-import type { Country } from '../../src/engine/types.ts';
+import type { Locale, LocalizedCountry, LocalizedText } from '../../src/engine/types.ts';
 import {
-  BASE_LOCALE,
   buildDataset,
   loadCountrySnapshot,
+  loadLocaleBundles,
   loadMapSnapshot,
   paths,
   serializeCountries,
   serializeMap,
 } from './apply.ts';
-import { loadLocaleBundle, loadOverrides, UNATTRIBUTED, type MapPolygon } from './merge.ts';
+import { BASE_LOCALE, DATASET_LOCALES, loadOverrides, UNATTRIBUTED, type MapPolygon } from './merge.ts';
 import { EDITION_PATTERN, findRetiredSources, loadLock, type SourceEntry } from './sources.ts';
 
 /** The world total the dataset has to land inside, in people. */
@@ -69,7 +69,17 @@ const list = (items: readonly string[], limit = 8): string =>
  * *written*, and that is gone by the time JSON.parse has run.
  */
 export interface DatasetInput {
-  countries: readonly Country[];
+  countries: readonly LocalizedCountry[];
+  /**
+   * `data/raw/countries.json`'s `schemaVersion`. See `SCHEMA_VERSION`.
+   *
+   * The both-locales invariant below is gated on it rather than run always,
+   * because it was written in U9 against a dataset that was still monolingual:
+   * inert at 1, fatal at 2, and U12 is the commit that sets 2. A check that
+   * cannot be landed before the thing it checks exists is a check that gets
+   * written after the fact, or not at all.
+   */
+  schemaVersion: number;
   polygons: readonly MapPolygon[];
   countriesText: string;
   mapText: string;
@@ -84,6 +94,7 @@ export interface DatasetInput {
 export function datasetChecks(input: DatasetInput): CheckResult[] {
   const results: CheckResult[] = [];
   const { countries, polygons, countriesText, mapText, overrides, flags } = input;
+  const base = (text: LocalizedText): string => text[BASE_LOCALE];
 
   // --- scope ---------------------------------------------------------
   results.push(
@@ -117,12 +128,12 @@ export function datasetChecks(input: DatasetInput): CheckResult[] {
   const holes: string[] = [];
   for (const country of countries) {
     const code = country.code as string;
-    if (country.capital.length === 0 || country.capital.some((city) => city === '')) holes.push(`${code} capital`);
+    if (country.capital.length === 0 || country.capital.some((city) => base(city) === '')) holes.push(`${code} capital`);
     if (country.languages.length === 0) holes.push(`${code} languages`);
     if (country.languageNames.length !== country.languages.length) holes.push(`${code} languageNames`);
     if (country.currency.length === 0) holes.push(`${code} currency`);
-    if (!(country.region in REGIONS)) holes.push(`${code} region "${country.region}"`);
-    if (country.name === '') holes.push(`${code} name`);
+    if (!REGIONS.includes(country.region)) holes.push(`${code} region "${country.region}"`);
+    if (base(country.name) === '') holes.push(`${code} name`);
     if (flags[code] === undefined) holes.push(`${code} flags.json`);
     if (!input.hasFlagFile(code)) holes.push(`${code} assets/flags/${code}.png`);
   }
@@ -142,11 +153,13 @@ export function datasetChecks(input: DatasetInput): CheckResult[] {
   const untranslated: string[] = [];
   for (const country of countries) {
     const code = country.code as string;
-    country.languages.forEach((tag, i) => {
-      if (country.languageNames[i] === tag) untranslated.push(`${code} language ${tag}`);
-    });
-    for (const unit of country.currencyNames) {
-      if (unit.name === unit.code) untranslated.push(`${code} currency ${unit.code}`);
+    for (const locale of DATASET_LOCALES) {
+      country.languages.forEach((tag, i) => {
+        if (country.languageNames[i]?.[locale] === tag) untranslated.push(`${code} ${locale} language ${tag}`);
+      });
+      for (const unit of country.currencyNames) {
+        if (unit.name[locale] === unit.code) untranslated.push(`${code} ${locale} currency ${unit.code}`);
+      }
     }
   }
   results.push(
@@ -159,6 +172,40 @@ export function datasetChecks(input: DatasetInput): CheckResult[] {
             `data/overrides/countries.<locale>.json, or drop the code in languages.json / currencies.json.`,
         ),
   );
+
+  // --- both locales, or neither ---------------------------------------
+  // The invariant a bilingual dataset lives or dies by. A country whose English
+  // name never got written still has a Czech one, still passes every check
+  // above, and reaches an English player as an answer option reading "Česko" —
+  // or, worse, as an empty string that `uniqueWrong` silently drops, leaving a
+  // question with two options and a throw. Written in U9 and gated from the
+  // start: at `schemaVersion: 1` the dataset was monolingual by design and this
+  // would have been red for three units.
+  if (input.schemaVersion >= 2) {
+    const gaps: string[] = [];
+    for (const country of countries) {
+      const code = country.code as string;
+      for (const locale of DATASET_LOCALES) {
+        const blank = (text: LocalizedText): boolean => (text[locale] ?? '').trim() === '';
+        if (blank(country.name)) gaps.push(`${code} ${locale} name`);
+        if (country.capital.some(blank)) gaps.push(`${code} ${locale} capital`);
+        if (country.currencyNames.some((unit) => blank(unit.name))) gaps.push(`${code} ${locale} currency`);
+        if (country.languageNames.some(blank)) gaps.push(`${code} ${locale} language`);
+      }
+    }
+    results.push(
+      gaps.length === 0
+        ? ok(
+            'every country speaks both locales',
+            `name, capital, currency and language in ${DATASET_LOCALES.join(' and ')} for all ${countries.length}`,
+          )
+        : bad(
+            'every country speaks both locales',
+            `${list(gaps, 12)}. A missing translation is not a missing label — it is an answer ` +
+              `option in the wrong language, or an empty one (R17).`,
+          ),
+    );
+  }
 
   // --- the distractor filter has something to filter with -------------
   // `makeQuestion` builds the wrong answers for a language question by taking
@@ -199,7 +246,7 @@ export function datasetChecks(input: DatasetInput): CheckResult[] {
   results.push(
     sentinelCountries.length === 0
       ? ok('no -99 country codes', 'every country carries a real ISO code')
-      : bad('no -99 country codes', list(sentinelCountries.map((c) => c.name))),
+      : bad('no -99 country codes', list(sentinelCountries.map((c) => base(c.name)))),
   );
 
   // A `-99` polygon is legitimate only where a `territory.json` rule put it
@@ -261,10 +308,12 @@ export function runChecks(root?: string): CheckResult[] {
   const at = paths(root);
   const countriesText = readFileSync(at.countries, 'utf8');
   const mapText = readFileSync(at.map, 'utf8');
-  const countries = JSON.parse(countriesText) as Country[];
+  const countries = JSON.parse(countriesText) as LocalizedCountry[];
+  const snapshot = loadCountrySnapshot(at.rawCountries);
   return [
     ...datasetChecks({
       countries,
+      schemaVersion: snapshot.schemaVersion,
       polygons: JSON.parse(mapText) as MapPolygon[],
       countriesText,
       mapText,
@@ -285,7 +334,7 @@ function reproduction(at: ReturnType<typeof paths>, countriesText: string, mapTe
       snapshot: loadCountrySnapshot(at.rawCountries),
       map: loadMapSnapshot(at.rawMap),
       overrides: loadOverrides(at.overrides),
-      bundle: loadLocaleBundle(BASE_LOCALE, at.overrides),
+      bundles: loadLocaleBundles(at.overrides),
     });
     const mismatches: string[] = [];
     if (serializeCountries(built.countries) !== countriesText) mismatches.push('countries.json');
@@ -314,7 +363,7 @@ function reproduction(at: ReturnType<typeof paths>, countriesText: string, mapTe
  */
 export type DatasetProvenance = 'legacy-python' | 'node-pipeline' | 'mixed';
 
-export function datasetProvenance(countries: readonly Country[]): DatasetProvenance {
+export function datasetProvenance(countries: readonly LocalizedCountry[]): DatasetProvenance {
   const legacy = countries.filter((country) => country.populationSource.startsWith('worldometer-')).length;
   const pipeline = countries.filter((country) => country.populationSource.startsWith('un-wpp-')).length;
   if (legacy === countries.length) return 'legacy-python';
@@ -341,7 +390,7 @@ const LEGACY_CREDITS: readonly string[] = ['Worldometer', 'CountryInfo', 'Babel'
  * listed here. An accepted refresh flips 195 rows and the required notices flip
  * with them in the same commit; neither half can move alone without failing.
  */
-function provenance(at: ReturnType<typeof paths>, countries: readonly Country[]): CheckResult[] {
+function provenance(at: ReturnType<typeof paths>, countries: readonly LocalizedCountry[]): CheckResult[] {
   const results: CheckResult[] = [];
   const noticesText = readFileSync(at.notices, 'utf8');
   const sourcesText = readFileSync(at.sources, 'utf8');

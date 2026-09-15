@@ -23,6 +23,7 @@ import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import * as Core from '../../src/engine/core.ts';
+import { questionBundle } from '../../src/i18n/questions.ts';
 import type { GameState } from '../../src/engine/types.ts';
 import { installDebugApi, store } from '../../src/app/state.ts';
 import { STORE, loadRun } from '../../src/app/storage.ts';
@@ -147,7 +148,7 @@ describe('the view dispatcher', () => {
   it('leaves the main view alone when it renders the results section', () => {
     renderView('home');
     const home = app.el('side-panel').innerHTML;
-    store.game = Core.makeGame(app.countries, { players: 1, names: ['Tester', 'Hráč 2'], difficulty: 'normal', region: 'all' }, 20260916);
+    store.game = Core.makeGame(app.countries, { players: 1, names: ['Tester', 'Hráč 2'], difficulty: 'normal', region: 'all' }, questionBundle(), 20260916);
 
     renderView('results');
     expect(store.view).toBe('results');

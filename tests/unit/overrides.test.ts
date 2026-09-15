@@ -19,14 +19,13 @@ import {
   loadLocaleBundle,
   loadOverrides,
   mergeCountries,
-  projectLocale,
   UNATTRIBUTED,
   type FetchedCountry,
   type MapPolygon,
   type OverrideBundle,
   type TerritoryOverrides,
 } from '../../scripts/data/merge.ts';
-import type { Country, LocaleBundle } from '../../src/engine/types.ts';
+import type { LocalizedCountry, LocaleBundle } from '../../src/engine/types.ts';
 
 const root = fileURLToPath(new URL('../..', import.meta.url));
 const read = (path: string) => readFileSync(new URL(path, `file://${root}`), 'utf8');
@@ -35,7 +34,7 @@ const overrideDir = new URL('data/overrides/', `file://${root}`);
 const overrideJson = (name: string) => JSON.parse(read(`data/overrides/${name}`)) as Record<string, never>;
 
 const baselineText = read('data/build/countries.json');
-const baseline = JSON.parse(baselineText) as Country[];
+const baseline = JSON.parse(baselineText) as LocalizedCountry[];
 const baselineMap = JSON.parse(read('data/build/map.json')) as MapPolygon[];
 
 // ------------------------------------------------------------- the archive
@@ -128,9 +127,16 @@ const pythonWords = (pattern: RegExp): string[] => {
 
 const overrides = loadOverrides();
 const cs = loadLocaleBundle('cs');
+const en = loadLocaleBundle('en');
+const BUNDLES: [LocaleBundle, ...LocaleBundle[]] = [cs, en];
 
-/** The baseline read back as if a fetch had just produced it. */
-const fetchFromBaseline = (country: Country): FetchedCountry => ({
+/**
+ * The baseline read back as if a fetch had just produced it.
+ *
+ * Both locales, since U12: the committed dataset carries two, so a round trip
+ * through one of them would prove half the claim and quietly drop the other.
+ */
+const fetchFromBaseline = (country: LocalizedCountry): FetchedCountry => ({
   code: country.code,
   iso3: country.iso3,
   currency: country.currency,
@@ -143,23 +149,28 @@ const fetchFromBaseline = (country: Country): FetchedCountry => ({
   populationYear: country.populationYear,
   populationKind: country.populationKind,
   populationSource: country.populationSource,
-  text: {
-    cs: {
-      name: country.name,
-      capital: country.capital,
-      currencyNames: Object.fromEntries(country.currencyNames.map((unit) => [unit.code, unit.name])),
-      languageNames: Object.fromEntries(country.languages.map((tag, i) => [tag, country.languageNames[i]!])),
-    },
-  },
+  text: Object.fromEntries(
+    (['cs', 'en'] as const).map((locale) => [
+      locale,
+      {
+        name: country.name[locale],
+        capital: country.capital.map((city) => city[locale]),
+        currencyNames: Object.fromEntries(country.currencyNames.map((unit) => [unit.code, unit.name[locale]])),
+        languageNames: Object.fromEntries(
+          country.languages.map((tag, i) => [tag, country.languageNames[i]![locale]]),
+        ),
+      },
+    ]),
+  ),
 });
 
 const mergeBaseline = (
   layer: OverrideBundle = overrides,
-  bundle: LocaleBundle<'cs'> = cs,
+  bundles: [LocaleBundle, ...LocaleBundle[]] = BUNDLES,
   fetched = baseline.map(fetchFromBaseline),
-) => mergeCountries({ fetched, overrides: layer, bundles: [bundle] });
+) => mergeCountries({ fetched, overrides: layer, bundles });
 
-const serialize = (countries: Country[]) => `${JSON.stringify(countries, null, 2)}\n`;
+const serialize = (countries: LocalizedCountry[]) => `${JSON.stringify(countries, null, 2)}\n`;
 
 /** A structural clone, so a test can perturb one value without leaking into the next. */
 const clone = <T>(value: T): T => JSON.parse(JSON.stringify(value)) as T;
@@ -167,32 +178,62 @@ const clone = <T>(value: T): T => JSON.parse(JSON.stringify(value)) as T;
 // ------------------------------------------------------------------ tests
 
 describe('transcription from prepare_data.py', () => {
-  it('files the layer under the nine names, and scaffolds no locale it cannot fill', () => {
-    // `countries.en.json` and `notes.en.json` are U12's and U17's; an empty one
-    // here would read as a locale the dataset carries and does not.
+  it('files the layer under eleven names, one pair per locale the dataset carries', () => {
+    // Seven language-neutral files plus a `countries`/`notes` pair per locale.
+    // The English pair arrived in U12 — before it, an empty one would have read
+    // as a locale the dataset carries and did not.
     expect(readdirSync(overrideDir).sort()).toEqual([
       'capitals.json',
       'coords.json',
       'countries.cs.json',
+      'countries.en.json',
       'currencies.json',
       'easy.json',
       'languages.json',
       'notes.cs.json',
+      'notes.en.json',
       'regions.json',
       'territory.json',
     ]);
   });
 
-  it('carries cap_overrides — 29 entries, exactly as the script had them', () => {
-    const original = table('cap_overrides');
+  it('carries cap_overrides — 29 entries, and still says the same cities in Czech', () => {
+    // U12 moved the *spelling* out of this file: the entries are the name
+    // upstream uses, and each locale's `capitals` table renders them. What the
+    // file decides — which cities count, and in what order — may not move, so
+    // the script's Czech list has to come back out of the rendered one. That is
+    // a stronger statement than the equality this replaced: it holds the
+    // editorial content fixed while the layer under it changed.
+    const original = table('cap_overrides') as unknown as Record<string, string[]>;
     expect(Object.keys(original)).toHaveLength(29);
-    expect(overrides.capitals.overrides).toEqual(original);
+    expect(Object.keys(overrides.capitals.overrides).sort()).toEqual(Object.keys(original).sort());
+    for (const [code, cities] of Object.entries(original)) {
+      const rendered = overrides.capitals.overrides[code]!.map((city) => cs.capitals[city] ?? city);
+      expect({ [code]: rendered }).toEqual({ [code]: cities });
+    }
   });
 
   it('carries capital_names — 101 exonyms, escapes and all', () => {
-    const original = table('capital_names');
+    const original = table('capital_names') as unknown as Record<string, string>;
     expect(Object.keys(original)).toHaveLength(101);
-    expect(cs.capitals).toEqual(original);
+    // U12 added four keys and reworded one. The additions are the cities whose
+    // Czech spelling used to live in `capitals.json` as a pinned literal and
+    // now has to be reachable from the upstream name; the reword is the gloss
+    // that came with East Jerusalem. Declared entry by entry, so an undeclared
+    // edit to this table still fails.
+    const DECLARED_CAPITAL_NAMES: readonly { key: string; was?: string; now: string }[] = [
+      { key: 'East Jerusalem', was: 'Východní Jeruzalém', now: 'Východní Jeruzalém (nárokovaný)' },
+      { key: 'South Tarawa', now: 'Jižní Tarawa' },
+      { key: 'Sri Jayawardenepura Kotte', now: 'Šrí Džajavardanapura Kotte' },
+      { key: 'Vatican City', now: 'Vatikán' },
+      { key: 'Yaren', now: 'Yaren (sídlo vlády)' },
+    ];
+    const declared = { ...original };
+    for (const change of DECLARED_CAPITAL_NAMES) {
+      expect(original[change.key]).toBe(change.was);
+      declared[change.key] = change.now;
+    }
+    expect(cs.capitals).toEqual(declared);
     // The three spellings of the Tongan capital and the two of the Chadian one
     // are the entries a hand transcription loses.
     expect(cs.capitals['Nukuʻalofa']).toBe('Nukuʻalofa');
@@ -310,7 +351,13 @@ describe('transcription from prepare_data.py', () => {
     >;
     expect(Object.keys(original)).toHaveLength(5);
     for (const [code, record] of Object.entries(original)) {
-      expect(overrides.capitals.missingUpstream[code]).toEqual([record.capital]);
+      // `missingUpstream` is upstream text and always was — except for the
+      // Holy See, which the script wrote in Czech. U12 respelled that one entry
+      // so the file is upstream text throughout, and `countries.cs.json` turns
+      // it back into Vatikán. The other four are the script's, unchanged.
+      const capital = overrides.capitals.missingUpstream[code];
+      expect({ [code]: capital }).toEqual({ [code]: code === 'VA' ? ['Vatican City'] : [record.capital] });
+      if (code === 'VA') expect(cs.capitals['Vatican City']).toBe(record.capital);
       expect(overrides.coords.missingUpstream[code]).toEqual({ lat: record.latlng[0], lon: record.latlng[1] });
       expect(overrides.regions.missingUpstream[code]).toBe(record.region);
       expect(overrides.languages.missingUpstream[code]).toEqual(record.languages);
@@ -468,13 +515,21 @@ describe('precedence', () => {
     ]);
   });
 
-  it('translates a fetched capital but never an overridden one', () => {
+  it('translates a fetched capital and an overridden one the same way', () => {
     expect(one({}, { capitals: { Prague: 'Praha' } }).countries[0]!.capital).toEqual([{ cs: 'Praha' }]);
+    // Until U12 a pin skipped the table, which made `capitals.json` a Czech
+    // file in a language-neutral layer: pinning South Africa's capitals told an
+    // English player they were Kapské Město. A pin now names the city and the
+    // locale spells it, so both sides of the precedence rule reach the table.
     const pinned = one(
-      { capitals: { overrides: { CZ: ['Praha'] }, missingUpstream: {} } },
-      { capitals: { Praha: 'NEVER' } },
+      { capitals: { overrides: { CZ: ['Prague'] }, missingUpstream: {} } },
+      { capitals: { Prague: 'Praha' } },
     );
     expect(pinned.countries[0]!.capital).toEqual([{ cs: 'Praha' }]);
+    // A pin with no entry in the table is used as written, which is what keeps
+    // the 17 cities spelled the same in both languages out of both files.
+    const untranslated = one({ capitals: { overrides: { CZ: ['Bratislava'] }, missingUpstream: {} } }, {});
+    expect(untranslated.countries[0]!.capital).toEqual([{ cs: 'Bratislava' }]);
   });
 
   it('fails an override for an unknown country code, naming the code', () => {
@@ -561,7 +616,7 @@ describe('the basemap', () => {
 describe('applying the layer to the committed baseline', () => {
   it('is a no-op — the merge gives the baseline back, byte for byte', () => {
     const { countries, shadowed } = mergeBaseline();
-    expect(serialize(projectLocale(countries, 'cs'))).toBe(baselineText);
+    expect(serialize(countries)).toBe(baselineText);
     // Nothing is shadowed, because the baseline *is* what these overrides
     // produced: every pinned value still agrees with the value beside it.
     expect(shadowed).toEqual([]);
@@ -571,12 +626,16 @@ describe('applying the layer to the committed baseline', () => {
     // Without this the gate above would pass just as happily on an empty layer.
     const perturbed = clone(overrides);
     (perturbed.capitals.overrides as Record<string, string[]>)['ZA'] = [
-      'Pretoria', 'Kapské Město', 'Johannesburg',
+      'Pretoria', 'Cape Town', 'Johannesburg',
     ];
-    const projected = projectLocale(mergeBaseline(perturbed).countries, 'cs');
-    expect(serialize(projected)).not.toBe(baselineText);
-    expect(projected.find((c) => c.code === 'ZA')!.capital).toEqual([
-      'Pretoria', 'Kapské Město', 'Johannesburg',
+    const merged = mergeBaseline(perturbed).countries;
+    expect(serialize(merged)).not.toBe(baselineText);
+    // Rendered through each locale's table on the way out, which is what the
+    // pinned list started doing in U12: one editorial choice, two spellings.
+    expect(merged.find((c) => c.code === 'ZA')!.capital).toEqual([
+      { cs: 'Pretoria', en: 'Pretoria' },
+      { cs: 'Kapské Město', en: 'Cape Town' },
+      { cs: 'Johannesburg', en: 'Johannesburg' },
     ]);
   });
 
@@ -585,26 +644,53 @@ describe('applying the layer to the committed baseline', () => {
     // so an override that quietly did nothing would still pass. Here the fetch
     // is wrong wherever the layer has an opinion, so only a layer that really
     // carries the curation can reproduce the baseline.
-    const inverse = new Map<string, string>();
-    for (const [upstream, czech] of Object.entries(cs.capitals)) if (!inverse.has(czech)) inverse.set(czech, upstream);
+    // One inverse table per locale: a rendered capital is mapped back to the
+    // upstream key it came from, so the fetch says "Prague" where the dataset
+    // says "Praha" and only the locale's own `capitals` table can close the gap.
+    const inverses = new Map(
+      BUNDLES.map((bundle) => {
+        const inverse = new Map<string, string>();
+        for (const [upstream, rendered] of Object.entries(bundle.capitals)) {
+          if (!inverse.has(rendered)) inverse.set(rendered, upstream);
+        }
+        return [bundle.locale, inverse] as const;
+      }),
+    );
     const orphan = new Set(Object.keys(overrides.capitals.missingUpstream));
 
     const degraded = baseline.map((country): FetchedCountry => {
       const fetched = fetchFromBaseline(country);
-      const text = { ...fetched.text.cs! };
-      if (cs.names[country.code] !== undefined) text.name = 'UPSTREAM NAME';
-      text.capital =
-        overrides.capitals.overrides[country.code] !== undefined
-          ? ['UPSTREAM CAPITAL']
-          : country.capital.map((city) => inverse.get(city) ?? city);
-      text.currencyNames = Object.fromEntries(
-        Object.entries(text.currencyNames).map(([unit, name]) => [unit, cs.currencies[unit] === undefined ? name : 'UPSTREAM CURRENCY']),
-      );
-      text.languageNames = Object.fromEntries(
-        Object.entries(text.languageNames).map(([tag, name]) => [tag, cs.languages[tag] === undefined ? name : 'UPSTREAM LANGUAGE']),
+      const text = Object.fromEntries(
+        BUNDLES.map((bundle) => {
+          const locale = bundle.locale;
+          const was = fetched.text[locale]!;
+          const inverse = inverses.get(locale)!;
+          return [
+            locale,
+            {
+              name: bundle.names[country.code] === undefined ? was.name : 'UPSTREAM NAME',
+              capital:
+                overrides.capitals.overrides[country.code] !== undefined
+                  ? ['UPSTREAM CAPITAL']
+                  : country.capital.map((city) => inverse.get(city[locale]) ?? city[locale]),
+              currencyNames: Object.fromEntries(
+                Object.entries(was.currencyNames).map(([unit, name]) => [
+                  unit,
+                  bundle.currencies[unit] === undefined ? name : 'UPSTREAM CURRENCY',
+                ]),
+              ),
+              languageNames: Object.fromEntries(
+                Object.entries(was.languageNames).map(([tag, name]) => [
+                  tag,
+                  bundle.languages[tag] === undefined ? name : 'UPSTREAM LANGUAGE',
+                ]),
+              ),
+            },
+          ];
+        }),
       );
 
-      const out: FetchedCountry = { ...fetched, text: { cs: text } };
+      const out: FetchedCountry = { ...fetched, text };
       if (overrides.currencies.overrides[country.code] !== undefined) out.currency = ['XXX'];
       if (overrides.languages.overrides[country.code] !== undefined) out.languages = ['zxx'];
       if (overrides.coords.overrides[country.code] !== undefined) { out.lat = 0; out.lon = 0; }
@@ -623,11 +709,17 @@ describe('applying the layer to the committed baseline', () => {
       delete out.lat;
       delete out.lon;
       delete out.region;
-      return { ...out, languages: [], text: { cs: { ...text, capital: [] } } };
+      return {
+        ...out,
+        languages: [],
+        text: Object.fromEntries(
+          Object.entries(text).map(([locale, one]) => [locale, { ...one, capital: [] }]),
+        ),
+      };
     });
 
-    const { countries, shadowed } = mergeBaseline(overrides, cs, degraded);
-    expect(serialize(projectLocale(countries, 'cs'))).toBe(baselineText);
+    const { countries, shadowed } = mergeBaseline(overrides, BUNDLES, degraded);
+    expect(serialize(countries)).toBe(baselineText);
     // And every one of those losses is reported rather than swallowed.
     expect(shadowed.length).toBeGreaterThan(150);
     expect(shadowed).toContainEqual({
@@ -657,7 +749,7 @@ describe('applying the layer to the committed baseline', () => {
       }
       return fetched;
     });
-    const { countries } = mergeBaseline(overrides, cs, degraded);
+    const { countries } = mergeBaseline(overrides, BUNDLES, degraded);
     const byCode = new Map(countries.map((c) => [c.code as string, c.region]));
     expect(byCode.size).toBe(195);
     for (const country of baseline) expect(byCode.get(country.code)).toBe(country.region);

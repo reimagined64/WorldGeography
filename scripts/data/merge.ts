@@ -24,16 +24,17 @@
  * the fetcher has no record of at all, which is how five countries reach the
  * dataset. A fetched value still beats it, and it shadows nothing.
  *
- * The merge builds `LocalizedCountry`, the bilingual record. `projectLocale`
- * narrows it back to the single-locale `Country` that `data/build/countries.json`
- * and the engine still use; U12 is what removes that step.
+ * The merge builds `LocalizedCountry`, the bilingual record, and since U12 that
+ * is what `data/build/countries.json` holds and what the engine reads. There is
+ * no narrowing step any more: `projectLocale` existed to hand the engine a
+ * Czech-only `Country`, and an engine that takes its language as an argument
+ * has no use for one.
  */
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { REGIONS } from '../../src/engine/core.ts';
 import type {
-  Country,
   CurrencyCode,
   Iso2,
   Iso3,
@@ -47,6 +48,20 @@ import type {
 
 /** Where the hand-edited layer lives. */
 export const OVERRIDE_DIR = fileURLToPath(new URL('../../data/overrides', import.meta.url));
+
+/**
+ * The locales `data/build/countries.json` carries, leading locale first.
+ *
+ * The leading one is not just the first: it is the locale the dataset is sorted
+ * by, the one a diff and a shadowed-change report are printed in, and the one
+ * whose capital count every other locale has to match. Czech, because the
+ * committed dataset is ordered by Czech country name and the golden fixtures
+ * record that order.
+ */
+export const DATASET_LOCALES = ['cs', 'en'] as const;
+
+/** The leading locale of `DATASET_LOCALES`. */
+export const BASE_LOCALE: Locale = DATASET_LOCALES[0];
 
 /** Natural Earth's "no code here" sentinel, and the value a polygon keeps when
  *  the game has no country to attribute it to. */
@@ -184,7 +199,7 @@ export interface ShadowedChange {
   code: string;
   /** Which file forced the value, so a maintainer knows what to edit. */
   source: string;
-  /** The `Country` field it lands in. */
+  /** The `LocalizedCountry` field it lands in. */
   field: string;
   /** What the fetch said, and the override discarded. */
   fetched: unknown;
@@ -473,8 +488,12 @@ export function mergeCountries<L extends Locale>(input: MergeInput<L>): MergeRes
     }
 
     // --- capital ------------------------------------------------------
-    // A pinned list is a finished name and skips the translation table; only a
-    // fetched capital passes through it, which is what `prepare_data.py` did.
+    // A pinned list says *which* cities count, in the spelling upstream uses,
+    // and is then rendered by each locale's `capitals` table exactly like a
+    // fetched one. Until U12 it skipped the table and was used verbatim, which
+    // worked for as long as there was one language: the entries were Czech, in
+    // a file that claims to be language-neutral, and English would have been
+    // told that the capital of South Africa is Kapské Město.
     const pinnedCapital = overrides.capitals.overrides[code];
     const upstreamCapital = (bundle: LocaleBundle<L>): string[] => {
       const fetchedCapital = textFor(bundle).capital;
@@ -482,9 +501,12 @@ export function mergeCountries<L extends Locale>(input: MergeInput<L>): MergeRes
       return source.map((city) => bundle.capitals[city] ?? city);
     };
     let capital: LocalizedText<L>[];
+    const renderCapital = (bundle: LocaleBundle<L>, city: string): string => bundle.capitals[city] ?? city;
     if (pinnedCapital !== undefined) {
-      shadow('capitals.json', 'capital', upstreamCapital(base), pinnedCapital);
-      capital = pinnedCapital.map((city) => localized(bundles, () => city));
+      // Both sides rendered, so a pin that agrees with the fetch is not
+      // reported as a suppression of it.
+      shadow('capitals.json', 'capital', upstreamCapital(base), pinnedCapital.map((city) => renderCapital(base, city)));
+      capital = pinnedCapital.map((city) => localized(bundles, (bundle) => renderCapital(bundle, city)));
     } else {
       const perLocale = new Map(bundles.map((bundle) => [bundle.locale, upstreamCapital(bundle)]));
       const width = perLocale.get(base.locale)?.length ?? 0;
@@ -589,7 +611,7 @@ export function mergeCountries<L extends Locale>(input: MergeInput<L>): MergeRes
     const pinnedRegion = overrides.regions.overrides[code];
     if (pinnedRegion !== undefined) shadow('regions.json', 'region', split, pinnedRegion);
     const region = pinnedRegion ?? split;
-    if (!(region in REGIONS)) throw new Error(`${code}: "${region}" is not one of the six playable regions`);
+    if (!REGIONS.includes(region as Region)) throw new Error(`${code}: "${region}" is not one of the six playable regions`);
 
     countries.push({
       code: code as Iso2,
@@ -616,33 +638,6 @@ export function mergeCountries<L extends Locale>(input: MergeInput<L>): MergeRes
   countries.sort((a, b) => (a.name[base.locale] < b.name[base.locale] ? -1 : a.name[base.locale] > b.name[base.locale] ? 1 : 0));
   shadowed.sort((a, b) => `${a.code}${a.source}${a.field}`.localeCompare(`${b.code}${b.source}${b.field}`, 'en'));
   return { countries, shadowed };
-}
-
-/** The single-locale `Country` the engine and `data/build/` still read. U12 removes this. */
-export function projectLocale<L extends Locale>(
-  countries: readonly LocalizedCountry<L>[],
-  locale: L,
-): Country[] {
-  return countries.map((c) => ({
-    code: c.code,
-    iso3: c.iso3,
-    name: c.name[locale],
-    capital: c.capital.map((city) => city[locale]),
-    currency: c.currency,
-    currencyNames: c.currencyNames.map((unit) => ({ code: unit.code, name: unit.name[locale] })),
-    languages: c.languages,
-    languageNames: c.languageNames.map((tag) => tag[locale]),
-    excludeLanguages: c.excludeLanguages,
-    lat: c.lat,
-    lon: c.lon,
-    region: c.region,
-    population: c.population,
-    populationYear: c.populationYear,
-    populationKind: c.populationKind,
-    populationSource: c.populationSource,
-    note: c.note[locale],
-    easy: c.easy,
-  }));
 }
 
 // ----------------------------------------------------------- the basemap

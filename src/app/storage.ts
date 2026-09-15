@@ -22,7 +22,7 @@ import { isLocale, LEGACY_LOCALE, locale as activeLocale, LOCALES, t, type Local
 import { cs } from '../i18n/cs.ts';
 import { en } from '../i18n/en.ts';
 import type { AudioSettings } from '../audio/audio.ts';
-import type { Country, GameOptions, GameState } from '../engine/types.ts';
+import type { GameOptions, GameState, LocalizedCountry } from '../engine/types.ts';
 
 /** The v7 key names. Changing any string here discards every player's data. */
 export const STORE = Object.freeze({
@@ -135,7 +135,7 @@ export function normalizeSettings(saved: unknown): AppSettings {
 
   if (![1, 2].includes(options.players)) options.players = 1;
   if (!['easy', 'normal', 'expert'].includes(options.difficulty)) options.difficulty = 'normal';
-  if (!['all', ...Object.keys(Core.REGIONS)].includes(options.region)) options.region = 'all';
+  if (!['all', ...Core.REGIONS].includes(options.region)) options.region = 'all';
   delete options.visits;
   if (!['full', 'reduced'].includes(options.motion)) options.motion = 'full';
   // A stored language comes back out of `localStorage`, so it is checked rather
@@ -174,10 +174,10 @@ export function loadRecord(): HighScore | null {
  * that was written by a build whose engine disagrees with this one, is dropped
  * rather than resumed into a game that would then be wrong about attempts.
  */
-export function isValidRun(
+export function isValidRun<L extends Locale>(
   run: unknown,
-  countries: Country[],
-  byCode: Readonly<Record<string, Country>>,
+  countries: readonly LocalizedCountry<L>[],
+  byCode: Readonly<Record<string, LocalizedCountry<L>>>,
   locale: Locale = activeLocale(),
 ): boolean {
   const g = run as GameState;
@@ -191,7 +191,7 @@ export function isValidRun(
     const lang: unknown = (g as { lang?: unknown } | null)?.lang;
     if (lang !== undefined && lang !== locale) return false;
     if(!g||g.version!==7||g.completed||!Array.isArray(g.questions)||!g.questions.length||!Number.isInteger(g.index)||g.index<0||g.index>=g.questions.length)return false;
-    if(!g.options||![1,2].includes(g.options.players)||!['easy','normal','expert'].includes(g.options.difficulty)||!['all',...Object.keys(Core.REGIONS)].includes(g.options.region)||!Array.isArray(g.options.names)||!g.options.names.every(n=>typeof n==='string'))return false;
+    if(!g.options||![1,2].includes(g.options.players)||!['easy','normal','expert'].includes(g.options.difficulty)||!['all',...Core.REGIONS].includes(g.options.region)||!Array.isArray(g.options.names)||!g.options.names.every(n=>typeof n==='string'))return false;
     if(!Array.isArray(g.answers)||!Array.isArray(g.scores)||g.scores.length!==g.options.players||!g.scores.every(n=>Number.isFinite(n)&&n>=0))return false;
     if(!g.questions.every(q=>byCode[q.country]&&[...Core.TYPES,'flag'].includes(q.type)&&Array.isArray(q.options)&&q.options.every(t=>typeof t==='string')&&q.options.length===3&&new Set(q.options).size===3&&Number.isInteger(q.correct)&&q.correct>=0&&q.correct<3&&Number.isInteger(q.player)&&q.player>=0&&q.player<g.options.players&&Number.isInteger(q.visit)))return false;
     // The one textual departure from v7: `a.selected!==null` is added purely
@@ -226,9 +226,9 @@ export function isValidRun(
  * and the caller pins the session to it — visibly, and reversible through the
  * switcher as soon as the run is over.
  */
-export function loadRun(
-  countries: Country[],
-  byCode: Readonly<Record<string, Country>>,
+export function loadRun<L extends Locale>(
+  countries: readonly LocalizedCountry<L>[],
+  byCode: Readonly<Record<string, LocalizedCountry<L>>>,
 ): GameState | null {
   const run = read<unknown>(STORE.run, null);
   if (!isValidRun(run, countries, byCode)) return null;

@@ -19,7 +19,8 @@
  */
 import { describe, expect, it } from 'vitest';
 import { Globe, type Vector } from '../../src/globe/globe.ts';
-import { loadCountries, type Country } from '../helpers/load-baseline.ts';
+import { loadCountries } from '../helpers/load-baseline.ts';
+import type { GlobeCountry } from '../../src/globe/globe.ts';
 
 /**
  * The globals the constructor reaches for before it can measure itself. Node
@@ -97,7 +98,7 @@ describe('the twelve-second flight', () => {
   it('keeps its full duration with reduced motion, moving nothing', () => {
     const g = globe();
     g.setMotion(false);
-    g.reveal(all[0] as Country);
+    g.reveal(all[0] as GlobeCountry);
     const initial = [g.lat, g.lon, g.zoom];
 
     g.update(0);
@@ -111,7 +112,7 @@ describe('the twelve-second flight', () => {
 
   it('lands on a neutral globe for a flag bonus, hiding the country', () => {
     const g = globe();
-    g.reveal(all[0] as Country, { neutral: true });
+    g.reveal(all[0] as GlobeCountry, { neutral: true });
     g.update(0);
     for (let t = 100; t <= 12000; t += 100) g.update(t);
 
@@ -122,7 +123,7 @@ describe('the twelve-second flight', () => {
 
   it('freezes while paused and forgets everything when cancelled', () => {
     const g = globe();
-    g.reveal(all[0] as Country);
+    g.reveal(all[0] as GlobeCountry);
     g.update(0);
     g.update(100);
 

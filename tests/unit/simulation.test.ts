@@ -19,6 +19,7 @@ import * as Core from '../../src/engine/core.ts';
 import type { GameState, Question } from '../../src/engine/types.ts';
 import { averagePoints, expectation, simulate } from '../../scripts/simulate.ts';
 import { loadCountries } from '../helpers/load-baseline.ts';
+import { csQuestions } from '../../src/i18n/questions.cs.ts';
 
 const all = loadCountries();
 
@@ -72,6 +73,7 @@ describe('the simulator against the full engine', () => {
         const g: GameState = Core.makeGame(
           all,
           { players: 1, difficulty: 'normal', region: 'all', names: ['Test'] },
+          csQuestions,
           seed,
         );
 
@@ -99,7 +101,7 @@ describe('the simulator against the full engine', () => {
             if (correct) regularCorrect += 1;
           }
           if (countries === cap && Core.nextTurn(g).kind === 'country') break;
-          if (!Core.advance(g, all)) break;
+          if (!Core.advance(g, all, csQuestions)) break;
           if ((g.questions[g.index] as Question).type === 'country') countries += 1;
         }
 

@@ -37,6 +37,7 @@ import {
   applyOverrides,
   loadCountrySnapshot,
   loadMapSnapshot,
+  SCHEMA_VERSION,
   serializeCountries,
   serializeMap,
   writeAtomically,
@@ -56,12 +57,12 @@ import {
   sha256,
   type Transport,
 } from '../../scripts/data/sources.ts';
-import type { Country } from '../../src/engine/types.ts';
+import type { LocalizedCountry } from '../../src/engine/types.ts';
 
 const REPO = fileURLToPath(new URL('../..', import.meta.url));
 const at = (relative: string) => join(REPO, relative);
 
-const baseline = JSON.parse(readFileSync(at('data/build/countries.json'), 'utf8')) as Country[];
+const baseline = JSON.parse(readFileSync(at('data/build/countries.json'), 'utf8')) as LocalizedCountry[];
 const rawCountries = loadCountrySnapshot(at('data/raw/countries.json'));
 const rawMap = loadMapSnapshot(at('data/raw/map.json'));
 const overrides = loadOverrides(at('data/overrides'));
@@ -446,7 +447,7 @@ describe('the guards, shown failing', () => {
   });
 
   it('flags the 25 % alarm from a diff alone, and stays quiet under it', () => {
-    const bump = (factor: number): Country[] =>
+    const bump = (factor: number): LocalizedCountry[] =>
       baseline.map((country) =>
         country.code === 'CZ' ? { ...country, population: Math.round(country.population * factor) } : country,
       );
@@ -471,7 +472,7 @@ describe('the guards, shown failing', () => {
 
   it('fails on a -99 country code', () => {
     const broken = baseline.map((country) =>
-      country.code === 'CZ' ? { ...country, iso3: UNATTRIBUTED as Country['iso3'] } : country,
+      country.code === 'CZ' ? { ...country, iso3: UNATTRIBUTED as LocalizedCountry['iso3'] } : country,
     );
     expect(failures(datasetChecks(datasetInput(broken)))).toContain('no -99 country codes');
   });
@@ -510,16 +511,27 @@ describe('the guards, shown failing', () => {
     // CLDR has a Czech name for neither.
     const tag = baseline.map((country) =>
       country.code === 'BZ'
-        ? { ...country, languages: ['bjz'] as Country['languages'], languageNames: ['bjz'] }
+        ? {
+            ...country,
+            languages: ['bjz'] as LocalizedCountry['languages'],
+            languageNames: [{ cs: 'bjz', en: 'bjz' }],
+          }
         : country,
     );
     const byTag = datasetChecks(datasetInput(tag));
     expect(failures(byTag)).toContain('every label is a word');
-    expect(byTag.find((result) => result.name === 'every label is a word')?.detail).toContain('BZ language bjz');
+    // Reported per locale since U12: a tag CLDR has a name for in one language
+    // and not the other is the failure this check exists to catch.
+    expect(byTag.find((result) => result.name === 'every label is a word')?.detail).toContain('BZ cs language bjz');
 
     const unit = baseline.map((country) =>
       country.code === 'TV'
-        ? { ...country, currencyNames: [{ code: 'TVD' as Country['currency'][number], name: 'TVD' }] }
+        ? {
+            ...country,
+            currencyNames: [
+              { code: 'TVD' as LocalizedCountry['currency'][number], name: { cs: 'TVD', en: 'TVD' } },
+            ],
+          }
         : country,
     );
     expect(failures(datasetChecks(datasetInput(unit)))).toContain('every label is a word');
@@ -770,7 +782,9 @@ describe('data:apply', () => {
     const capitals = JSON.parse(place.read('data/overrides/capitals.json')) as {
       overrides: Record<string, string[]>;
     };
-    capitals.overrides['NL'] = ['Haag'];
+    // Spelled the way upstream would: `capitals.json` names the city and each
+    // locale's table renders it, and neither table has an entry for this one.
+    capitals.overrides['NL'] = ['The Hague'];
     place.write('data/overrides/capitals.json', `${JSON.stringify(capitals, null, 2)}\n`);
 
     // Proof rather than assertion: any fetch at all during the apply throws.
@@ -786,13 +800,15 @@ describe('data:apply', () => {
     }
 
     expect(result.changed).toBe(true);
-    const after = JSON.parse(place.read('data/build/countries.json')) as Country[];
+    const after = JSON.parse(place.read('data/build/countries.json')) as LocalizedCountry[];
     const moved = diffCountries(baseline, after);
     expect(moved.added).toEqual([]);
     expect(moved.removed).toEqual([]);
     expect(moved.changed.map((change) => change.code)).toEqual(['NL']);
     expect(moved.changed[0]?.fields.map((field) => field.field)).toEqual(['capital']);
-    expect(after.find((country) => country.code === 'NL')?.capital).toEqual(['Haag']);
+    expect(after.find((country) => country.code === 'NL')?.capital).toEqual([
+      { cs: 'The Hague', en: 'The Hague' },
+    ]);
     // The basemap is not the capitals' business.
     expect(place.read('data/build/map.json')).toBe(readFileSync(at('data/build/map.json'), 'utf8'));
   });
@@ -843,10 +859,11 @@ describe('the committed tree', () => {
 // ------------------------------------------------------------------ helper
 
 /** A `datasetChecks` input over the committed tree, for the perturbation tests. */
-function datasetInput(countries: readonly Country[]): Parameters<typeof datasetChecks>[0] {
+function datasetInput(countries: readonly LocalizedCountry[]): Parameters<typeof datasetChecks>[0] {
   const mapText = readFileSync(at('data/build/map.json'), 'utf8');
   return {
     countries,
+    schemaVersion: SCHEMA_VERSION,
     polygons: JSON.parse(mapText) as MapPolygon[],
     countriesText: serializeCountries(countries),
     mapText,

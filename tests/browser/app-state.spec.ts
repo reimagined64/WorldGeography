@@ -25,7 +25,8 @@ import { join } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { REPO_ROOT, writeReadable } from '../../scripts/build.ts';
 import * as Core from '../../src/engine/core.ts';
-import type { Country, GameState } from '../../src/engine/types.ts';
+import { csQuestions } from '../../src/i18n/questions.cs.ts';
+import type { LocalizedCountry, GameState } from '../../src/engine/types.ts';
 
 test.setTimeout(120_000);
 
@@ -45,7 +46,7 @@ const STORAGE_WARNING = 'Prohlížeč nepovoluje ukládání. Po zavření strá
 
 const countries = JSON.parse(
   readFileSync(join(REPO_ROOT, 'data/build/countries.json'), 'utf8'),
-) as Country[];
+) as LocalizedCountry[];
 
 /**
  * Play wrong answers with the engine until the last affordable country begins.
@@ -57,13 +58,14 @@ function endgameSave(): GameState {
   const game = Core.makeGame(
     countries,
     { players: 1, names: ['Tester', 'Hráč 2'], difficulty: 'normal', region: 'all' },
+    csQuestions,
     20260909,
   );
   for (let guard = 0; guard < 400; guard += 1) {
     const question = game.questions[game.index];
     if (question === undefined) break;
     Core.submit(game, (question.correct + 1) % 3, 1000);
-    if (game.gameOver || !Core.advance(game, countries)) break;
+    if (game.gameOver || !Core.advance(game, countries, csQuestions)) break;
     const next = game.questions[game.index];
     if (next?.type === 'country' && game.lives[0] === 0) {
       game.revealedIndex = game.index;

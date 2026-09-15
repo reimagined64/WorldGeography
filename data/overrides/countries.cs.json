@@ -1,5 +1,5 @@
 {
-  "why": "Czech text. `names` is the country name a player reads, overriding the fetched CLDR name. `capitals` translates a fetched capital — it is keyed by the name upstream uses, and a capital listed in `capitals.json` under `overrides` never passes through it. `languages` and `currencies` are display names, keyed by the tag and the ISO 4217 code, and override the fetched CLDR name for that code.",
+  "why": "Czech text. `names` is the country name a player reads, overriding the fetched CLDR name. `capitals` renders a capital into Czech — it is keyed by the name upstream uses, and since U12 a capital pinned in `capitals.json` passes through it too, which is where the glosses on East Jerusalem and Yaren come from. `languages` and `currencies` are display names, keyed by the tag and the ISO 4217 code, and override the fetched CLDR name for that code.",
   "names": {
     "CD": "Demokratická republika Kongo",
     "CG": "Konžská republika",
@@ -46,7 +46,7 @@
     "Djibouti": "Džibuti",
     "Doha": "Dauhá",
     "Dushanbe": "Dušanbe",
-    "East Jerusalem": "Východní Jeruzalém",
+    "East Jerusalem": "Východní Jeruzalém (nárokovaný)",
     "Guatemala City": "Ciudad de Guatemala",
     "Hanoi": "Hanoj",
     "Havana": "Havana",
@@ -101,6 +101,8 @@
     "Singapore": "Singapur",
     "Skopje": "Skopje",
     "Sofia": "Sofie",
+    "South Tarawa": "Jižní Tarawa",
+    "Sri Jayawardenepura Kotte": "Šrí Džajavardanapura Kotte",
     "St. George's": "Saint George’s",
     "Stockholm": "Stockholm",
     "São Tomé": "São Tomé",
@@ -113,10 +115,12 @@
     "Tripoli": "Tripolis",
     "Ulaanbaatar": "Ulánbátar",
     "Ulan Bator": "Ulánbátar",
+    "Vatican City": "Vatikán",
     "Vienna": "Vídeň",
     "Warsaw": "Varšava",
     "Washington D.C.": "Washington, D.C.",
     "Washington, D.C.": "Washington, D.C.",
+    "Yaren": "Yaren (sídlo vlády)",
     "Yerevan": "Jerevan",
     "Zagreb": "Záhřeb"
   },
@@ -136,5 +140,8 @@
     "tvl": "tuvalština",
     "tzm": "berberština (tamazight)"
   },
-  "currencies": { "MAD": "marocký dirham", "ZWG": "zimbabwské zlato (ZiG)" }
+  "currencies": {
+    "MAD": "marocký dirham",
+    "ZWG": "zimbabwské zlato (ZiG)"
+  }
 }

@@ -19,7 +19,7 @@
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import type { Country } from '../../src/engine/types.ts';
+import type { LocalizedCountry } from '../../src/engine/types.ts';
 import type { FlightState, RevealOptions } from '../../src/globe/globe.ts';
 import { installDatabase, type Database } from '../../src/app/database.ts';
 import { store, type Store } from '../../src/app/state.ts';
@@ -179,7 +179,7 @@ export function installDom(): DomStub {
 
 /** One `reveal` call, kept after cancellation so a test can fire it late. */
 export interface CapturedFlight {
-  country: Country;
+  country: LocalizedCountry;
   neutral: boolean;
   onStage: (stage: string) => void;
   onProgress: (state: FlightState) => void;
@@ -196,18 +196,18 @@ export class FakeGlobe {
   flight: CapturedFlight | null = null;
   /** Every reveal ever started, cancelled ones included. */
   readonly flights: CapturedFlight[] = [];
-  readonly presented: (Country | null)[] = [];
+  readonly presented: (LocalizedCountry | null)[] = [];
 
   home(): void { this.flight = null; }
   focus(): void {}
   reset(): void {}
   setZoom(z: number): void { this.targetZoom = z; }
   setMotion(enabled: boolean): void { this.motion = enabled; }
-  present(c: Country | null): void { this.presented.push(c); }
+  present(c: LocalizedCountry | null): void { this.presented.push(c); }
   pauseFlight(): void {}
   cancelFlight(): void { this.flight = null; }
   flightState(): FlightState | null { return null; }
-  reveal(c: Country, options: RevealOptions = {}): void {
+  reveal(c: LocalizedCountry, options: RevealOptions = {}): void {
     this.cancelFlight();
     const flight: CapturedFlight = {
       country: c,
@@ -261,7 +261,7 @@ let database: Database | undefined;
 export function realDatabase(): Database {
   if (database !== undefined) return database;
   const read = <T>(name: string): T => JSON.parse(readFileSync(join(REPO_ROOT, 'data/build', name), 'utf8')) as T;
-  const countries = read<Country[]>('countries.json');
+  const countries = read<LocalizedCountry[]>('countries.json');
   database = {
     countries,
     byCode: Object.fromEntries(countries.map((c) => [c.code, c])),
@@ -275,8 +275,8 @@ export function realDatabase(): Database {
 export interface Harness extends DomStub {
   readonly globe: FakeGlobe;
   readonly audio: FakeAudio;
-  readonly countries: Country[];
-  readonly byCode: Readonly<Record<string, Country>>;
+  readonly countries: LocalizedCountry[];
+  readonly byCode: Readonly<Record<string, LocalizedCountry>>;
 }
 
 const PRISTINE = { ...store };

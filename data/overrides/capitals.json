@@ -1,41 +1,112 @@
 {
-  "why": "Which cities count as a country's capital, and in what order. `overrides` is the editorial call and is used verbatim: unlike a fetched capital it does not pass through the `capitals` table in `countries.<locale>.json`, which is why the entries here are already spelled the way a player sees them. `missingUpstream` is the opposite — the capital of a country the fetcher has no record of at all, given as upstream text and translated like any other. Where a capital is disputed or a country has several, the reason a player is shown is the note filed under the same code in `notes.<locale>.json`.",
+  "why": "Which cities count as a country's capital, and in what order. Both sections give the city in the spelling upstream uses, and both are then rendered by the `capitals` table in `countries.<locale>.json` like any fetched capital — so a locale that spells a city differently, or glosses it, says so in its own file. Before U12 `overrides` was used verbatim and its entries were therefore Czech, in a file that is otherwise language-neutral; an English player would have been told that the capital of South Africa is Kapské Město. The editorial calls this file makes are *which* cities and *in what order*, never how they are spelled. Where a capital is disputed or a country has several, the reason a player is shown is the note filed under the same code in `notes.<locale>.json`.",
   "overrides": {
-    "BI": ["Gitega"],
-    "BN": ["Bandar Seri Begawan"],
-    "BO": ["Sucre"],
-    "CH": ["Bern"],
-    "CI": ["Yamoussoukro"],
-    "FM": ["Palikir"],
-    "GQ": ["Ciudad de la Paz"],
-    "ID": ["Jakarta"],
-    "IL": ["Jeruzalém"],
-    "KI": ["Jižní Tarawa"],
-    "KZ": ["Astana"],
-    "LK": ["Šrí Džajavardanapura Kotte"],
-    "MD": ["Kišiněv"],
-    "MM": ["Neipyijto"],
-    "MN": ["Ulánbátar"],
-    "MY": ["Kuala Lumpur"],
-    "NA": ["Windhoek"],
-    "NL": ["Amsterdam"],
-    "NR": ["Yaren (sídlo vlády)"],
-    "PS": ["Východní Jeruzalém (nárokovaný)"],
-    "PW": ["Ngerulmud"],
-    "SO": ["Mogadišo"],
-    "SZ": ["Mbabane", "Lobamba"],
-    "TV": ["Funafuti"],
-    "TZ": ["Dodoma"],
-    "US": ["Washington, D.C."],
-    "VA": ["Vatikán"],
-    "YE": ["Saná"],
-    "ZA": ["Pretoria", "Kapské Město", "Bloemfontein"]
+    "BI": [
+      "Gitega"
+    ],
+    "BN": [
+      "Bandar Seri Begawan"
+    ],
+    "BO": [
+      "Sucre"
+    ],
+    "CH": [
+      "Bern"
+    ],
+    "CI": [
+      "Yamoussoukro"
+    ],
+    "FM": [
+      "Palikir"
+    ],
+    "GQ": [
+      "Ciudad de la Paz"
+    ],
+    "ID": [
+      "Jakarta"
+    ],
+    "IL": [
+      "Jerusalem"
+    ],
+    "KI": [
+      "South Tarawa"
+    ],
+    "KZ": [
+      "Astana"
+    ],
+    "LK": [
+      "Sri Jayawardenepura Kotte"
+    ],
+    "MD": [
+      "Chisinau"
+    ],
+    "MM": [
+      "Naypyidaw"
+    ],
+    "MN": [
+      "Ulaanbaatar"
+    ],
+    "MY": [
+      "Kuala Lumpur"
+    ],
+    "NA": [
+      "Windhoek"
+    ],
+    "NL": [
+      "Amsterdam"
+    ],
+    "NR": [
+      "Yaren"
+    ],
+    "PS": [
+      "East Jerusalem"
+    ],
+    "PW": [
+      "Ngerulmud"
+    ],
+    "SO": [
+      "Mogadishu"
+    ],
+    "SZ": [
+      "Mbabane",
+      "Lobamba"
+    ],
+    "TV": [
+      "Funafuti"
+    ],
+    "TZ": [
+      "Dodoma"
+    ],
+    "US": [
+      "Washington, D.C."
+    ],
+    "VA": [
+      "Vatican City"
+    ],
+    "YE": [
+      "Sana'a"
+    ],
+    "ZA": [
+      "Pretoria",
+      "Cape Town",
+      "Bloemfontein"
+    ]
   },
   "missingUpstream": {
-    "AD": ["Andorra la Vella"],
-    "ME": ["Podgorica"],
-    "MM": ["Naypyidaw"],
-    "PS": ["East Jerusalem"],
-    "VA": ["Vatikán"]
+    "AD": [
+      "Andorra la Vella"
+    ],
+    "ME": [
+      "Podgorica"
+    ],
+    "MM": [
+      "Naypyidaw"
+    ],
+    "PS": [
+      "East Jerusalem"
+    ],
+    "VA": [
+      "Vatican City"
+    ]
   }
 }

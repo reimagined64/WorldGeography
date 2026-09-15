@@ -12,26 +12,30 @@ import { describe, expect, it } from 'vitest';
 import * as Core from '../../src/engine/core.ts';
 import type {
   AnswerResult,
-  Country,
   CurrencyCode,
   Difficulty,
   GameOptions,
   GameState,
+  LocalizedCountry,
   Question,
   QuestionKind,
-  Region,
 } from '../../src/engine/types.ts';
 import { loadCountries, loadFlags } from '../helpers/load-baseline.ts';
+import { csQuestions } from '../../src/i18n/questions.cs.ts';
 
 const all = loadCountries();
 const flags = loadFlags();
-const by = Object.fromEntries(all.map((c) => [c.code, c])) as Record<string, Country>;
+const by = Object.fromEntries(all.map((c) => [c.code, c])) as Record<string, LocalizedCountry<'cs'>>;
 const TYPES: QuestionKind[] = [...Core.TYPES, 'flag'];
+// The frozen fixture is Czech, so every claim below is a claim about Czech
+// questions. `locale-integrity.test.ts` is where both bundles are exercised.
+const cs = csQuestions;
 
 const create = (extra: Partial<GameOptions> = {}, seed = 777): GameState =>
   Core.makeGame(
     all,
     { players: 1, difficulty: 'normal', region: 'all', names: ['Anna', 'Petr'], ...extra },
+    cs,
     seed,
   );
 const current = (g: GameState): Question => g.questions[g.index] as Question;
@@ -43,10 +47,10 @@ const answer = (g: GameState, correct = true, elapsed = 5000): AnswerResult =>
   ) as AnswerResult;
 const step = (g: GameState, correct = true, elapsed = 5000): AnswerResult => {
   const a = answer(g, correct, elapsed);
-  Core.advance(g, all);
+  Core.advance(g, all, cs);
   return a;
 };
-/** Loose on purpose: the rejection tests below write values `Country` forbids. */
+/** Loose on purpose: the rejection tests below write values the record forbids. */
 const clone = (): Record<string, unknown>[] =>
   JSON.parse(JSON.stringify(all)) as Record<string, unknown>[];
 const entry = (list: Record<string, unknown>[], at: number): Record<string, unknown> =>
@@ -54,14 +58,14 @@ const entry = (list: Record<string, unknown>[], at: number): Record<string, unkn
 
 describe('the country database', () => {
   it('passes its own validator, with one flag per country', () => {
-    expect(Core.validateCountries(all)).toBe(true);
+    expect(Core.validateCountries(all, cs)).toBe(true);
     expect(all).toHaveLength(195);
     expect(Object.keys(flags)).toHaveLength(195);
   });
 
   it('names a currency by its monetary unit, not by its nationality', () => {
-    expect(Core.currencyLabel({ code: 'MAD' as CurrencyCode })).toBe('dirham');
-    expect(by.MA?.currencyNames[0]?.name).toBe('marocký dirham');
+    expect(Core.currencyLabel({ code: 'MAD' as CurrencyCode }, cs)).toBe('dirham');
+    expect(by.MA?.currencyNames[0]?.name.cs).toBe('marocký dirham');
   });
 
   // The validator is what stands between a bad data refresh (U9) and a build
@@ -70,25 +74,25 @@ describe('the country database', () => {
   it('rejects a duplicated country code', () => {
     const broken = clone();
     entry(broken, 1).code = entry(broken, 0).code;
-    expect(() => Core.validateCountries(broken)).toThrow(/duplicitní kód/);
+    expect(() => Core.validateCountries(broken, cs)).toThrow(/duplicitní kód/);
   });
 
   it('rejects a country with no capital', () => {
     const broken = clone();
     entry(broken, 0).capital = [];
-    expect(() => Core.validateCountries(broken)).toThrow(/chybí capital/);
+    expect(() => Core.validateCountries(broken, cs)).toThrow(/chybí capital/);
   });
 
   it('rejects an unknown region', () => {
     const broken = clone();
     entry(broken, 0).region = 'Atlantis';
-    expect(() => Core.validateCountries(broken)).toThrow(/Neznámý region/);
+    expect(() => Core.validateCountries(broken, cs)).toThrow(/Neznámý region/);
   });
 
   it('rejects a non-finite population', () => {
     const broken = clone();
     entry(broken, 0).population = Number.POSITIVE_INFINITY;
-    expect(() => Core.validateCountries(broken)).toThrow(/obyvatelstvo/);
+    expect(() => Core.validateCountries(broken, cs)).toThrow(/obyvatelstvo/);
   });
 });
 
@@ -101,7 +105,7 @@ describe('every question variant', () => {
       for (let seed = 0; seed < 4; seed += 1) {
         for (const c of all) {
           for (const type of TYPES) {
-            const q = Core.makeQuestion(c, type, all, difficulty, Core.rng(seed));
+            const q = Core.makeQuestion(c, type, all, cs, difficulty, Core.rng(seed));
             expect(q.options).toHaveLength(3);
             expect(new Set(q.options).size).toBe(3);
             expect(q.correct).toBeGreaterThanOrEqual(0);
@@ -109,26 +113,26 @@ describe('every question variant', () => {
             expect(q.explanation).toBeTruthy();
 
             if (type === 'currency') {
-              const valid = new Set(c.currencyNames.map((n) => Core.currencyLabel(n)));
+              const valid = new Set(c.currencyNames.map((n) => Core.currencyLabel(n, cs)));
               q.options.forEach((option, i) => {
                 expect(valid.has(option)).toBe(i === q.correct);
                 expect(/[A-Z]| · |\(|\)/.test(option)).toBe(false);
-                expect(Object.values(Core.CURRENCY_UNITS)).toContain(option);
+                expect(Object.values(cs.currencyUnits)).toContain(option);
               });
               for (const n of c.currencyNames) {
-                expect(q.explanation).toContain(n.name);
+                expect(q.explanation).toContain(n.name.cs);
                 expect(q.explanation).toContain(n.code);
               }
             }
             if (type === 'flag') {
               q.options.forEach((name, i) => {
                 if (i === q.correct) return;
-                const other = all.find((x) => x.name === name) as Country;
+                const other = all.find((x) => x.name.cs === name) as LocalizedCountry<'cs'>;
                 expect(Core.sameFlagFamily(c.code, other.code)).toBe(false);
               });
             }
             if (type === 'population') {
-              expect(q.options[q.correct]).toBe(Core.populationLabel(c.population));
+              expect(q.options[q.correct]).toBe(Core.populationLabel(c.population, cs));
             }
             checked += 1;
           }
@@ -144,10 +148,10 @@ describe('every question variant', () => {
 
   it('never offers a second option from the same currency family', () => {
     expect(
-      Core.makeQuestion(by.CZ as Country, 'currency', all).options.filter((x) => x === 'koruna'),
+      Core.makeQuestion(by.CZ!, 'currency', all, cs).options.filter((x) => x === 'koruna'),
     ).toHaveLength(1);
     expect(
-      Core.makeQuestion(by.US as Country, 'currency', all).options.filter((x) => x === 'dolar'),
+      Core.makeQuestion(by.US!, 'currency', all, cs).options.filter((x) => x === 'dolar'),
     ).toHaveLength(1);
   });
 });
@@ -168,14 +172,14 @@ describe('every playable configuration', () => {
     let configurations = 0;
 
     for (const difficulty of ['easy', 'normal', 'expert'] as Difficulty[]) {
-      for (const region of ['all' as const, ...(Object.keys(Core.REGIONS) as Region[])]) {
+      for (const region of ['all' as const, ...Core.REGIONS]) {
         for (const players of [1, 2]) {
           const g = create({ difficulty, region, players });
           const h = create({ difficulty, region, players });
           expect(g.questions).toEqual(h.questions);
           expect(g.version).toBe(7);
           expect(g.lives).toEqual(players === 1 ? [4] : [4, 5]);
-          expect(Core.advance(g, all)).toBe(false);
+          expect(Core.advance(g, all, cs)).toBe(false);
 
           const paid = Array<number>(players).fill(0);
           const bonusWon = Array<number>(players).fill(0);
@@ -211,7 +215,7 @@ describe('every playable configuration', () => {
               );
             }
             if (i % 15 === 0) expect(Core.validateProgress(g)).toBe(true);
-            expect(Core.advance(g, all)).toBe(true);
+            expect(Core.advance(g, all, cs)).toBe(true);
           }
 
           expect(Core.validateProgress(g)).toBe(true);
@@ -235,7 +239,7 @@ describe('the attempt economy', () => {
       expect(g.lives[0]).toBe(before);
       expect(before).toBe(4 - Math.floor(i / 5));
       expect(g.gameOver).toBe(i === 24);
-      expect(Core.advance(g, all)).toBe(i < 24);
+      expect(Core.advance(g, all, cs)).toBe(i < 24);
     }
     expect(g.completed && g.gameOver).toBe(true);
     expect(g.questions).toHaveLength(25);
@@ -248,9 +252,9 @@ describe('the attempt economy', () => {
       const a = Core.submit(g, null, 20000) as AnswerResult;
       expect(a.lifeDelta).toBe(0);
       expect(g.lives[0]).toBe(4);
-      if (i < 4) Core.advance(g, all);
+      if (i < 4) Core.advance(g, all, cs);
     }
-    Core.advance(g, all);
+    Core.advance(g, all, cs);
     expect(g.lives[0]).toBe(3);
   });
 
@@ -270,8 +274,8 @@ describe('the attempt economy', () => {
 
     // Advancing a restored save must land on the same next question.
     const saved = JSON.parse(JSON.stringify(g)) as GameState;
-    Core.advance(g, all);
-    Core.advance(saved, all);
+    Core.advance(g, all, cs);
+    Core.advance(saved, all, cs);
     expect(g).toEqual(saved);
 
     for (let i = 0; i < 2; i += 1) step(g);
@@ -290,7 +294,7 @@ describe('the attempt economy', () => {
     expect(a.basePoints).toBe(100);
     expect(a.bonusPoints).toBe(680);
 
-    Core.advance(g, all);
+    Core.advance(g, all, cs);
     expect(current(g).type).toBe('country');
     expect(g.lives[0]).toBe(before);
     expect(g.countriesPlayed[0]).toBe(4);
@@ -312,7 +316,7 @@ describe('the attempt economy', () => {
       for (const run of [g, restore]) {
         if (timeout) Core.submit(run, null, 20000);
         else answer(run, false);
-        Core.advance(run, all);
+        Core.advance(run, all, cs);
       }
       expect(g).toEqual(restore);
       expect(g.lives[0]).toBe(4);
@@ -334,10 +338,10 @@ describe('the attempt economy', () => {
     expect(Core.nextTurn(g).kind).toBe('question');
 
     for (let i = 0; i < 4; i += 1) {
-      Core.advance(g, all);
+      Core.advance(g, all, cs);
       answer(g, false);
     }
-    Core.advance(g, all);
+    Core.advance(g, all, cs);
     expect(current(g).type).toBe('flag');
     expect(g.gameOver).toBe(false);
   });
@@ -386,7 +390,7 @@ describe('the attempt economy', () => {
     g = create({ players: 2 });
     while (!g.completed) {
       answer(g, false);
-      Core.advance(g, all);
+      Core.advance(g, all, cs);
     }
     expect(g.questions).toHaveLength(50);
     expect(g.countriesPlayed).toEqual([5, 5]);
@@ -429,7 +433,7 @@ describe('the complete engine, driven end to end', () => {
       const n = q.type === 'flag' ? bonuses++ : regulars++;
       answer(game, pattern ? n % 5 !== 4 : random() < 0.8, elapsed);
       if (countries >= cap && Core.nextTurn(game).kind === 'country') break;
-      Core.advance(game, all);
+      Core.advance(game, all, cs);
     }
 
     expect(Core.validateProgress(game)).toBe(true);

@@ -43,7 +43,8 @@ import { join } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { REPO_ROOT, STYLE_FILES, readStylesheet, writeReadable } from '../../scripts/build.ts';
 import * as Core from '../../src/engine/core.ts';
-import type { Country, GameState } from '../../src/engine/types.ts';
+import { csQuestions } from '../../src/i18n/questions.cs.ts';
+import type { LocalizedCountry, GameState } from '../../src/engine/types.ts';
 import {
   DECLARED_STYLE_CHANGES,
   canonicalDifferences,
@@ -158,7 +159,7 @@ const SOUND_BUTTON_EXCEPTIONS: readonly { readonly path: string; readonly proper
 
 const countries = JSON.parse(
   readFileSync(join(REPO_ROOT, 'data/build/countries.json'), 'utf8'),
-) as Country[];
+) as LocalizedCountry[];
 
 const savedRun = (name: string): string =>
   readFileSync(join(REPO_ROOT, `tests/fixtures/baseline/runs/${name}.json`), 'utf8');
@@ -171,7 +172,7 @@ const SOLO_OPTIONS = { players: 1, names: ['Hráč 1', 'Hráč 2'], difficulty: 
 
 /** Answer everything wrong until the run reaches `stop`, then hand it back. */
 function simulate(players: 1 | 2, stop: (game: GameState) => boolean): GameState {
-  const game = Core.makeGame(countries, players === 2 ? DUEL_OPTIONS : SOLO_OPTIONS, SEED);
+  const game = Core.makeGame(countries, players === 2 ? DUEL_OPTIONS : SOLO_OPTIONS, csQuestions, SEED);
   for (let guard = 0; guard < 2000; guard += 1) {
     if (stop(game)) {
       // A save always comes back with its clock paused; clearing it instead
@@ -185,7 +186,7 @@ function simulate(players: 1 | 2, stop: (game: GameState) => boolean): GameState
     Core.submit(game, (question.correct + 1) % 3, 1000);
     // Not a break: the last answered question is itself a state to stop on.
     if (game.gameOver) continue;
-    if (!Core.advance(game, countries)) break;
+    if (!Core.advance(game, countries, csQuestions)) break;
   }
   throw new Error('the simulated run never reached the state the walk needs');
 }

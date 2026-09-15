@@ -22,6 +22,7 @@ import { captureViews } from '../helpers/views-golden.ts';
 import { VIEWS_FIXTURE } from '../../scripts/capture-views.ts';
 import { plural } from '../../src/i18n/plurals.ts';
 import * as Core from '../../src/engine/core.ts';
+import { questionBundle } from '../../src/i18n/questions.ts';
 import { store } from '../../src/app/state.ts';
 import { loadRun, loadSettings } from '../../src/app/storage.ts';
 import { nextLocale, renderLanguage, renderView, switchLanguage } from '../../src/app/main.ts';
@@ -253,7 +254,7 @@ describe('the switcher during a run', () => {
   const startRun = (): void => {
     store.game = Core.makeGame(app.countries, {
       players: 1, names: ['Ada', 'Grace'], difficulty: 'normal', region: 'all',
-    }, 20260915);
+    }, questionBundle(), 20260915);
     store.view = 'game';
   };
 
@@ -387,16 +388,16 @@ describe('the sweep is complete', () => {
     text.replace(/\/\*[\s\S]*?\*\//g, ' ').replace(/(^|[^:])\/\/[^\n]*/g, '$1 ');
 
   /**
-   * The engine is the declared exception, and it is U12's to clear.
+   * What is still allowed to be Czech outside the catalog.
    *
-   * `core.ts` still writes the prompts, the options and the explanations — the
-   * whole point of U12 is to move question generation onto a locale bundle —
-   * and both it and `clock.ts` throw Czech `RangeError`s at a programmer who
-   * passed a bad argument, which no player can reach. Listing the two files
-   * rather than skipping "anything that still has Czech in it" is what keeps
-   * the exception from quietly widening.
+   * One file is left, and it is one line of it: `clock.ts` throws a Czech
+   * `RangeError` at a programmer who passed a bad argument, which no player can
+   * reach. `core.ts` came off this list in U12 — question generation moved onto
+   * a locale bundle and the engine kept nothing, which is asserted below rather
+   * than assumed. Listing the file rather than skipping "anything that still
+   * has Czech in it" is what keeps the exception from quietly widening.
    */
-  const DECLARED_CZECH: readonly string[] = ['src/engine/core.ts', 'src/engine/clock.ts'];
+  const DECLARED_CZECH: readonly string[] = ['src/engine/clock.ts'];
 
   it('leaves no Czech word in src/ outside the catalog', () => {
     const offenders: string[] = [];
@@ -411,11 +412,21 @@ describe('the sweep is complete', () => {
 
   it('is not a vacuous scan', () => {
     // The pattern has to find Czech where Czech is still expected, or an empty
-    // result above would mean the regex, not the sweep.
-    const engine = readFileSync(join(SRC, 'engine/core.ts'), 'utf8');
-    expect([...engine.matchAll(CZECH_WORD)].length).toBeGreaterThan(50);
+    // result above would mean the regex, not the sweep. The question bundle is
+    // where the engine's two hundred Czech literals went, so it is the honest
+    // anchor now.
+    const questions = readFileSync(join(SRC, 'i18n/questions.cs.ts'), 'utf8');
+    expect([...questions.matchAll(CZECH_WORD)].length).toBeGreaterThan(50);
     expect([...readFileSync(join(SRC, 'i18n/cs.ts'), 'utf8').matchAll(CZECH_WORD)].length)
       .toBeGreaterThan(200);
+  });
+
+  it('leaves the engine with no language of its own', () => {
+    // U12's claim, stated directly rather than inferred from the list above:
+    // there is no Czech left in `core.ts` at all — not in a prompt, not in an
+    // explanation, not in a throw a player can be shown.
+    const engine = readFileSync(join(SRC, 'engine/core.ts'), 'utf8');
+    expect([...engine.matchAll(CZECH_WORD)].map((m) => m[0])).toEqual([]);
   });
 
   it('keeps the template readable before the bundle runs', () => {

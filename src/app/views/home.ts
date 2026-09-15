@@ -20,6 +20,7 @@ import {
   $, ALL_TYPES, attempts, dialog, esc, lifePips, notify, optional, persist, pointText, regionOptions,
 } from '../dom.ts';
 import { kindName, locale, t } from '../../i18n/index.ts';
+import { questionBundle } from '../../i18n/questions.ts';
 import { openDialog, renderSound, setView } from '../main.ts';
 import { renderGame, saveGame, scrollQuestion, stopClock } from './game.ts';
 
@@ -65,7 +66,7 @@ function updateLengthNote(): void {
 
 export function startGame(): void {
   requireAudio().unlock();stopClock();store.clock=null;store.clockIndex=-1;store.revealToken++;store.flightKey=null;store.phase='idle';
-  try{store.game={...Core.makeGame(countries,{...store.options,names:[...store.options.names]}),lang:locale()};store.lastGlobeCode=null;store.selected=0;saveGame();renderGame();scrollQuestion(true);}catch(e){notify((e as Error).message);}
+  try{store.game={...Core.makeGame(countries,{...store.options,names:[...store.options.names]},questionBundle()),lang:locale()};store.lastGlobeCode=null;store.selected=0;saveGame();renderGame();scrollQuestion(true);}catch(e){notify((e as Error).message);}
 }
 
 function confirmNew(): void {

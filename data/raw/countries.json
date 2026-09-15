@@ -1,5 +1,6 @@
 {
   "why": "One accepted fetch, normalized and reduced, before any override. `npm run data:apply` re-merges this with data/overrides/ offline, which is how an editorial edit reaches data/build/ without a network round trip. Machine-written by `npm run data:refresh -- --accept`; do not hand-edit.",
+  "schemaVersion": 2,
   "fetchedAt": "2026-09-15",
   "year": 2026,
   "countries": [

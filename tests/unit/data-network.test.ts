@@ -25,14 +25,14 @@ import { fetchPopulation } from '../../scripts/data/fetchers/population.ts';
 import { applyTerritory, loadOverrides, UNATTRIBUTED } from '../../scripts/data/merge.ts';
 import { DEFAULT_YEAR } from '../../scripts/data/refresh.ts';
 import { fetchPinned, loadLock } from '../../scripts/data/sources.ts';
-import type { Country } from '../../src/engine/types.ts';
+import type { LocalizedCountry } from '../../src/engine/types.ts';
 
 const REPO = fileURLToPath(new URL('../..', import.meta.url));
 const enabled = process.env['WG_NETWORK_TESTS'] === '1';
 
 const lock = loadLock();
 const overrides = loadOverrides(join(REPO, 'data/overrides'));
-const baseline = JSON.parse(readFileSync(join(REPO, 'data/build/countries.json'), 'utf8')) as Country[];
+const baseline = JSON.parse(readFileSync(join(REPO, 'data/build/countries.json'), 'utf8')) as LocalizedCountry[];
 
 /**
  * A fresh cache directory per run, under the system tmpdir.

@@ -15,14 +15,14 @@
  * to, and the guard on the first line is what keeps a second `renderGame` during
  * a flight from restarting the choreography from the beginning.
  */
-import type { Country, Question } from '../../engine/types.ts';
+import type { LocalizedCountry, Question } from '../../engine/types.ts';
 import { requireAudio, requireGlobe, store } from '../state.ts';
 import { STORE } from '../storage.ts';
 import { $, dialog, esc, optional, persist, seconds } from '../dom.ts';
 import { t } from '../../i18n/index.ts';
 import { bindExit, footer, questionHeader, renderGame, renderWorldHeader, saveGame, stopClock } from './game.ts';
 
-export function beginFlight(q: Question, c: Country): void {
+export function beginFlight(q: Question, c: LocalizedCountry): void {
   const game=store.game!,globe=requireGlobe(),audio=requireAudio();
   const key=`${game.created}:${game.index}`;if(store.phase==='flying'&&store.flightKey===key&&globe.flight)return;
   stopClock();store.clock=null;store.clockIndex=-1;game.clock=null;store.phase='flying';store.flightKey=key;const token=++store.revealToken,bonus=q.type==='flag';

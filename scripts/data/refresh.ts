@@ -29,12 +29,13 @@ import { execFileSync } from 'node:child_process';
 import { existsSync, readFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import type { Country, Locale } from '../../src/engine/types.ts';
+import type { Locale, LocalizedCountry } from '../../src/engine/types.ts';
 import {
-  BASE_LOCALE,
   buildDataset,
   loadCountrySnapshot,
+  loadLocaleBundles,
   paths,
+  SCHEMA_VERSION,
   serializeCountries,
   serializeCountrySnapshot,
   serializeMap,
@@ -56,7 +57,7 @@ import {
   type DatasetDiff,
 } from './diff.ts';
 import {
-  loadLocaleBundle,
+  DATASET_LOCALES,
   loadOverrides,
   type FetchedCountry,
   type MapPolygon,
@@ -82,8 +83,8 @@ import {
 /** The WPP reference year the game asks about. */
 export const DEFAULT_YEAR = 2026;
 
-/** Locales the snapshot carries display names for. U12 turns the second one on. */
-export const SNAPSHOT_LOCALES: readonly Locale[] = ['cs', 'en'];
+/** Locales the snapshot carries display names for: the dataset's own list. */
+export const SNAPSHOT_LOCALES: readonly Locale[] = DATASET_LOCALES;
 
 // -------------------------------------------------------------- assembly
 
@@ -202,7 +203,7 @@ export interface RefreshResult {
   checks: CheckResult[];
   snapshot: CountrySnapshot;
   map: MapSnapshot;
-  countries: Country[];
+  countries: LocalizedCountry[];
   polygons: MapPolygon[];
   writes: PendingWrite[];
   accepted: boolean;
@@ -225,7 +226,7 @@ export async function refresh(options: RefreshOptions = {}): Promise<RefreshResu
   const year = options.year ?? DEFAULT_YEAR;
   const today = options.today ?? isoToday();
   const overrides = loadOverrides(at.overrides);
-  const bundle = loadLocaleBundle(BASE_LOCALE, at.overrides);
+  const bundles = loadLocaleBundles(at.overrides);
   const lock = loadLock(at.lock);
 
   const fetchOptions = {
@@ -247,6 +248,7 @@ export async function refresh(options: RefreshOptions = {}): Promise<RefreshResu
       'One accepted fetch, normalized and reduced, before any override. `npm run data:apply` re-merges ' +
       'this with data/overrides/ offline, which is how an editorial edit reaches data/build/ without a ' +
       'network round trip. Machine-written by `npm run data:refresh -- --accept`; do not hand-edit.',
+    schemaVersion: SCHEMA_VERSION,
     fetchedAt: today,
     year,
     countries: fetched,
@@ -259,17 +261,18 @@ export async function refresh(options: RefreshOptions = {}): Promise<RefreshResu
     polygons: geometry.raw,
   };
 
-  const built = buildDataset({ snapshot, map, overrides, bundle });
+  const built = buildDataset({ snapshot, map, overrides, bundles });
   const countriesText = serializeCountries(built.countries);
   const mapText = serializeMap(built.polygons);
 
   const baselineCountriesText = readFileSync(at.countries, 'utf8');
   const baselineMapText = readFileSync(at.map, 'utf8');
-  const diff = diffCountries(JSON.parse(baselineCountriesText) as Country[], built.countries);
+  const diff = diffCountries(JSON.parse(baselineCountriesText) as LocalizedCountry[], built.countries);
   diff.polygons = diffPolygons(JSON.parse(baselineMapText) as MapPolygon[], built.polygons);
 
   const checks = datasetChecks({
     countries: built.countries,
+    schemaVersion: snapshot.schemaVersion,
     polygons: built.polygons,
     countriesText,
     mapText,

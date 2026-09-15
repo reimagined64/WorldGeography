@@ -11,12 +11,13 @@ import * as Core from '../../src/engine/core.ts';
 import { GeoClock as Clock } from '../../src/engine/clock.ts';
 import type { Difficulty, GameState } from '../../src/engine/types.ts';
 import { loadCountries } from '../helpers/load-baseline.ts';
+import { csQuestions } from '../../src/i18n/questions.cs.ts';
 
 const data = loadCountries();
 const DIFFICULTIES: Difficulty[] = ['easy', 'normal', 'expert'];
 
 const game = (difficulty: Difficulty): GameState =>
-  Core.makeGame(data, { difficulty, players: 2, region: 'all', names: ['A', 'B'] }, 7);
+  Core.makeGame(data, { difficulty, players: 2, region: 'all', names: ['A', 'B'] }, csQuestions, 7);
 
 describe('the time-to-points curve', () => {
   it('anchors 1000 at zero, 550 at half and 0 at the limit, for every difficulty', () => {

@@ -147,6 +147,11 @@ describe('readable build', () => {
       'src/app/storage.ts',
       'src/app/state.ts',
       'src/app/database.ts',
+      // U12: the question bundles land ahead of `dom.ts`, which is the first
+      // module to read a `LocalizedText` off a country — the flag's alt text.
+      'src/i18n/questions.cs.ts',
+      'src/i18n/questions.en.ts',
+      'src/i18n/questions.ts',
       'src/app/dom.ts',
       'src/i18n/chrome.ts',
       'src/app/dialogs/audio-settings.ts',

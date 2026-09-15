@@ -16,6 +16,7 @@ import { requireGlobe, store } from '../state.ts';
 import { byCode, countries } from '../database.ts';
 import { $, coords, esc, flagImage, pointText, regionOptions } from '../dom.ts';
 import { locale, regionName, t } from '../../i18n/index.ts';
+import { pick, questionBundle } from '../../i18n/questions.ts';
 import { showSources } from '../dialogs/sources.ts';
 import { setView } from '../main.ts';
 
@@ -31,14 +32,17 @@ export function renderAtlas(): void {
   $('atlas-search').oninput=e=>{atlasQuery=(e.target as HTMLInputElement).value;renderAtlasList();};$('atlas-region').onchange=e=>{atlasRegion=(e.target as HTMLSelectElement).value;renderAtlasList();};renderAtlasList();selectAtlas(atlasCode);
 }
 
-function renderAtlasList(): void {const query=normalize(atlasQuery),matches=countries.filter(c=>(atlasRegion==='all'||c.region===atlasRegion)&&[c.name,c.code,c.iso3].some(s=>normalize(s).includes(query))).sort((a,b)=>a.name.localeCompare(b.name,locale()));
-  $('atlas-list').innerHTML=matches.length?matches.map(c=>`<button class="atlas-item ${c.code===atlasCode?'active':''}" data-country="${c.code}" aria-pressed="${c.code===atlasCode}"><span class="atlas-country-name">${flagImage(c.code)}${esc(c.name)}</span><span>${c.code} ↗</span></button>`).join(''):`<p class="empty">${t('atlas.noMatch')}</p>`;
+// Searched and sorted in the language on screen, not in a fixed one: a reader
+// typing "Ger" is looking for Germany, and an English list ordered by Czech
+// name would put Egypt between Ecuador and Ethiopia.
+function renderAtlasList(): void {const query=normalize(atlasQuery),matches=countries.filter(c=>(atlasRegion==='all'||c.region===atlasRegion)&&[pick(c.name),c.code as string,c.iso3 as string].some(s=>normalize(s).includes(query))).sort((a,b)=>pick(a.name).localeCompare(pick(b.name),locale()));
+  $('atlas-list').innerHTML=matches.length?matches.map(c=>`<button class="atlas-item ${c.code===atlasCode?'active':''}" data-country="${c.code}" aria-pressed="${c.code===atlasCode}"><span class="atlas-country-name">${flagImage(c.code)}${esc(pick(c.name))}</span><span>${c.code} ↗</span></button>`).join(''):`<p class="empty">${t('atlas.noMatch')}</p>`;
   document.querySelectorAll<HTMLElement>('[data-country]').forEach(b=>{b.onclick=()=>selectAtlas(b.dataset['country']!);});
 }
 
-function selectAtlas(code: string): void {atlasCode=code;const c=byCode[code]!;requireGlobe().focus(c);store.lastGlobeCode=code;$('globe').setAttribute('aria-label',t('globe.atlas',{name:c.name}));
-  $('world-caption').innerHTML=`<div class="country-caption">${flagImage(c.code)}<div><div class="caption-title">${esc(c.name)}</div><div class="caption-sub">${esc(regionName(c.region))} / ${c.iso3}</div></div></div><div class="coord">${coords(c)}</div>`;
-  const cap=c.code==='ID'?t('atlas.capitalIndonesia'):c.capital.join(' / ');
-  $('atlas-details').innerHTML=`<div class="atlas-flag-heading">${flagImage(c.code)}<h3>${esc(c.name)}</h3></div>${c.code==='AF'?`<p class="flag-caveat">${t('atlas.flagCaveat')}</p>`:''}<div class="fact-row"><span class="fact-label">${t('atlas.factCapital')}</span><span class="fact-value">${esc(cap)}</span></div><div class="fact-row"><span class="fact-label">${t('atlas.factCurrency')}</span><span class="fact-value">${c.currencyNames.map(m=>`${esc(m.name)} (${m.code})`).join('<br>')}</span></div><div class="fact-row"><span class="fact-label">${t('atlas.factLanguages')}</span><span class="fact-value">${esc(c.languageNames.join(', '))}</span></div><div class="fact-row"><span class="fact-label">${t('atlas.factPopulation')}</span><span class="fact-value">${pointText(c.population)}<small>${esc(t('atlas.projection',{year:c.populationYear,provenance:Core.populationProvenance(c.populationSource)}))}</small></span></div><div class="atlas-note">${esc(c.note||t('atlas.defaultNote'))}<br><button class="text-button" id="atlas-source">${t('atlas.sources')}</button></div>`;
+function selectAtlas(code: string): void {atlasCode=code;const c=byCode[code]!;requireGlobe().focus(c);store.lastGlobeCode=code;$('globe').setAttribute('aria-label',t('globe.atlas',{name:pick(c.name)}));
+  $('world-caption').innerHTML=`<div class="country-caption">${flagImage(c.code)}<div><div class="caption-title">${esc(pick(c.name))}</div><div class="caption-sub">${esc(regionName(c.region))} / ${c.iso3}</div></div></div><div class="coord">${coords(c)}</div>`;
+  const cap=c.code==='ID'?t('atlas.capitalIndonesia'):c.capital.map(pick).join(' / ');
+  $('atlas-details').innerHTML=`<div class="atlas-flag-heading">${flagImage(c.code)}<h3>${esc(pick(c.name))}</h3></div>${c.code==='AF'?`<p class="flag-caveat">${t('atlas.flagCaveat')}</p>`:''}<div class="fact-row"><span class="fact-label">${t('atlas.factCapital')}</span><span class="fact-value">${esc(cap)}</span></div><div class="fact-row"><span class="fact-label">${t('atlas.factCurrency')}</span><span class="fact-value">${c.currencyNames.map(m=>`${esc(pick(m.name))} (${m.code})`).join('<br>')}</span></div><div class="fact-row"><span class="fact-label">${t('atlas.factLanguages')}</span><span class="fact-value">${esc(c.languageNames.map(pick).join(', '))}</span></div><div class="fact-row"><span class="fact-label">${t('atlas.factPopulation')}</span><span class="fact-value">${pointText(c.population)}<small>${esc(t('atlas.projection',{year:c.populationYear,provenance:Core.populationProvenance(c.populationSource,questionBundle())}))}</small></span></div><div class="atlas-note">${esc(pick(c.note)||t('atlas.defaultNote'))}<br><button class="text-button" id="atlas-source">${t('atlas.sources')}</button></div>`;
   document.querySelectorAll<HTMLElement>('[data-country]').forEach(b=>{b.classList.toggle('active',b.dataset['country']===code);b.setAttribute('aria-pressed',String(b.dataset['country']===code));});$('atlas-source').onclick=()=>{showSources();};
 }

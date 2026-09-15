@@ -14,7 +14,20 @@
  * it instead of re-testing it per polygon; `prev` is written by `pointerdown`
  * before `drag` — the only thing `pointermove` reads it behind — is ever true.
  */
-import type { Coordinates, Country } from '../engine/types.ts';
+import type { Coordinates, Iso3 } from '../engine/types.ts';
+
+/**
+ * What the globe needs of a country, which is where it is and which polygons
+ * are its own.
+ *
+ * Structural rather than `LocalizedCountry`, because a name in any language is
+ * not something this module renders — the caption above the canvas is a view's
+ * job. Narrowing it here is also what keeps the globe out of U12's locale
+ * plumbing entirely: nothing it reads varies by language.
+ */
+export interface GlobeCountry extends Coordinates {
+  iso3: Iso3;
+}
 
 const RAD=Math.PI/180,TAU=Math.PI*2;
 
@@ -57,7 +70,7 @@ export interface RevealOptions {
 
 /** The live flight. Everything in it is frozen at `reveal` time except `elapsed`, `paused` and `stage`. */
 interface Flight {
-  country: Country;
+  country: GlobeCountry;
   destination: Coordinates;
   neutral: boolean;
   spinAngle: number;
@@ -84,7 +97,7 @@ export class Globe {
   targetLon: number;
   zoom: number;
   targetZoom: number;
-  target: Country | null;
+  target: GlobeCountry | null;
   idle: boolean;
   drag: boolean;
   motion: boolean;
@@ -118,8 +131,8 @@ export class Globe {
     this.raf=requestAnimationFrame(this.frame);
   }
   setZoom(z: number): void {if(this.locked)return;this.targetZoom=Math.max(.85,Math.min(2.6,z));}
-  focus(c: Country | null,idle=false): void {this.cancelFlight();this.target=c;this.idle=idle;if(c){this.targetLat=c.lat*RAD;let l=c.lon*RAD;while(l-this.lon>Math.PI)l-=TAU;while(l-this.lon< -Math.PI)l+=TAU;this.targetLon=l;}this.targetZoom=1;}
-  present(c: Country | null): void {
+  focus(c: GlobeCountry | null,idle=false): void {this.cancelFlight();this.target=c;this.idle=idle;if(c){this.targetLat=c.lat*RAD;let l=c.lon*RAD;while(l-this.lon>Math.PI)l-=TAU;while(l-this.lon< -Math.PI)l+=TAU;this.targetLon=l;}this.targetZoom=1;}
+  present(c: GlobeCountry | null): void {
     this.focus(c);this.idle=false;
     if(c)this.targetZoom=this.zoomFor(c);
     else{this.targetLat=20*RAD;this.targetLon=12*RAD;this.targetZoom=1;}
@@ -127,7 +140,7 @@ export class Globe {
   }
   home(): void {this.cancelFlight();this.target=null;this.idle=true;this.targetLat=20*RAD;this.targetZoom=1;}
   reset(): void {if(this.locked)return;if(this.target)this.focus(this.target);else{this.targetLat=20*RAD;this.targetLon=12*RAD;this.targetZoom=1;}}
-  zoomFor(c: Country): number {
+  zoomFor(c: GlobeCountry): number {
     // Fit the main landmass; far-away overseas polygons must not prevent a useful zoom.
     const latitude=c.lat*RAD,longitude=c.lon*RAD;
     const distances=this.polys.filter(p=>p.iso3===c.iso3).flatMap(p=>p.points.map(([lon,lat])=>{
@@ -139,7 +152,7 @@ export class Globe {
     return Math.max(1.22,Math.min(2.45,.62/Math.max(.08,Math.sin(span))));
   }
   setMotion(enabled: boolean): void {this.motion=!!enabled;}
-  reveal(c: Country,{onStage=()=>{},onProgress=()=>{},onComplete=()=>{},neutral=false}: RevealOptions={}): void {
+  reveal(c: GlobeCountry,{onStage=()=>{},onProgress=()=>{},onComplete=()=>{},neutral=false}: RevealOptions={}): void {
     this.cancelFlight();this.idle=false;this.drag=false;this.locked=true;this.target=null;
     // The bonus uses a neutral viewpoint: the map must not reveal the flag's owner.
     const destination=neutral?{lat:20,lon:12}:c;

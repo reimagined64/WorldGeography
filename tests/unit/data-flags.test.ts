@@ -42,11 +42,11 @@ import {
   type FlagRenderer,
 } from '../../scripts/data/flags.ts';
 import { loadLock, type Transport } from '../../scripts/data/sources.ts';
-import type { Country } from '../../src/engine/types.ts';
+import type { LocalizedCountry } from '../../src/engine/types.ts';
 
 const REPO = fileURLToPath(new URL('../..', import.meta.url));
 const at = (relative: string) => join(REPO, relative);
-const codes = (JSON.parse(readFileSync(at('data/build/countries.json'), 'utf8')) as Country[]).map(
+const codes = (JSON.parse(readFileSync(at('data/build/countries.json'), 'utf8')) as LocalizedCountry[]).map(
   (country) => country.code,
 );
 

@@ -14,8 +14,18 @@
  * simply keeps winning, and the curation quietly rots. `mergeCountries` records
  * each suppressed value, and this is where they get read.
  */
-import type { Country } from '../../src/engine/types.ts';
-import type { MapPolygon, ShadowedChange } from './merge.ts';
+import type { LocalizedCountry } from '../../src/engine/types.ts';
+import { BASE_LOCALE, type MapPolygon, type ShadowedChange } from './merge.ts';
+
+/**
+ * Every country in this report is named once, in the leading locale.
+ *
+ * A report that printed both names would double the width of every line to say
+ * the same thing twice; the field-by-field diff below still compares the whole
+ * `LocalizedText`, so a name that moved in English only is still reported — it
+ * is simply filed under the Czech name.
+ */
+const named = (country: LocalizedCountry): string => country.name[BASE_LOCALE];
 
 /** One field of one country, before and after. */
 export interface FieldChange {
@@ -65,8 +75,8 @@ export interface PopulationChange {
 }
 
 export interface DatasetDiff {
-  added: Country[];
-  removed: Country[];
+  added: LocalizedCountry[];
+  removed: LocalizedCountry[];
   changed: CountryChange[];
   population: PopulationChange[];
   polygons: {
@@ -81,7 +91,7 @@ export interface DatasetDiff {
 }
 
 /** Fields compared one by one. Order is the order the report prints them in. */
-const FIELDS: readonly (keyof Country)[] = [
+const FIELDS: readonly (keyof LocalizedCountry)[] = [
   'iso3', 'name', 'capital', 'currency', 'currencyNames', 'languages', 'languageNames',
   'excludeLanguages', 'lat', 'lon', 'region', 'population', 'populationYear', 'populationKind',
   'populationSource', 'note', 'easy',
@@ -89,7 +99,7 @@ const FIELDS: readonly (keyof Country)[] = [
 
 const same = (a: unknown, b: unknown): boolean => JSON.stringify(a) === JSON.stringify(b);
 
-export function diffCountries(before: readonly Country[], after: readonly Country[]): DatasetDiff {
+export function diffCountries(before: readonly LocalizedCountry[], after: readonly LocalizedCountry[]): DatasetDiff {
   const was = new Map(before.map((country) => [country.code as string, country]));
   const now = new Map(after.map((country) => [country.code as string, country]));
 
@@ -104,11 +114,11 @@ export function diffCountries(before: readonly Country[], after: readonly Countr
     const fields = FIELDS.filter((field) => !same(previous[field], country[field])).map(
       (field): FieldChange => ({ field, before: previous[field], after: country[field] }),
     );
-    if (fields.length > 0) changed.push({ code: country.code, name: country.name, fields });
+    if (fields.length > 0) changed.push({ code: country.code, name: named(country), fields });
     if (previous.population !== country.population) {
       population.push({
         code: country.code,
-        name: country.name,
+        name: named(country),
         before: previous.population,
         after: country.population,
         ratio:
@@ -217,8 +227,8 @@ export function renderCountryDiff(input: ReportInput): string[] {
     `countries: ${diff.added.length} added, ${diff.removed.length} removed, ` +
       `${diff.changed.length} changed`,
   );
-  for (const country of diff.added) lines.push(`  + ${country.code} ${country.name}`);
-  for (const country of diff.removed) lines.push(`  - ${country.code} ${country.name}`);
+  for (const country of diff.added) lines.push(`  + ${country.code} ${named(country)}`);
+  for (const country of diff.removed) lines.push(`  - ${country.code} ${named(country)}`);
 
   const byField = new Map<string, { code: string; name: string; change: FieldChange }[]>();
   for (const country of diff.changed) {

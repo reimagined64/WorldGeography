@@ -22,7 +22,8 @@ import { join } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { REPO_ROOT, writeReadable } from '../../scripts/build.ts';
 import * as Core from '../../src/engine/core.ts';
-import type { Country, GameState } from '../../src/engine/types.ts';
+import { csQuestions } from '../../src/i18n/questions.cs.ts';
+import type { LocalizedCountry, GameState } from '../../src/engine/types.ts';
 
 /** Two twelve-second arrivals, plus a build and a launch. */
 test.setTimeout(120_000);
@@ -37,7 +38,7 @@ interface DebugView {
 
 const countries = JSON.parse(
   readFileSync(join(REPO_ROOT, 'data/build/countries.json'), 'utf8'),
-) as Country[];
+) as LocalizedCountry[];
 
 const MID_COUNTRY = readFileSync(
   join(REPO_ROOT, 'tests/fixtures/baseline/runs/mid-country.json'),
@@ -55,6 +56,7 @@ function duelHandoverSave(): GameState {
   const game = Core.makeGame(
     countries,
     { players: 2, names: ['Alice', 'Bob'], difficulty: 'normal', region: 'all' },
+    csQuestions,
     20260916,
   );
   for (let guard = 0; guard < 400; guard += 1) {
@@ -66,7 +68,7 @@ function duelHandoverSave(): GameState {
       return game;
     }
     Core.submit(game, (question.correct + 1) % 3, 1000);
-    if (game.gameOver || !Core.advance(game, countries)) break;
+    if (game.gameOver || !Core.advance(game, countries, csQuestions)) break;
   }
   throw new Error('the simulated duel never reached the hand-over question');
 }

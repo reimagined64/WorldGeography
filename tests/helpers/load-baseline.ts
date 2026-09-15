@@ -13,10 +13,15 @@
  * browser globals for the two browser-only ones. Byte-for-byte the same source
  * text, and the emitted questions are identical either way (verified).
  *
- * The data model and the core API are not described a second time here: the
- * frozen JavaScript implements exactly the contract `src/engine/` declares, and
- * proving that is what U4 is for, so `CoreApi` is the ported module's own type
- * and the shapes come from `src/engine/types.ts`. The browser-only interface
+ * The data model is declared here rather than imported, which it was not until
+ * U12. `src/engine/types.ts` described one country record and the frozen
+ * JavaScript happened to implement it; U12 moved the engine onto the bilingual
+ * record and the two shapes parted company, so `LegacyCountry` and
+ * `LegacyCoreApi` below are what the *fixture* is — v7, in one language, with
+ * no bundle argument anywhere. `loadCountries` lifts the fixture into the
+ * bilingual shape the ported engine takes, which is a widening and not a
+ * translation: a `LocalizedText<'cs'>` has one key and it is the Czech one.
+ * The browser-only interface
  * below stays narrow on purpose — it covers only the surface the suites touch,
  * so a mistyped field fails a typecheck rather than hiding under `any`.
  *
@@ -28,14 +33,100 @@
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import type { Country } from '../../src/engine/types.ts';
+import type {
+  AnswerResult,
+  BaseQuestion,
+  CurrencyCode,
+  CurrencyName,
+  Difficulty,
+  GameOptions,
+  GameState,
+  Iso2,
+  Iso3,
+  LangCode,
+  LocalizedCountry,
+  ProgressState,
+  QuestionKind,
+  QuestionType,
+  Region,
+  RegionFilter,
+  RunState,
+  Turn,
+} from '../../src/engine/types.ts';
 
 export const BASELINE_ROOT = fileURLToPath(new URL('../fixtures/baseline', import.meta.url));
 
-export type { Country, GameState } from '../../src/engine/types.ts';
+export type { GameState } from '../../src/engine/types.ts';
 
-/** The v7 engine surface, which is the ported module's own exported surface. */
-export type CoreApi = typeof import('../../src/engine/core.ts');
+/** The country record v7 shipped: one language, flat strings. */
+export interface LegacyCountry {
+  code: Iso2;
+  iso3: Iso3;
+  name: string;
+  capital: string[];
+  currency: CurrencyCode[];
+  currencyNames: CurrencyName[];
+  languages: LangCode[];
+  languageNames: string[];
+  excludeLanguages: LangCode[];
+  lat: number;
+  lon: number;
+  region: Region;
+  population: number;
+  populationYear: number;
+  populationKind: string;
+  populationSource: string;
+  note: string;
+  easy: boolean;
+}
+
+/**
+ * The frozen engine's surface, as far as anything here drives it.
+ *
+ * Narrow on purpose and no longer `typeof src/engine/core.ts`: that alias was a
+ * statement that the port had not changed the API, and U12 changed it. What the
+ * fixture exports is the v7 API, and this is it.
+ */
+export interface LegacyCoreApi {
+  readonly TYPES: readonly QuestionType[];
+  readonly LABELS: Readonly<Record<QuestionKind, string>>;
+  readonly REGIONS: Readonly<Record<Region, string>>;
+  readonly CURRENCY_UNITS: Readonly<Record<string, string>>;
+  readonly TIME_LIMITS: Readonly<Record<Difficulty, number>>;
+  readonly INITIAL_LIVES: number;
+  readonly BONUS_INTERVAL: number;
+  readonly MILESTONE_LIVES: number;
+  readonly BASE_POINTS: number;
+  readonly MAX_POINTS: number;
+  rng(seed: number): () => number;
+  shuffle<T>(items: readonly T[], random?: () => number): T[];
+  populationLabel(n: number): string;
+  currencyLabel(currency: { code: CurrencyCode }): string;
+  makeQuestion(
+    country: LegacyCountry,
+    type: QuestionKind,
+    all: LegacyCountry[],
+    difficulty?: Difficulty,
+    random?: () => number,
+  ): BaseQuestion;
+  makeGame(all: LegacyCountry[], options: GameOptions, seed?: number): GameState;
+  submit(game: ProgressState, selected: number | null, elapsedMs?: number): AnswerResult | null;
+  advance(game: GameState, all: LegacyCountry[]): boolean;
+  nextTurn(game: ProgressState): Turn;
+  needsFlight(game: ProgressState): boolean;
+  sameFlagFamily(a: Iso2, b: Iso2): boolean;
+  timeLimit(game: ProgressState): number;
+  pointsForTime(elapsedMs: number, limitMs: number): number;
+  getPool(all: LegacyCountry[], options: { region: RegionFilter; difficulty: Difficulty }): LegacyCountry[];
+  createEconomy(players?: number): RunState;
+  spendCountryAttempt(game: RunState, player: number): boolean;
+  awardPoints(game: RunState, player: number, points: number): number[];
+  awardFlagAttempt(game: RunState, player: number): void;
+  consumeBonus(game: RunState, player: number): number | null;
+  nextBonusThreshold(game: RunState, player: number): number;
+  validateProgress(game: GameState): boolean;
+  validateCountries(all: unknown): boolean;
+}
 
 export interface GeoClock {
   limitMs: number;
@@ -152,15 +243,16 @@ function loadBrowserGlobal<T>(relative: string, key: string): T {
   return win[key] as T;
 }
 
-let core: CoreApi | undefined;
+let core: LegacyCoreApi | undefined;
 let clock: GeoClockConstructor | undefined;
 let audio: GeoAudioConstructor | undefined;
-let countries: Country[] | undefined;
+let legacy: LegacyCountry[] | undefined;
+let countries: LocalizedCountry<'cs'>[] | undefined;
 let flags: Record<string, string> | undefined;
-const validRuns = new Map<CoreApi, (run: unknown) => boolean>();
+const validRuns = new Map<object, (run: unknown) => boolean>();
 
-export function loadCore(): CoreApi {
-  return (core ??= loadUmd<CoreApi>('js/core.js'));
+export function loadCore(): LegacyCoreApi {
+  return (core ??= loadUmd<LegacyCoreApi>('js/core.js'));
 }
 
 export function loadClock(): GeoClockConstructor {
@@ -171,12 +263,31 @@ export function loadAudio(): GeoAudioConstructor {
   return (audio ??= loadBrowserGlobal<GeoAudioConstructor>('js/audio.js', 'GeoAudio'));
 }
 
+/** The fixture as it is on disk: one language, the shape the frozen engine reads. */
+export function loadLegacyCountries(): LegacyCountry[] {
+  return (legacy ??= JSON.parse(source('data/countries.json')) as LegacyCountry[]);
+}
+
 /**
+ * The same fixture, widened to the record the ported engine takes.
+ *
+ * `LocalizedText<'cs'>` is `{ cs: string }` — one key, the language the file is
+ * already in — so this adds no information and invents no translation. It is
+ * what lets the golden oracle stay the frozen v7 data while the engine that is
+ * measured against it has moved on.
+ *
  * Shared, not re-parsed per call: `core.test.ts` proves the engine never
  * mutates this array, which is what makes one copy safe for everyone.
  */
-export function loadCountries(): Country[] {
-  return (countries ??= JSON.parse(source('data/countries.json')) as Country[]);
+export function loadCountries(): LocalizedCountry<'cs'>[] {
+  return (countries ??= loadLegacyCountries().map((c) => ({
+    ...c,
+    name: { cs: c.name },
+    capital: c.capital.map((city) => ({ cs: city })),
+    currencyNames: c.currencyNames.map((unit) => ({ code: unit.code, name: { cs: unit.name } })),
+    languageNames: c.languageNames.map((tag) => ({ cs: tag })),
+    note: { cs: c.note },
+  })));
 }
 
 export function loadFlags(): Record<string, string> {
@@ -193,7 +304,7 @@ export function loadFlags(): Record<string, string> {
  * `Core.validateProgress` and `Core.getPool`: handing it the TypeScript engine
  * is what proves the port still accepts a real player's save.
  */
-export function loadIsValidRun(engine: CoreApi = loadCore()): (run: unknown) => boolean {
+export function loadIsValidRun<E extends object>(engine: E): (run: unknown) => boolean {
   const cached = validRuns.get(engine);
   if (cached !== undefined) return cached;
   const app = source('js/app.js');
@@ -208,11 +319,11 @@ export function loadIsValidRun(engine: CoreApi = loadCore()): (run: unknown) => 
     'byCode',
     `${app.slice(start, end)}\nreturn isValidRun;`,
   ) as (
-    core: CoreApi,
-    all: Country[],
-    byCode: Record<string, Country>,
+    core: E,
+    all: unknown[],
+    byCode: Record<string, unknown>,
   ) => (run: unknown) => boolean;
-  const all = loadCountries();
+  const all: { code: Iso2 }[] = loadCountries();
   const built = factory(engine, all, Object.fromEntries(all.map((c) => [c.code, c])));
   validRuns.set(engine, built);
   return built;

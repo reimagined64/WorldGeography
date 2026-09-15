@@ -13,10 +13,16 @@
  * boundary; `validateCountries` is the runtime half of that claim.
  *
  * The locale dimension arrived in U8 as a second set of shapes rather than a
- * widening of the first: `Country` is still the Czech-only record that v7
- * shipped and that the engine, the views and the golden fixtures read, and
- * `LocalizedCountry` is the bilingual record the override merge builds. U12 is
- * what moves the engine onto the second and retires the first.
+ * widening of the first, and U12 collapsed them again: `LocalizedCountry` is
+ * the only country record now. The Czech-only `Country` v7 shipped is gone from
+ * `src/` entirely — the one place it survives is `tests/helpers/load-baseline.ts`,
+ * which types the frozen v7 fixture the golden oracle is captured from.
+ *
+ * `QuestionBundle` is the other half of that collapse. Every string question
+ * generation says out loud lives in one, so the engine holds no language at
+ * all, and the locale is a type parameter rather than a convention: a bundle
+ * and a country record that disagree about which locale they carry do not
+ * compile.
  */
 
 declare const KIND: unique symbol;
@@ -53,34 +59,14 @@ export type QuestionType = 'country' | 'capital' | 'currency' | 'language' | 'po
 /** Everything `makeQuestion` can build: the five plus the queued flag bonus. */
 export type QuestionKind = QuestionType | 'flag';
 
+/** A currency as one locale spells it. Only the frozen v7 fixture is this shape. */
 export interface CurrencyName {
   code: CurrencyCode;
   name: string;
 }
 
-export interface Country {
-  code: Iso2;
-  iso3: Iso3;
-  name: string;
-  capital: string[];
-  currency: CurrencyCode[];
-  currencyNames: CurrencyName[];
-  languages: LangCode[];
-  languageNames: string[];
-  excludeLanguages: LangCode[];
-  lat: number;
-  lon: number;
-  region: Region;
-  population: number;
-  populationYear: number;
-  populationKind: string;
-  populationSource: string;
-  note: string;
-  easy: boolean;
-}
-
 /**
- * The locales the dataset can carry. v7 shipped `cs`; U12 adds `en`.
+ * The locales the dataset can carry. v7 shipped `cs`; U12 added `en`.
  *
  * Not a list of UI languages: this is the dimension the *data* varies over, so
  * a locale here means there is a `data/overrides/countries.<locale>.json` and a
@@ -94,9 +80,10 @@ export type Locale = 'cs' | 'en';
  *
  * Parameterised rather than fixed at `Record<Locale, string>` because a dataset
  * built from the `cs` bundle alone has to type-check without a half-filled
- * `en`: `LocalizedText<'cs'>` is `{ cs: string }` and nothing else. Widening
- * the argument is U12's migration, and it is a compile error everywhere the
- * second locale is not supplied — which is the point.
+ * `en`: `LocalizedText<'cs'>` is `{ cs: string }` and nothing else. The shipped
+ * dataset carries both, and the narrow form is what `tests/helpers/load-baseline.ts`
+ * lifts the frozen v7 fixture into — so a bundle and a record that disagree
+ * about which locale they carry is a compile error, which is the point.
  */
 export type LocalizedText<L extends Locale = Locale> = Record<L, string>;
 
@@ -126,7 +113,7 @@ export interface LocalizedCurrencyName<L extends Locale = Locale> {
 }
 
 /**
- * `Country` with every locale-varying field widened.
+ * One country, with every locale-varying field widened over the locales carried.
  *
  * The five widened fields are exactly the ones `prepare_data.py` resolved
  * through Czech CLDR — name, capital, currency names, language names, note —
@@ -157,6 +144,139 @@ export interface LocalizedCountry<L extends Locale = Locale> {
   populationSource: string;
   note: LocalizedText<L>;
   easy: boolean;
+}
+
+/**
+ * A capital question the dataset cannot answer on its own.
+ *
+ * Ten countries have a capital that is contested, duplicated or in the middle
+ * of moving, and for those the question is asked differently — "which city is
+ * the seat of the Swiss federal government?" rather than "what is the capital
+ * of this country?". An eleventh kind of entry carries no question at all and
+ * only an `exclude` list: the Netherlands is asked the ordinary way, but The
+ * Hague must not turn up among the wrong answers.
+ *
+ * `exclude` is string-matched against the capitals of the candidate countries,
+ * so every entry has to be spelled exactly as the dataset spells it **in this
+ * locale**. That is the whole reason this table is per-locale rather than
+ * keyed by city: a list of Czech city names filters nothing out of an English
+ * question, and the question that results has two correct answers (R18).
+ */
+export interface SpecialCapital {
+  /** Absent where the ordinary prompt is asked and only `exclude` differs. */
+  question?: string;
+  /** Absent with `question`; the answer is then the country's first capital. */
+  answer?: string;
+  exclude: string[];
+}
+
+/**
+ * Everything question generation says out loud, in one language.
+ *
+ * The engine holds no language of its own. It is handed one of these and
+ * resolves every display string through it — prompts, explanations, region
+ * names, currency units, magnitude suffixes, the special-capital table, and
+ * even the errors a player can be shown — so there is no path by which a Czech
+ * label reaches an English question.
+ *
+ * That claim is the type parameter's job rather than a convention. `L` is the
+ * locale this bundle speaks, and a `LocalizedText<L>` can only be read through
+ * a bundle that speaks it, so `makeQuestion` given Czech-only country records
+ * and an English bundle does not compile. KTD12 requires the per-locale tables
+ * to swap together or not at all; here they are one object, so there is nothing
+ * to swap halfway.
+ *
+ * Copy is carried as templates with `{name}` placeholders rather than as
+ * functions, so the whole of what a player reads is greppable in one file per
+ * language and a translator never has to read code to find it.
+ */
+export interface QuestionBundle<L extends Locale = Locale> {
+  locale: L;
+  /**
+   * The tag `toLocaleString` formats numbers with.
+   *
+   * Spelled out with a region rather than reusing `locale`, because the
+   * fixtures record `cs-CZ` grouping — a narrow no-break space — and a bare
+   * `cs` is only the same thing for as long as CLDR keeps it so.
+   */
+  numberLocale: string;
+  /** The six playable regions, as the country explanation names them. */
+  regions: Readonly<Record<Region, string>>;
+  /**
+   * ISO 4217 → the bare monetary unit a player is offered as an option.
+   *
+   * Deliberately *not* the currency's full name: the question asks which unit
+   * the country uses, so the options read "dollar", not "United States Dollar",
+   * and every dollar in the world shares one entry. That collapsing is what
+   * keeps a second correct answer out of the options, so the partition it
+   * induces has to be the same in every locale — `locale-integrity.test.ts`
+   * asserts exactly that, code pair by code pair.
+   */
+  currencyUnits: Readonly<Record<string, string>>;
+  /** What `populationLabel` appends. Not suffixes in every language, but these two. */
+  magnitudes: { billion: string; million: string; thousand: string };
+  /** Keyed by ISO 3166-1 alpha-2. See `SpecialCapital`. */
+  specialCapitals: Readonly<Record<string, SpecialCapital>>;
+  /** A currency prompt that names one country, keyed by ISO 3166-1 alpha-2. */
+  currencyPrompts: Readonly<Record<string, string>>;
+  /** How a population's provenance reads, by the tag the dataset carries. */
+  provenance: { unWpp: string; worldometer: string; fallback: string };
+  prompts: {
+    flag: string;
+    country: string;
+    capital: string;
+    currency: string;
+    language: string;
+    /** `{year}` */
+    population: string;
+  };
+  explanations: {
+    /** `{name}` */
+    flag: string;
+    /** `{name}`, `{region}` */
+    country: string;
+    /** `{capital}` */
+    capital: string;
+    /** `{capital}`, `{note}` */
+    capitalSpecial: string;
+    /** `{units}` */
+    currency: string;
+    /** `{units}` — the country has more than one valid currency. */
+    currencyMultiple: string;
+    /** `{names}` */
+    language: string;
+    /** `{year}`, `{count}`, `{rounded}`, `{provenance}`, `{note}` */
+    population: string;
+  };
+  /**
+   * The throws a player can end up reading.
+   *
+   * Not every throw in the engine: the ones reachable only by calling it wrong
+   * — a negative elapsed time, an out-of-range option index — stay in English
+   * in the source, because nobody but a developer can provoke them. These are
+   * the ones `startGame` and `boot` catch and print.
+   */
+  errors: {
+    unknownKind: string;
+    /** `{code}` */
+    missingCurrencyUnit: string;
+    invalidPopulation: string;
+    /** `{code}`, `{type}` */
+    notEnoughAnswers: string;
+    noCountries: string;
+    players: string;
+    poolTooSmall: string;
+    databaseMissing: string;
+    /** `{code}` */
+    badCode: string;
+    /** `{code}`, `{field}` */
+    missingField: string;
+    languageMismatch: string;
+    badPosition: string;
+    badPopulation: string;
+    /** `{code}` */
+    unknownRegion: string;
+  };
 }
 
 /** What `distance` needs, which is less than a whole country. */

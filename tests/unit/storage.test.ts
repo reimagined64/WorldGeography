@@ -31,7 +31,7 @@ import {
   read,
   write,
 } from '../../src/app/storage.ts';
-import type { Country, GameState } from '../../src/engine/types.ts';
+import type { LocalizedCountry, GameState } from '../../src/engine/types.ts';
 import { BASELINE_ROOT, loadCountries } from '../helpers/load-baseline.ts';
 
 interface FakeStorage {
@@ -68,7 +68,7 @@ function fakeStorage(): FakeStorage {
 }
 
 const countries = loadCountries();
-const byCode: Record<string, Country> = Object.fromEntries(countries.map((c) => [c.code, c]));
+const byCode: Record<string, LocalizedCountry<'cs'>> = Object.fromEntries(countries.map((c) => [c.code, c]));
 const runFixture = (name: string): GameState =>
   JSON.parse(readFileSync(join(BASELINE_ROOT, 'runs', `${name}.json`), 'utf8')) as GameState;
 const RUN_NAMES = ['mid-country', 'mid-flight', 'post-milestone', 'pending-bonus'] as const;

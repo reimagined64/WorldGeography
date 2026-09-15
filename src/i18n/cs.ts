@@ -1,10 +1,12 @@
 /**
  * Every Czech string the shell prints.
  *
- * This is the only file in `src/` allowed to hold a Czech literal that a player
- * can read; `tests/unit/i18n.test.ts` scans the tree and fails on any other.
- * The engine is the declared exception until U12 moves question generation onto
- * a locale bundle of its own.
+ * This and `questions.cs.ts` are the only files in `src/` allowed to hold a
+ * Czech literal that a player can read; `tests/unit/i18n.test.ts` scans the tree
+ * and fails on any other. The two are split by who reads them rather than by
+ * subject: a catalog entry is looked up when the shell renders, so it follows
+ * the switcher, while a question bundle is handed to the engine and baked into
+ * a run, which is what keeps a run in the language it was written in.
  *
  * Keys are dotted and flat, grouped by the screen that prints them. Entries
  * that depend on a count are objects keyed by plural category rather than
@@ -14,10 +16,9 @@ import type { PluralForms } from './plurals.ts';
 
 export const cs = {
   // --- shared vocabulary -------------------------------------------------
-  // The six regions and the six question kinds are also spelled in
-  // `engine/core.ts`, which still writes its own explanations. U12 moves those
-  // onto a locale bundle and deletes that copy; until then the engine's set is
-  // the one the questions use and this one is the one the shell prints.
+  // The six regions are spelled once, here, and `questions.cs.ts` reads them
+  // out of this object for the country explanation. Until U12 the engine kept
+  // its own copy and the two could have disagreed.
   'region.all': 'Celý svět',
   'region.Europe': 'Evropa',
   'region.Asia': 'Asie',

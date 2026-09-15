@@ -22,6 +22,7 @@ import { join } from 'node:path';
 import * as Engine from '../../src/engine/core.ts';
 import type { GameState } from '../../src/engine/types.ts';
 import {
+  bindBundle,
   captureQuestions,
   captureRuns,
   FIXTURES_DIR,
@@ -31,8 +32,13 @@ import {
 } from '../helpers/golden.ts';
 import { FLOOR_DB, type AudioGolden } from '../helpers/audio-digest.ts';
 import { loadAudio, loadCountries, loadIsValidRun } from '../helpers/load-baseline.ts';
+import { csQuestions } from '../../src/i18n/questions.cs.ts';
 
 const all = loadCountries();
+// The fixtures are 14,040 Czech questions and 48 Czech runs, so the engine is
+// driven with the Czech bundle and nothing else. An English bundle here would
+// not be a failing test, it would be a different oracle.
+const czech = bindBundle(Engine, csQuestions);
 const read = <T>(relative: string): T =>
   JSON.parse(readFileSync(join(FIXTURES_DIR, relative), 'utf8')) as T;
 
@@ -47,8 +53,8 @@ describe('questions-golden.json', () => {
   it('regenerates from the TypeScript engine, identically, twice in a row', () => {
     // Two passes because `makeQuestion` takes the RNG as an argument: a port
     // that leaked state between calls would still match on the first pass.
-    const first = captureQuestions(Engine, all);
-    const second = captureQuestions(Engine, all);
+    const first = captureQuestions(czech, all);
+    const second = captureQuestions(czech, all);
     const expected = JSON.stringify(golden.entries);
 
     expect(JSON.stringify(first.entries)).toBe(expected);
@@ -94,7 +100,7 @@ describe('runs-golden.json', () => {
     // This is the only fixture that notices a reordering of the three RNG
     // consumers in `appendQuestion`, so a mismatch is reported by step number
     // rather than as one opaque object diff.
-    const replayed = captureRuns(Engine, all);
+    const replayed = captureRuns(czech, all);
     expect(replayed.runs).toHaveLength(golden.runs.length);
 
     for (const [index, expected] of golden.runs.entries()) {

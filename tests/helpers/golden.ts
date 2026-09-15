@@ -15,37 +15,75 @@ import { fileURLToPath } from 'node:url';
 import type {
   AnswerResult,
   BaseQuestion,
-  Country,
   Difficulty,
   GameOptions,
   GameState,
+  Locale,
+  LocalizedCountry,
   Question,
+  QuestionBundle,
   QuestionKind,
   QuestionType,
   Turn,
 } from '../../src/engine/types.ts';
 
 /**
- * The slice of the engine both walks drive.
+ * The slice of the engine both walks drive, in v7's shape.
  *
  * Declared here rather than lifted off either module, so one walk can be
  * pointed at the frozen JavaScript — which is how the fixtures were captured —
  * and at the TypeScript port, which is what the suite holds to them.
+ *
+ * Parameterised by the country record since U12, because the two engines no
+ * longer read the same one. The *shape* stays v7's — no bundle argument —
+ * because that is what the recorded values mean; `bindBundle` below is what
+ * puts the ported engine back into it.
  */
-export interface GoldenEngine {
+export interface GoldenEngine<C> {
   readonly TYPES: readonly QuestionType[];
   rng(seed: number): () => number;
   makeQuestion(
-    country: Country,
+    country: C,
     type: QuestionKind,
-    all: Country[],
+    all: C[],
     difficulty?: Difficulty,
     random?: () => number,
   ): BaseQuestion;
-  makeGame(all: Country[], options: GameOptions, seed?: number): GameState;
+  makeGame(all: C[], options: GameOptions, seed?: number): GameState;
   submit(game: GameState, selected: number | null, elapsedMs?: number): AnswerResult | null;
-  advance(game: GameState, all: Country[]): boolean;
+  advance(game: GameState, all: C[]): boolean;
   nextTurn(game: GameState): Turn;
+}
+
+/** The ported engine, as far as the walks reach into it. */
+type LocaleEngine = Pick<
+  typeof import('../../src/engine/core.ts'),
+  'TYPES' | 'rng' | 'makeQuestion' | 'makeGame' | 'submit' | 'advance' | 'nextTurn'
+>;
+
+/**
+ * The ported engine with one language tied to it, in v7's shape.
+ *
+ * Every argument the fixtures were captured with is still supplied at the same
+ * position; the bundle is the one thing added, and it is closed over rather
+ * than passed, so the walk below cannot accidentally vary it between calls.
+ * Driving both engines through the same walk is the whole fidelity claim, and
+ * it only holds as long as the walk is the same code.
+ */
+export function bindBundle<L extends Locale>(
+  engine: LocaleEngine,
+  bundle: QuestionBundle<L>,
+): GoldenEngine<LocalizedCountry<L>> {
+  return {
+    TYPES: engine.TYPES,
+    rng: engine.rng,
+    makeQuestion: (country, type, all, difficulty, random) =>
+      engine.makeQuestion(country, type, all, bundle, difficulty, random),
+    makeGame: (all, options, seed) => engine.makeGame(all, options, bundle, seed),
+    submit: engine.submit,
+    advance: (game, all) => engine.advance(game, all, bundle),
+    nextTurn: engine.nextTurn,
+  };
 }
 
 export const FIXTURES_DIR = fileURLToPath(new URL('../fixtures', import.meta.url));
@@ -139,7 +177,7 @@ export const QUESTION_DIFFICULTIES: Difficulty[] = ['easy', 'normal', 'expert'];
 export const QUESTION_SEEDS = [0, 1, 2, 3];
 
 /** 3 difficulties x 4 seeds x 195 countries x 6 types, in `core.test.js` order. */
-export function captureQuestions(engine: GoldenEngine, all: Country[]): QuestionsGolden {
+export function captureQuestions<C>(engine: GoldenEngine<C>, all: C[]): QuestionsGolden {
   const types: QuestionKind[] = [...engine.TYPES, 'flag'];
   const entries: GoldenQuestion[] = [];
   for (const difficulty of QUESTION_DIFFICULTIES) {
@@ -297,7 +335,7 @@ function gameView(
  * their order is only observable in the resulting game — not in any single
  * question. That is what these hashes pin.
  */
-export function replayRun(engine: GoldenEngine, all: Country[], config: RunConfig): GoldenRun {
+export function replayRun<C>(engine: GoldenEngine<C>, all: C[], config: RunConfig): GoldenRun {
   const { seed, timeRangeMs, capCountries, elapsedMs, correctProbability } = config;
   const random = engine.rng(seed);
   const game = engine.makeGame(
@@ -388,7 +426,7 @@ export function replayRun(engine: GoldenEngine, all: Country[], config: RunConfi
   };
 }
 
-export function captureRuns(engine: GoldenEngine, all: Country[]): RunsGolden {
+export function captureRuns<C>(engine: GoldenEngine<C>, all: C[]): RunsGolden {
   return {
     version: 7,
     // Provenance of the committed fixture, not of whatever is driving this walk.

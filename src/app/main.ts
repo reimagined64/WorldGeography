@@ -24,13 +24,14 @@
 import * as Core from '../engine/core.ts';
 import { GeoAudio } from '../audio/audio.ts';
 import { Globe, type MapPolygon } from '../globe/globe.ts';
-import type { Country } from '../engine/types.ts';
+import type { LocalizedCountry } from '../engine/types.ts';
 import { installDebugApi, requireAudio, requireGlobe, store, type View } from './state.ts';
 import { STORE, loadAudioSettings, loadRecord, loadRun, loadSettings } from './storage.ts';
 import { installDatabase, type Database } from './database.ts';
 import { $, dialog, esc, notify, optional, persist } from './dom.ts';
 import { detectLocale, locale, LOCALES, LOCALE_NAMES, setLocale, t } from '../i18n/index.ts';
 import { translateChrome } from '../i18n/chrome.ts';
+import { questionBundle } from '../i18n/questions.ts';
 import { showAudioSettings } from './dialogs/audio-settings.ts';
 import { showHelp } from './dialogs/help.ts';
 import { showSources } from './dialogs/sources.ts';
@@ -199,18 +200,21 @@ function readInert<T>(id: string): T {
 }
 
 export function boot(): void {
-  const countries=readInert<Country[]>('country-data'),map=readInert<MapPolygon[]>('map-data'),sources=readInert<SourceEntry[]>('source-data'),flags=readInert<Record<string,string>>('flag-data');
-  try{Core.validateCountries(countries);}catch(e){$('side-panel').textContent=t('boot.databaseFailed',{message:(e as Error).message});return;}
-  const byCode=Object.fromEntries(countries.map(c=>[c.code,c])) as Database['byCode'];
-  installDatabase({countries,byCode,flags,sources,licenseText:$('license-data').textContent ?? ''});
+  const countries=readInert<LocalizedCountry[]>('country-data'),map=readInert<MapPolygon[]>('map-data'),sources=readInert<SourceEntry[]>('source-data'),flags=readInert<Record<string,string>>('flag-data');
   // Language first: every string after this line — the boot failure message
-  // included — is read out of the catalog, and `loadSettings` itself resolves
-  // the two placeholder player names through it.
+  // included — is read out of the catalog, `loadSettings` resolves the two
+  // placeholder player names through it, and since U12 `validateCountries`
+  // states its complaint in it too. Settings are read twice on purpose: once to
+  // find the stored choice detection has to honour, and once more so the
+  // placeholders follow whichever language that produced.
   store.options=loadSettings();
   setLocale(detectLocale(navigator.languages ?? [navigator.language], store.options.lang));
   store.options=loadSettings();
   document.documentElement.lang=locale();
   translateChrome();
+  try{Core.validateCountries(countries,questionBundle());}catch(e){$('side-panel').textContent=t('boot.databaseFailed',{message:(e as Error).message});return;}
+  const byCode=Object.fromEntries(countries.map(c=>[c.code,c])) as Database['byCode'];
+  installDatabase({countries,byCode,flags,sources,licenseText:$('license-data').textContent ?? ''});
   store.record=loadRecord();
   store.audio=new GeoAudio(loadAudioSettings());
   store.game=loadRun(countries,byCode);

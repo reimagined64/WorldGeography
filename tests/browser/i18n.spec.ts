@@ -156,3 +156,52 @@ test('clips no text on any screen in English', async ({ page }) => {
     }
   }
 });
+
+/**
+ * U12 — the half of the switch that is data rather than chrome.
+ *
+ * Until this unit English was an English shell over a Czech dataset: the
+ * buttons said "Begin the expedition" and the question under them asked which
+ * state was highlighted na glóbu, with Česko among the answers. What proves it
+ * is fixed is not a catalog key resolving — the Node suite covers that — but a
+ * real run, generated in the browser from the shipped dataset, coming back with
+ * no Czech in it anywhere.
+ */
+test('plays a whole question in English, dataset and all', async ({ page }) => {
+  await page.goto(pageUrl);
+  await page.locator('#language').click();
+  await expect(page.locator('html')).toHaveAttribute('lang', 'en');
+
+  await page.locator('#start').click();
+  await expect(page.locator('#question-title')).toBeVisible({ timeout: 30_000 });
+
+  const question = await page.evaluate(() => {
+    const api = (window as unknown as { WorldGeography: { getState(): { questions: unknown[]; index: number; lang?: string } | null } }).WorldGeography;
+    const game = api.getState();
+    if (game === null) throw new Error('no game');
+    const q = game.questions[game.index] as { prompt: string; options: string[]; explanation: string };
+    return { lang: game.lang, prompt: q.prompt, options: q.options, explanation: q.explanation };
+  });
+
+  // The run records the language it was written in, which is what stops it
+  // being resumed into the other one.
+  expect(question.lang).toBe('en');
+  expect(question.prompt).toBe('Which country is highlighted on the globe?');
+  expect(question.explanation).toMatch(/^Highlighted country: .+\. Region: (Europe|Asia|Africa|North America|South America|Oceania)\./);
+
+  // Czech diacritics are the cheapest possible detector and they catch every
+  // country name, capital and currency the dataset could have leaked: `Česko`,
+  // `Švýcarsko`, `koruna` — the one Czech word with no diacritic at all is not
+  // a name any of these fields carries.
+  const CZECH = /[ěščřžýáíéúůťďňĚŠČŘŽÝÁÍÉÚŮŤĎŇ]/;
+  for (const text of [question.prompt, question.explanation, ...question.options]) {
+    expect({ text, czech: CZECH.test(text) }).toEqual({ text, czech: false });
+  }
+
+  // And the atlas, which renders straight off the dataset rather than out of a
+  // run, retitles itself in the same language.
+  await page.locator('#nav-atlas').click();
+  await expect(page.locator('#atlas-details h3')).toHaveText('Czechia');
+  await expect(page.locator('#world-caption .caption-title')).toHaveText('Czechia');
+  await expect(page.locator('#atlas-details')).toContainText('Prague');
+});

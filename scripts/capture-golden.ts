@@ -20,7 +20,7 @@ import { join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { chromium, type Browser, type Page } from '@playwright/test';
 import { CHROMIUM_LAUNCH } from '../playwright.config.ts';
-import { BASELINE_ROOT, loadCore, loadCountries, type GameState } from '../tests/helpers/load-baseline.ts';
+import { BASELINE_ROOT, loadCore, loadLegacyCountries, type GameState } from '../tests/helpers/load-baseline.ts';
 import {
   captureQuestions,
   captureRuns,
@@ -73,7 +73,7 @@ function report(file: string): void {
  * ------------------------------------------------------------------ */
 
 function captureQuestionsFixture(outDir: string): void {
-  const golden: QuestionsGolden = captureQuestions(loadCore(), loadCountries());
+  const golden: QuestionsGolden = captureQuestions(loadCore(), loadLegacyCountries());
   const { entries, ...header } = golden;
   const file = join(outDir, 'questions-golden.json');
   writeEntriesPerLine(file, header, 'entries', entries);
@@ -82,7 +82,7 @@ function captureQuestionsFixture(outDir: string): void {
 }
 
 function captureRunsFixture(outDir: string): void {
-  const golden: RunsGolden = captureRuns(loadCore(), loadCountries());
+  const golden: RunsGolden = captureRuns(loadCore(), loadLegacyCountries());
   const file = join(outDir, 'runs-golden.json');
   const { runs, ...header } = golden;
   writeEntriesPerLine(file, header, 'runs', runs);

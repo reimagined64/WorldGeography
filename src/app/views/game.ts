@@ -22,7 +22,7 @@
  */
 import * as Core from '../../engine/core.ts';
 import { GeoClock } from '../../engine/clock.ts';
-import type { AnswerResult, Country, Question, QuestionType, Region } from '../../engine/types.ts';
+import type { AnswerResult, LocalizedCountry, Question, QuestionType, Region } from '../../engine/types.ts';
 import { requireAudio, requireGlobe, store } from '../state.ts';
 import { STORE } from '../storage.ts';
 import { byCode, countries } from '../database.ts';
@@ -31,6 +31,7 @@ import {
   populationSourceLink, seconds,
 } from '../dom.ts';
 import { kindName, regionName, t } from '../../i18n/index.ts';
+import { pick, questionBundle } from '../../i18n/questions.ts';
 import { renderMobileHud } from '../mobile-hud.ts';
 import { renderView, setView } from '../main.ts';
 import { beginFlight } from './flight.ts';
@@ -60,15 +61,15 @@ export function scrollQuestion(newVisit: boolean): void {
 }
 
 /** The globe caption and the score chips: everything above the question panel. */
-export function renderWorldHeader(q: Question, c: Country, answer: AnswerResult | undefined, flying = false): void {
+export function renderWorldHeader(q: Question, c: LocalizedCountry, answer: AnswerResult | undefined, flying = false): void {
   const game=store.game!;
   const bonus=q.type==='flag',paused=store.phase==='paused',isHidden=(q.type==='country'&&!answer)||(bonus&&!answer)||flying||paused;
   document.body.classList.toggle('flag-question',bonus&&!flying&&!paused);
-  $('globe').setAttribute('aria-label',flying?t('globe.flying'):bonus&&!answer?t('globe.bonus'):isHidden?t('globe.hidden'):t('globe.shown',{name:c.name}));
+  $('globe').setAttribute('aria-label',flying?t('globe.flying'):bonus&&!answer?t('globe.bonus'):isHidden?t('globe.hidden'):t('globe.shown',{name:pick(c.name)}));
   const area=game.options.region==='all'?t('game.regionAllCaps'):regionName(game.options.region as Region);
   $('world-heading').innerHTML=`<div class="game-heading"><div><div class="eyebrow accent">${game.review?t('game.eyebrowReview'):t('game.eyebrowPlay',{region:esc(area)})}</div><h1>${game.review?t('game.titleReview'):bonus?t('game.titleBonus'):t('game.titleStop',{number:String(q.visit+1).padStart(2,'0')})}</h1></div><div class="round-note">${game.review?`${game.index+1} / ${game.questions.length}`:t('game.roundNoLimit')}</div></div>
   <div class="score-chips">${game.scores.map((score,i)=>`<div class="score-chip ${q.player===i?'active':''} ${!game.review&&game.lives[i]===0&&i!==q.player?'eliminated':''}"><div class="score-top"><span class="player-name">${esc(game.options.names[i]||t('game.playerFallback',{number:i+1}))}</span><b>${pointText(score)}</b></div>${game.review?'':`<div class="score-lives">${lifePips(game.lives[i]!)}<span data-player-lives="${i}">${game.lives[i]===0?(i===q.player&&!game.gameOver?(q.type==='flag'?t('game.livesBonusRescue'):t('game.livesPaidFor')):t('game.livesNone')):attempts(game.lives[i]!)}</span></div>`}</div>`).join('')}</div>`;
-  const name=flying?t('caption.resting'):paused?t('caption.paused'):bonus&&!answer?t('caption.guessFlag'):isHidden?t('caption.unknownCountry'):c.name;
+  const name=flying?t('caption.resting'):paused?t('caption.paused'):bonus&&!answer?t('caption.guessFlag'):isHidden?t('caption.unknownCountry'):pick(c.name);
   const sub=flying?t('caption.subFlying'):paused?t('caption.subPaused'):bonus&&!answer?t('caption.subBonus'):c.code==='AF'?t('caption.subAfghanistan'):isHidden&&game.options.difficulty==='expert'?t('caption.subExpert'):regionName(c.region);
   $('world-caption').innerHTML=`<div class="country-caption">${!flying&&!paused&&!bonus?flagImage(c.code,isHidden):''}<div><div class="caption-title">${esc(name)}</div><div class="caption-sub">${esc(sub)}</div></div></div><div class="coord">${flying||paused||bonus?'':isHidden&&game.options.difficulty==='expert'?t('caption.coordExpert'):coords(c)}</div>`;
 }
@@ -210,5 +211,5 @@ export function choose(index: number | null): void {
 export function nextQuestion(): void {
   const game=store.game;
   if(!game||!game.answers[game.index])return;store.selected=0;stopClock();store.clock=null;store.clockIndex=-1;store.phase='idle';
-  if(Core.advance(game,countries)){saveGame();renderGame();scrollQuestion(false);}else{saveGame();renderResults();requireAudio().cue('complete');window.scrollTo({top:0,behavior:'auto'});}
+  if(Core.advance(game,countries,questionBundle())){saveGame();renderGame();scrollQuestion(false);}else{saveGame();renderResults();requireAudio().cue('complete');window.scrollTo({top:0,behavior:'auto'});}
 }

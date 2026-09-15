@@ -25,10 +25,11 @@ import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import {
   applyTerritory,
+  BASE_LOCALE,
+  DATASET_LOCALES,
   loadLocaleBundle,
   loadOverrides,
   mergeCountries,
-  projectLocale,
   type FetchedCountry,
   type MapPolygon,
   type OverrideBundle,
@@ -36,10 +37,20 @@ import {
 } from './merge.ts';
 import { diffCountries, diffPolygons, renderCountryDiff, renderPolygons, renderShadowed } from './diff.ts';
 import { REPO_ROOT } from './sources.ts';
-import type { Country, LocaleBundle } from '../../src/engine/types.ts';
+import type { LocaleBundle, LocalizedCountry } from '../../src/engine/types.ts';
 
-/** The locale `data/build/countries.json` is projected to. U12 widens this. */
-export const BASE_LOCALE = 'cs' as const;
+export { BASE_LOCALE, DATASET_LOCALES } from './merge.ts';
+
+/**
+ * What `data/raw/countries.json` is: 1 is the monolingual snapshot U9 wrote,
+ * 2 the bilingual one U12 replaced it with.
+ *
+ * Read by `data:check`, which has a both-locales invariant that is inert at 1
+ * and fatal at 2. The number is on the snapshot rather than on `data/build/`
+ * because it describes what the *fetch* carries, and everything downstream is
+ * derived from that.
+ */
+export const SCHEMA_VERSION = 2;
 
 export const paths = (root: string = REPO_ROOT) => ({
   root,
@@ -71,6 +82,8 @@ export const paths = (root: string = REPO_ROOT) => ({
 /** `data/raw/countries.json` — one fetch, normalized, before any override. */
 export interface CountrySnapshot {
   why: string;
+  /** See `SCHEMA_VERSION`. Absent in a pre-U12 snapshot, which reads as 1. */
+  schemaVersion: number;
   /** The date the fetch that produced this ran. */
   fetchedAt: string;
   /** The WPP reference year the populations are for. */
@@ -91,6 +104,7 @@ export function loadCountrySnapshot(path: string): CountrySnapshot {
   if (typeof raw.year !== 'number') throw new Error(`${path}: \`year\` must be a number`);
   return {
     why: typeof raw.why === 'string' ? raw.why : '',
+    schemaVersion: typeof raw.schemaVersion === 'number' ? raw.schemaVersion : 1,
     fetchedAt: typeof raw.fetchedAt === 'string' ? raw.fetchedAt : '',
     year: raw.year,
     countries: raw.countries,
@@ -110,7 +124,7 @@ export function loadMapSnapshot(path: string): MapSnapshot {
 // ------------------------------------------------------------ serializing
 
 /** `data/build/countries.json`: two-space JSON with a trailing newline. */
-export const serializeCountries = (countries: readonly Country[]): string =>
+export const serializeCountries = (countries: readonly LocalizedCountry[]): string =>
   `${JSON.stringify(countries, null, 2)}\n`;
 
 /**
@@ -213,11 +227,12 @@ export interface BuildInput {
   snapshot: CountrySnapshot;
   map: MapSnapshot;
   overrides: OverrideBundle;
-  bundle: LocaleBundle<typeof BASE_LOCALE>;
+  /** One per locale the dataset carries, leading locale first. */
+  bundles: readonly [LocaleBundle, ...LocaleBundle[]];
 }
 
 export interface BuiltDataset {
-  countries: Country[];
+  countries: LocalizedCountry[];
   polygons: MapPolygon[];
   shadowed: ShadowedChange[];
 }
@@ -227,14 +242,18 @@ export function buildDataset(input: BuildInput): BuiltDataset {
   const { countries, shadowed } = mergeCountries({
     fetched: input.snapshot.countries,
     overrides: input.overrides,
-    bundles: [input.bundle],
+    bundles: input.bundles,
   });
   return {
-    countries: projectLocale(countries, BASE_LOCALE),
+    countries,
     polygons: applyTerritory(input.map.polygons, input.overrides.territory),
     shadowed,
   };
 }
+
+/** The `countries.<locale>.json` / `notes.<locale>.json` pairs, in dataset order. */
+export const loadLocaleBundles = (dir: string): [LocaleBundle, ...LocaleBundle[]] =>
+  DATASET_LOCALES.map((locale) => loadLocaleBundle(locale, dir)) as [LocaleBundle, ...LocaleBundle[]];
 
 // ---------------------------------------------------------------- command
 
@@ -254,17 +273,17 @@ export interface ApplyResult {
 export function applyOverrides(options: ApplyOptions = {}): ApplyResult {
   const at = paths(options.root);
   const overrides = loadOverrides(at.overrides);
-  const bundle = loadLocaleBundle(BASE_LOCALE, at.overrides);
+  const bundles = loadLocaleBundles(at.overrides);
   const snapshot = loadCountrySnapshot(at.rawCountries);
   const map = loadMapSnapshot(at.rawMap);
 
-  const built = buildDataset({ snapshot, map, overrides, bundle });
+  const built = buildDataset({ snapshot, map, overrides, bundles });
   const countriesText = serializeCountries(built.countries);
   const mapText = serializeMap(built.polygons);
 
   const previousCountriesText = readFileSync(at.countries, 'utf8');
   const previousMapText = readFileSync(at.map, 'utf8');
-  const diff = diffCountries(JSON.parse(previousCountriesText) as Country[], built.countries);
+  const diff = diffCountries(JSON.parse(previousCountriesText) as LocalizedCountry[], built.countries);
   diff.polygons = diffPolygons(JSON.parse(previousMapText) as MapPolygon[], built.polygons);
 
   const changed = countriesText !== previousCountriesText || mapText !== previousMapText;
