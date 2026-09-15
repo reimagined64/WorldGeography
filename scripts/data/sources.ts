@@ -70,6 +70,24 @@ export const REMOTE_SOURCES: Readonly<Record<string, RemoteSource>> = {
     gzip: false,
     cacheFile: 'ne_110m_admin_0_countries.geojson',
   },
+  /**
+   * The font the 195 flag illustrations are rendered from, by `data:flags`.
+   *
+   * It is pinned here rather than in a file of its own because it is a
+   * download like the other two and fails the same way: the noto-emoji project
+   * redraws artwork inside a release, so a version pin would let a flag change
+   * under a maintainer who only meant to re-run a command. Nothing in `build`
+   * or `data:refresh` reaches it, and the 10 MB never leaves `.cache/` —
+   * `THIRD_PARTY_NOTICES.txt` says no font file is distributed, and that has to
+   * stay true.
+   */
+  'noto-emoji': {
+    id: 'noto-emoji',
+    what: 'Noto Color Emoji 2.051 — CBDT colour bitmaps, the flag illustration source',
+    url: 'https://raw.githubusercontent.com/googlefonts/noto-emoji/v2.051/fonts/NotoColorEmoji.ttf',
+    gzip: false,
+    cacheFile: 'NotoColorEmoji.ttf',
+  },
 };
 
 /** The two sources that arrive as software rather than as a download. */
@@ -336,6 +354,7 @@ const GENERATED_ENTRY_NAMES: readonly string[] = [
   'Natural Earth – 1:110m Admin 0, v5.1.2',
   'world-countries – referenční databáze (ODC-ODbL 1.0)',
   'Unicode CLDR – prostřednictvím ICU v Node.js',
+  'Noto Color Emoji 2.051 – předloha vlajkových ilustrací',
 ];
 
 /** Entries the generated block replaces: the four above plus the retired ones. */
@@ -357,8 +376,11 @@ export function generatedSourceEntries(lock: SourceLock, year: number): SourceEn
   const ne = lock.remote['natural-earth'];
   const wc = lock.local['world-countries'];
   const icu = lock.local['icu-cldr'];
-  if (wpp === undefined || ne === undefined || wc === undefined || icu === undefined) {
-    throw new Error(`${LOCK_PATH}: the lock is missing one of un-wpp, natural-earth, world-countries, icu-cldr`);
+  const noto = lock.remote['noto-emoji'];
+  if (wpp === undefined || ne === undefined || wc === undefined || icu === undefined || noto === undefined) {
+    throw new Error(
+      `${LOCK_PATH}: the lock is missing one of un-wpp, natural-earth, noto-emoji, world-countries, icu-cldr`,
+    );
   }
   return [
     {
@@ -395,6 +417,15 @@ export function generatedSourceEntries(lock: SourceLock, year: number): SourceEn
         `České a anglické názvy zemí, měn a jazyků přes Intl.DisplayNames: ${icu.version}. ` +
         `Verze ICU rozhoduje o znění popisků, proto je Node připnutý v .nvmrc. Ověřeno ${icu.accessed}.`,
     },
+    {
+      name: GENERATED_ENTRY_NAMES[4]!,
+      url: noto.url,
+      use:
+        `Předloha 195 vlajkových ilustrací. Obrázky vykresluje npm run data:flags z připnutého ` +
+        `souboru písma, otisk sha256 ${short(noto.sha256)}… (${noto.bytes} B), staženo ${noto.accessed}; ` +
+        `samotné písmo se nedistribuuje a ve hře jsou jen hotové PNG. Jde o stylizované ilustrace, ` +
+        `nikoli o technické vyobrazení poměrů stran a barev.`,
+    },
   ];
 }
 
@@ -425,8 +456,11 @@ export function generatedNoticeBlocks(lock: SourceLock, year: number): Record<st
   const ne = lock.remote['natural-earth'];
   const wc = lock.local['world-countries'];
   const icu = lock.local['icu-cldr'];
-  if (wpp === undefined || ne === undefined || wc === undefined || icu === undefined) {
-    throw new Error(`${LOCK_PATH}: the lock is missing one of un-wpp, natural-earth, world-countries, icu-cldr`);
+  const noto = lock.remote['noto-emoji'];
+  if (wpp === undefined || ne === undefined || wc === undefined || icu === undefined || noto === undefined) {
+    throw new Error(
+      `${LOCK_PATH}: the lock is missing one of un-wpp, natural-earth, noto-emoji, world-countries, icu-cldr`,
+    );
   }
   return {
     'NATURAL EARTH': [
@@ -465,6 +499,15 @@ export function generatedNoticeBlocks(lock: SourceLock, year: number): Record<st
       'licenses/ODbL-1.0.txt and is served next to the game.',
       'https://opendatacommons.org/licenses/odbl/1-0/',
       'This licence covers the country database only. The program itself is MIT.',
+    ].join('\n'),
+    'FLAG ILLUSTRATIONS': [
+      'The 195 flag PNGs are rendered by npm run data:flags from Noto Color Emoji 2.051,',
+      'release v2.051 of the noto-emoji project, using its CBDT colour bitmap strike at 109 px.',
+      `Read from ${noto.url}`,
+      `pinned by sha256 ${noto.sha256} (${noto.bytes} bytes), retrieved ${noto.accessed}.`,
+      'The font is downloaded into .cache/ and no font file is distributed with the game; what',
+      'ships is the rendered artwork, cropped to its alpha bounding box. Licence and attribution',
+      'for the artwork are in the Google Noto Emoji notice below.',
     ].join('\n'),
     'UNICODE CLDR REFERENCE DATA': [
       'Czech and English names of countries, currencies and languages come from Unicode',
@@ -538,6 +581,12 @@ export function regenerateNotices(text: string, lock: SourceLock, year: number):
     'COUNTRY REFERENCE FACTS',
     'OPEN DATABASE LICENSE (ODbL 1.0)',
     blocks['OPEN DATABASE LICENSE (ODbL 1.0)']!,
+  );
+  out = insertNoticeBlockAfter(
+    out,
+    'OPEN DATABASE LICENSE (ODbL 1.0)',
+    'FLAG ILLUSTRATIONS',
+    blocks['FLAG ILLUSTRATIONS']!,
   );
   return replaceNoticeBlock(out, out.includes(`\n${staleCldr}\n`) ? staleCldr : cldr, cldr, blocks[cldr]!);
 }

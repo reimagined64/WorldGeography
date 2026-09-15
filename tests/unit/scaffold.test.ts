@@ -122,7 +122,7 @@ describe('command surface', () => {
     let status = 0;
     let stderr = '';
     try {
-      execFileSync('node', ['scripts/unimplemented.ts', 'data:flags', 'U10'], {
+      execFileSync('node', ['scripts/unimplemented.ts', 'test:browser', 'U14'], {
         cwd: root,
         encoding: 'utf8',
         stdio: 'pipe',
@@ -134,7 +134,7 @@ describe('command surface', () => {
     }
 
     expect(status).toBe(1);
-    expect(stderr).toContain('U10');
+    expect(stderr).toContain('U14');
   });
 
   it('pins the two dependencies whose output must be reproducible', () => {

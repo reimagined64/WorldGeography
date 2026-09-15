@@ -2,7 +2,7 @@
  * The two pinned downloads, read for real. **Opt-in, and not part of CI.**
  *
  * `npm test` has to be offline, fast and deterministic, and these tests are
- * none of those: they pull 16 MB from population.un.org and 819 KB from
+ * none of those: they pull 16 MB from population.un.org and 11 MB from
  * GitHub, and they go red when a network is unavailable rather than when the
  * code is wrong. Everything in `data-pipeline.test.ts` therefore runs against
  * payloads synthesized from the committed snapshots; this file exists so a
@@ -39,7 +39,7 @@ const baseline = JSON.parse(readFileSync(join(REPO, 'data/build/countries.json')
  *
  * Fresh because the point of this file is to read upstream, and a warm cache
  * would answer with yesterday's bytes; under tmpdir because the repository must
- * stay clean. The three tests share it, so the 16 MB archive is pulled once.
+ * stay clean. The four tests share it, so the 16 MB archive is pulled once.
  */
 // Created only when the file is enabled, so a skipped `npm test` run leaves
 // no directory behind.
@@ -65,6 +65,17 @@ describe.skipIf(!enabled)('the pinned upstream endpoints', () => {
     expect(resolved.filter((polygon) => polygon.iso3 === 'FRA')).toHaveLength(3);
     expect(resolved.filter((polygon) => polygon.iso3 === 'NOR')).toHaveLength(4);
     expect(resolved.filter((polygon) => polygon.iso3 === UNATTRIBUTED)).toHaveLength(3);
+  });
+
+  it('serves Noto Color Emoji v2.051 at the pinned hash', { timeout: 120_000 }, async () => {
+    // `data:flags` is the only command that reads it, and it reads it rarely,
+    // so this is the one place a dead font URL surfaces before a maintainer
+    // needs the font. The 10 MB lands in the same throwaway cache as the rest:
+    // the repository must never contain a font file.
+    const result = await fetchPinned('noto-emoji', options);
+
+    expect(result.status).toMatch(/pinned|cached/);
+    expect(result.pin.sha256).toBe(lock.remote['noto-emoji']?.sha256);
   });
 
   it('serves the WPP CSV at the pinned hash and reduces to 195 rows', { timeout: 300_000 }, async () => {

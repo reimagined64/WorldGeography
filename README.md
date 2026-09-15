@@ -38,7 +38,7 @@ npm ci
 | `npm run data:refresh` | Fetches upstream reference data, merges `data/overrides/` over it and writes a diff report. Writes nothing without `--accept`. **Needs network.** |
 | `npm run data:apply` | Re-merges the override layer into `data/build/` offline, with no fetch. Use after hand-editing an override. |
 | `npm run data:check` | Asserts data invariants on the committed dataset. Runs in CI. |
-| `npm run data:flags` | Regenerates the 195 flag PNGs from a pinned Noto Color Emoji release. **Needs network** unless given `--font-path`. |
+| `npm run data:flags` | Re-renders the 195 flag PNGs from a pinned Noto Color Emoji release and reports which crops would move. Writes nothing without `--yes`. **Needs network** unless given `--font-path`. |
 | `npm run verify:baseline` | Proves the TypeScript builder still reproduces the original v7 file byte for byte. |
 | `npm test` | Unit suite, including the golden fixtures that pin engine behavior to v7. |
 | `npm run test:browser` | Playwright suite against the built artifact: playthrough, offline purity, both locales. |

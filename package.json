@@ -15,7 +15,7 @@
     "data:refresh": "node scripts/data/refresh.ts",
     "data:apply": "node scripts/data/apply.ts",
     "data:check": "node scripts/data/check.ts",
-    "data:flags": "node scripts/unimplemented.ts data:flags U10",
+    "data:flags": "node scripts/data/flags.ts",
     "verify:baseline": "vitest run tests/unit/build-baseline.test.ts",
     "simulate": "node scripts/simulate.ts",
     "test": "vitest run",

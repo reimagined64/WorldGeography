@@ -66,6 +66,15 @@ licenses/ODbL-1.0.txt and is served next to the game.
 https://opendatacommons.org/licenses/odbl/1-0/
 This licence covers the country database only. The program itself is MIT.
 
+FLAG ILLUSTRATIONS
+The 195 flag PNGs are rendered by npm run data:flags from Noto Color Emoji 2.051,
+release v2.051 of the noto-emoji project, using its CBDT colour bitmap strike at 109 px.
+Read from https://raw.githubusercontent.com/googlefonts/noto-emoji/v2.051/fonts/NotoColorEmoji.ttf
+pinned by sha256 72a635cb3d2f3524c51620cdde406b217204e8a6a06c6a096ff8ed4b5fd6e27b (10673480 bytes), retrieved 2026-09-15.
+The font is downloaded into .cache/ and no font file is distributed with the game; what
+ships is the rendered artwork, cropped to its alpha bounding box. Licence and attribution
+for the artwork are in the Google Noto Emoji notice below.
+
 ORIGINAL GAME
 Inspired by the quiz mechanics of World Geography for Commodore 64 (Bobco).
 This project is unofficial and independent. It contains none of the original

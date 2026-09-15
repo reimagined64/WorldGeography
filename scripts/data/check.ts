@@ -483,6 +483,7 @@ const SHARED_NOTICE_BLOCKS: readonly string[] = [
   'NATURAL EARTH',
   'POPULATION FACTS',
   'COUNTRY REFERENCE FACTS',
+  'FLAG ILLUSTRATIONS',
 ];
 
 /** The lines under `heading`, up to the next all-caps heading or the end. */

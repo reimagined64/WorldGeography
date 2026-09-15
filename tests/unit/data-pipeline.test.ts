@@ -617,6 +617,23 @@ describe('the guards, shown failing', () => {
     expect(failures(runChecks(place.root))).not.toContain('ODbL text ships');
   });
 
+  it('fails when only one notice document carries the flag provenance', () => {
+    // U10 added a fifth pinned download, and a fifth generated block with it.
+    // The two documents are written together by one accept, so a block that
+    // agrees in the served copy and not in the inlined one means somebody
+    // edited provenance by hand — which is the only way it can go wrong now.
+    const place = fixture();
+    place.write(
+      'THIRD_PARTY_NOTICES.txt',
+      place.read('THIRD_PARTY_NOTICES.txt').replace(
+        '\nFLAG ILLUSTRATIONS\n',
+        '\nFLAG ILLUSTRATIONS\nRendered from whichever colour emoji font the machine had.\n',
+      ),
+    );
+
+    expect(failures(runChecks(place.root))).toContain('both notice documents agree');
+  });
+
   it('rewrites both notice documents on an accept, not only the embedded one', async () => {
     // THIRD_PARTY_NOTICES.txt is the copy the deploy serves beside the game.
     // U9 updated only `data/embedded-notices.txt`, and this one kept crediting

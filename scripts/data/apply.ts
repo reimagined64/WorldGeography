@@ -63,6 +63,7 @@ export const paths = (root: string = REPO_ROOT) => ({
   // way to check.
   dialog: join(root, 'src/app/dialogs/sources.ts'),
   flags: join(root, 'data/build/flags.json'),
+  flagsDir: join(root, 'assets/flags'),
 });
 
 // -------------------------------------------------------------- snapshots
@@ -147,7 +148,8 @@ export const serializeMapSnapshot = (snapshot: MapSnapshot): string => `${JSON.s
 
 export interface PendingWrite {
   path: string;
-  text: string;
+  /** Bytes for the flag PNGs, text for everything else; `writeFileSync` takes either. */
+  text: string | Uint8Array;
 }
 
 export interface AtomicOptions {

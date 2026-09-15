@@ -25,6 +25,11 @@
     "use": "České a anglické názvy zemí, měn a jazyků přes Intl.DisplayNames: icu 78.2 / cldr 48.0 / node 24.14.0. Verze ICU rozhoduje o znění popisků, proto je Node připnutý v .nvmrc. Ověřeno 2026-09-15."
   },
   {
+    "name": "Noto Color Emoji 2.051 – předloha vlajkových ilustrací",
+    "url": "https://raw.githubusercontent.com/googlefonts/noto-emoji/v2.051/fonts/NotoColorEmoji.ttf",
+    "use": "Předloha 195 vlajkových ilustrací. Obrázky vykresluje npm run data:flags z připnutého souboru písma, otisk sha256 72a635cb3d2f… (10673480 B), staženo 2026-09-15; samotné písmo se nedistribuuje a ve hře jsou jen hotové PNG. Jde o stylizované ilustrace, nikoli o technické vyobrazení poměrů stran a barev."
+  },
+  {
     "name": "Rada EU – přistoupení k eurozóně",
     "url": "https://www.consilium.europa.eu/en/policies/join-the-euro-area/",
     "use": "Primární ověření: Bulharsko používá euro od 1. ledna 2026; ve hře není jako správná měna bulharský lev."
