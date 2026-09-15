@@ -264,6 +264,41 @@ export interface SourceEntry {
  * credits a source nothing reads is not attribution, it is a false claim about
  * where the data came from — so naming one is a hard failure rather than a lint.
  */
+const CZECH_MONTHS: readonly string[] = [
+  'ledna', 'února', 'března', 'dubna', 'května', 'června',
+  'července', 'srpna', 'září', 'října', 'listopadu', 'prosince',
+];
+
+/** `2026-09-15` → `15. září 2026`, the form the sources dialog prints. */
+export function czechDate(iso: string): string {
+  const [year, month, day] = iso.split('-').map(Number) as [number, number, number];
+  const name = CZECH_MONTHS[month - 1];
+  if (name === undefined || !Number.isInteger(day)) throw new Error(`not an ISO date: ${iso}`);
+  return `${day}. ${name} ${year}`;
+}
+
+/**
+ * The edition date in the sources dialog, restamped from the snapshot.
+ *
+ * It appears twice — as Czech prose a player reads, and as the ISO string
+ * stamped into the JSON export — and both were hardcoded, so both went on
+ * saying "7. září 2026" after the data had moved. Regenerating it here puts it
+ * under the same rule as the notices: one accept rewrites every document that
+ * makes a claim about the dataset, and `data:check` fails if one is left
+ * behind. It is the only file outside `data/` a refresh writes, which is the
+ * price of the dialog stating a date at all.
+ */
+export function regenerateEditionDate(text: string, fetchedAt: string): string {
+  const prose = /Datová edice <strong>[^<]*<\/strong>/;
+  const iso = /edition:'\d{4}-\d{2}-\d{2}'/;
+  for (const [pattern, what] of [[prose, 'the dialog date'], [iso, 'the export stamp']] as const) {
+    if (!pattern.test(text)) throw new Error(`src/app/dialogs/sources.ts: cannot find ${what}`);
+  }
+  return text
+    .replace(prose, `Datová edice <strong>${czechDate(fetchedAt)}</strong>`)
+    .replace(iso, `edition:'${fetchedAt}'`);
+}
+
 export const RETIRED_SOURCES: readonly string[] = [
   'worldometer',
   'countryinfo',

@@ -36,6 +36,25 @@ export interface PolygonChange {
   after: number;
 }
 
+/**
+ * A coordinate that moved without the polygon count changing.
+ *
+ * Counting rings is not enough to review a basemap. Natural Earth could
+ * re-generalize every border and still hand back 288 polygons, and the diff
+ * would say `+0` while `--accept` rewrote the whole file. The ten coordinates
+ * where v7's CPython `round()` broke a half-way tie the other way from
+ * `Math.round` are the live example: invisible to a count, and a silent rewrite
+ * of `data/build/map.json` if nobody looks.
+ */
+export interface CoordinateChange {
+  iso3: string;
+  /** Index of the ring within that country's polygons, then of the point. */
+  ring: number;
+  point: number;
+  before: readonly [number, number];
+  after: readonly [number, number];
+}
+
 export interface PopulationChange {
   code: string;
   name: string;
@@ -54,6 +73,10 @@ export interface DatasetDiff {
     before: number;
     after: number;
     changed: PolygonChange[];
+    /** Empty when the geometry is identical; capped, because a re-generalization moves thousands. */
+    coordinates: CoordinateChange[];
+    /** How many moved in total, however few are listed. */
+    coordinateCount: number;
   };
 }
 
@@ -98,10 +121,13 @@ export function diffCountries(before: readonly Country[], after: readonly Countr
 
   changed.sort((a, b) => a.code.localeCompare(b.code, 'en'));
   population.sort((a, b) => Math.abs(b.ratio) - Math.abs(a.ratio));
-  return { added, removed, changed, population, polygons: { before: 0, after: 0, changed: [] } };
+  return { added, removed, changed, population, polygons: { before: 0, after: 0, changed: [], coordinates: [], coordinateCount: 0 } };
 }
 
-/** Polygon counts per country code, which is the only comparable a basemap has. */
+/**
+ * What moved in the basemap: polygon counts per country, and then the
+ * coordinates themselves where the two sides still line up.
+ */
 export function diffPolygons(
   before: readonly MapPolygon[],
   after: readonly MapPolygon[],
@@ -120,8 +146,33 @@ export function diffPolygons(
     if (a !== b) changed.push({ iso3, before: a, after: b });
   }
   changed.sort((a, b) => a.iso3.localeCompare(b.iso3, 'en'));
-  return { before: before.length, after: after.length, changed };
+
+  // Geometry, where the two sides still line up ring for ring. Where they do
+  // not, the count diff above is the honest answer and pairing rings by index
+  // would invent movements that are really an insertion.
+  const coordinates: CoordinateChange[] = [];
+  let coordinateCount = 0;
+  if (before.length === after.length) {
+    for (const [i, ring] of before.entries()) {
+      const other = after[i];
+      if (other === undefined || other.iso3 !== ring.iso3 || other.points.length !== ring.points.length) continue;
+      for (const [j, point] of ring.points.entries()) {
+        const next = other.points[j];
+        if (next === undefined) continue;
+        if (Object.is(point[0], next[0]) && Object.is(point[1], next[1])) continue;
+        coordinateCount += 1;
+        if (coordinates.length < COORDINATE_SAMPLE) {
+          coordinates.push({ iso3: ring.iso3, ring: i, point: j, before: point, after: next });
+        }
+      }
+    }
+  }
+
+  return { before: before.length, after: after.length, changed, coordinates, coordinateCount };
 }
+
+/** Enough to diagnose a rounding tie; not so many that a re-generalization floods the report. */
+const COORDINATE_SAMPLE = 12;
 
 /**
  * A per-country population moving by more than a quarter is fatal.
@@ -220,9 +271,22 @@ export function renderPopulation(diff: DatasetDiff): string[] {
 }
 
 export function renderPolygons(diff: DatasetDiff): string[] {
-  const { before, after, changed } = diff.polygons;
+  const { before, after, changed, coordinates, coordinateCount } = diff.polygons;
   const lines = [`polygons: ${before} → ${after} (${after - before >= 0 ? '+' : ''}${after - before})`];
   for (const change of changed) lines.push(`  ${change.iso3}: ${change.before} → ${change.after}`);
+
+  if (coordinateCount === 0) {
+    lines.push('  geometry: identical, coordinate for coordinate');
+    return lines;
+  }
+  const at = (point: readonly [number, number]) => `${point[0]}, ${point[1]}`;
+  lines.push(`  geometry: ${coordinateCount} coordinates moved`);
+  for (const move of coordinates) {
+    lines.push(`    ${move.iso3} ring ${move.ring} point ${move.point}: ${at(move.before)} → ${at(move.after)}`);
+  }
+  if (coordinateCount > coordinates.length) {
+    lines.push(`    … and ${coordinateCount - coordinates.length} more`);
+  }
   return lines;
 }
 

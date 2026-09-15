@@ -70,6 +70,7 @@ import {
   isoToday,
   loadLock,
   localVersion,
+  regenerateEditionDate,
   regenerateNotices,
   regenerateSourcesJson,
   serializeLock,
@@ -327,6 +328,7 @@ export async function refresh(options: RefreshOptions = {}): Promise<RefreshResu
   ];
 
   const writes = plannedWrites(at, {
+    fetchedAt: today,
     snapshot,
     map,
     lock: nextLock(lock, pins, today),
@@ -408,6 +410,8 @@ export function nextLock(lock: SourceLock, pins: readonly FetchResult[], today: 
 }
 
 interface PlannedInput {
+  /** The date the snapshot records, which the dialog has to agree with. */
+  fetchedAt: string;
   snapshot: CountrySnapshot;
   map: MapSnapshot;
   lock: SourceLock;
@@ -433,6 +437,8 @@ function plannedWrites(at: ReturnType<typeof paths>, input: PlannedInput): Pendi
     { path: at.map, text: input.mapText },
     { path: at.sources, text: regenerateSourcesJson(readFileSync(at.sources, 'utf8'), lock, input.year) },
     { path: at.notices, text: regenerateNotices(readFileSync(at.notices, 'utf8'), lock, input.year) },
+    { path: at.thirdParty, text: regenerateNotices(readFileSync(at.thirdParty, 'utf8'), lock, input.year) },
+    { path: at.dialog, text: regenerateEditionDate(readFileSync(at.dialog, 'utf8'), input.fetchedAt) },
   ];
 }
 

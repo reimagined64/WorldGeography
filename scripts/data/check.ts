@@ -34,7 +34,7 @@ import {
   serializeMap,
 } from './apply.ts';
 import { loadLocaleBundle, loadOverrides, UNATTRIBUTED, type MapPolygon } from './merge.ts';
-import { findRetiredSources, loadLock, type SourceEntry } from './sources.ts';
+import { czechDate, findRetiredSources, loadLock, type SourceEntry } from './sources.ts';
 
 /** The world total the dataset has to land inside, in people. */
 export const POPULATION_BAND = { min: 7.5e9, max: 9.5e9 } as const;
@@ -345,11 +345,19 @@ function provenance(at: ReturnType<typeof paths>, countries: readonly Country[])
   const results: CheckResult[] = [];
   const noticesText = readFileSync(at.notices, 'utf8');
   const sourcesText = readFileSync(at.sources, 'utf8');
+  const thirdPartyText = readFileSync(at.thirdParty, 'utf8');
   const files = [
     { path: 'data/embedded-notices.txt', text: noticesText },
     { path: 'data/build/sources.json', text: sourcesText },
+    { path: 'THIRD_PARTY_NOTICES.txt', text: thirdPartyText },
   ];
   const kind = datasetProvenance(countries);
+
+  // The two notice documents are inlined and served separately, so a reader can
+  // meet either one alone. Asserting the provenance blocks match is cheaper
+  // than asserting the files match — they legitimately differ elsewhere, the
+  // embedded copy carrying the MIT header and the full licence texts.
+  results.push(sameProvenanceBlocks(noticesText, thirdPartyText), editionDate(at));
 
   if (kind === 'mixed') {
     results.push(
@@ -440,6 +448,74 @@ function provenance(at: ReturnType<typeof paths>, countries: readonly Country[])
       : bad('ODbL text ships', 'licenses/ODbL-1.0.txt is missing — the share-alike obligation needs the text'),
   );
   return results;
+}
+
+/**
+ * The edition date the sources dialog shows a player, against the date the
+ * snapshot was actually fetched.
+ *
+ * It is written twice in `sources.ts` — once as Czech prose in the dialog, once
+ * as the ISO string stamped into the JSON export — and both were hardcoded, so
+ * both said "7. září 2026" for as long as nobody remembered them. A date is the
+ * one claim on that page a reader has no way to check, which is the argument
+ * for checking it here.
+ */
+function editionDate(at: ReturnType<typeof paths>): CheckResult {
+  const name = 'the edition date matches the snapshot';
+  try {
+    const fetchedAt = loadCountrySnapshot(at.rawCountries).fetchedAt;
+    const dialog = readFileSync(join(at.root, 'src/app/dialogs/sources.ts'), 'utf8');
+    const czech = czechDate(fetchedAt);
+
+    const wrong: string[] = [];
+    if (!dialog.includes(`edition:'${fetchedAt}'`)) wrong.push(`the JSON export is not stamped ${fetchedAt}`);
+    if (!dialog.includes(`<strong>${czech}</strong>`)) wrong.push(`the dialog does not read "${czech}"`);
+    return wrong.length === 0
+      ? ok(name, `both say ${fetchedAt} — "${czech}" in the dialog`)
+      : bad(name, `data/raw/countries.json was fetched ${fetchedAt}, but ${wrong.join(' and ')}.`);
+  } catch (error) {
+    return bad(name, error instanceof Error ? error.message : String(error));
+  }
+}
+
+/** The provenance headings both notice documents carry, and must agree on. */
+const SHARED_NOTICE_BLOCKS: readonly string[] = [
+  'NATURAL EARTH',
+  'POPULATION FACTS',
+  'COUNTRY REFERENCE FACTS',
+];
+
+/** The lines under `heading`, up to the next all-caps heading or the end. */
+function noticeBlock(text: string, heading: string): string | null {
+  const lines = text.split('\n');
+  const at = lines.indexOf(heading);
+  if (at < 0) return null;
+  const body: string[] = [];
+  for (let i = at + 1; i < lines.length; i += 1) {
+    const line = lines[i] ?? '';
+    if (/^[A-Z][A-Z0-9 /().-]*$/.test(line) && line.trim() !== '' && body.length > 0) break;
+    body.push(line);
+  }
+  return body.join('\n').trim();
+}
+
+function sameProvenanceBlocks(notices: string, thirdParty: string): CheckResult {
+  const name = 'both notice documents agree';
+  const disagree: string[] = [];
+  for (const heading of SHARED_NOTICE_BLOCKS) {
+    const a = noticeBlock(notices, heading);
+    const b = noticeBlock(thirdParty, heading);
+    if (a === null) disagree.push(`${heading} is missing from data/embedded-notices.txt`);
+    else if (b === null) disagree.push(`${heading} is missing from THIRD_PARTY_NOTICES.txt`);
+    else if (a !== b) disagree.push(`${heading} differs between the two`);
+  }
+  return disagree.length === 0
+    ? ok(name, `${SHARED_NOTICE_BLOCKS.length} provenance blocks are identical in both`)
+    : bad(
+        name,
+        `${disagree.join('; ')}. The game inlines one and the deploy serves the other, so a reader ` +
+          `can meet either alone; both are rewritten by an accepted refresh.`,
+      );
 }
 
 /**

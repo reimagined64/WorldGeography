@@ -200,10 +200,23 @@ describe('transcription from prepare_data.py', () => {
     expect(cs.capitals['N’Djamena']).toBe('N’Djamena');
   });
 
-  it('carries notes — 22 entries', () => {
+  it('carries notes — 22 entries, one of them deliberately rewritten', () => {
     const original = table('notes');
+    const notes = overrideJson('notes.cs.json')['notes'] as unknown as Record<string, string>;
     expect(Object.keys(original)).toHaveLength(22);
-    expect(overrideJson('notes.cs.json')['notes']).toEqual(original);
+    expect(Object.keys(notes).sort()).toEqual(Object.keys(original).sort());
+
+    // Every note is the script's, except Togo's. Its note named the Worldometer
+    // table the number was transcribed from, and after the WPP substitution the
+    // number is read from the UN CSV directly — so the note said something
+    // about the dataset that had stopped being true.
+    for (const [code, text] of Object.entries(original)) {
+      if (code === 'TG') continue;
+      expect(notes[code]).toBe(text);
+    }
+    expect(notes['TG']).not.toBe((original as unknown as Record<string, string>)['TG']);
+    expect(notes['TG']).toContain('OSN WPP 2024');
+    expect(notes['TG']?.toLowerCase()).not.toContain('worldometer');
   });
 
   it('carries lang_overrides — the script\'s 85 entries, in the order a player reads', () => {
@@ -415,16 +428,30 @@ describe('precedence', () => {
     expect(leaks.map((country) => country.code)).toEqual([]);
   });
 
-  it('keeps the frozen CLDR table a superset of what v7 shipped', () => {
+  it('carries the frozen CLDR table through into every shipped exclusion list', () => {
     // Regression guard for the loss this block exists to repair: `exclude` is
-    // not derivable from anything the fetchers read, so a refresh that dropped
-    // it would shrink 144 exclusion lists silently.
+    // not derivable from anything the fetchers read, so a refresh that stopped
+    // unioning it in would shrink 144 exclusion lists silently.
+    //
+    // The containment runs frozen ⊆ shipped, and only that way. The shipped
+    // list is the union of the frozen table, the country's own languages and
+    // whatever the fetch reports, so it is *allowed* to be wider — twelve
+    // countries are, after the WPP refresh added Guaraní to Argentina and Sámi
+    // to Norway. Asserting the reverse would forbid exactly the widening the
+    // merge exists to perform, which is what this test did until it met one.
     const frozen = overrides.languages.exclude;
     expect(Object.keys(frozen)).toHaveLength(baseline.length);
-    const shrunk = baseline.filter(
-      (country) => !country.excludeLanguages.every((tag) => frozen[country.code]?.includes(tag)),
+    const dropped = baseline.filter((country) => {
+      const shipped = new Set<string>(country.excludeLanguages as readonly string[]);
+      return !(frozen[country.code] ?? []).every((tag) => shipped.has(tag));
+    });
+    expect(dropped.map((country) => country.code)).toEqual([]);
+
+    // …and the widening is real, so the direction above is not vacuous.
+    const wider = baseline.filter(
+      (country) => country.excludeLanguages.length > (frozen[country.code] ?? []).length,
     );
-    expect(shrunk.map((country) => country.code)).toEqual([]);
+    expect(wider.length).toBeGreaterThan(0);
   });
 
   it('falls back to missingUpstream only where the fetch has nothing', () => {

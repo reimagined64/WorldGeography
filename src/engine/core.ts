@@ -75,6 +75,25 @@ export function currencyLabel(currency: { code: CurrencyCode }): string {
   if(!label)throw new Error(`Chybí obecný název měny: ${currency.code}`);
   return label;
 }
+/**
+ * How a population number's provenance reads, from the tag the dataset carries.
+ *
+ * The engine used to write the phrase and the `source` tag as literals, so the
+ * game kept telling players the numbers came from a Worldometer table for as
+ * long as nobody edited `core.ts` — regardless of what `data/build/` actually
+ * held. `populationSource` was in the dataset and in `types.ts` with no reader
+ * at all. Reading it here is what lets a `data:refresh --accept` change the
+ * provenance the player is shown by changing the data, which is the only place
+ * the answer is known.
+ *
+ * Both tags are live and have to stay live: a `wg.run.v7` saved by an older
+ * build carries the old one inside its stored questions.
+ */
+export function populationProvenance(source: string): string {
+  if(source.startsWith('un-wpp-'))return 'OSN WPP 2024, střední varianta';
+  if(source.startsWith('worldometer-'))return 'OSN WPP 2024, tabulka Worldometer';
+  return 'OSN WPP 2024';
+}
 function candidateCountries(country: Country, all: Country[], difficulty: Difficulty, random: () => number): Country[] {
   const others=all.filter(c=>c.code!==country.code);
   const nearby=[...others].sort((a,b)=>distance(country,a)-distance(country,b));
@@ -130,8 +149,8 @@ export function makeQuestion(country: Country, type: QuestionKind, all: Country[
     // One distractor below and one above; randomize the correct position afterwards.
     const low=factors[Math.floor(random()*2)]!,high=factors[2+Math.floor(random()*2)]!;
     wrong=[populationLabel(Math.max(20,country.population*low)),populationLabel(country.population*high)];
-    explanation=`Projekce ${country.populationYear}: ${country.population.toLocaleString('cs-CZ')} obyvatel (zaokrouhleně ${answer}). OSN WPP 2024, tabulka Worldometer; nejde o dnešní přesné sčítání. ${['CZ','FR','UA','TG'].includes(country.code)?country.note:''}`;
-    source='worldometer-un-2026';
+    explanation=`Projekce ${country.populationYear}: ${country.population.toLocaleString('cs-CZ')} obyvatel (zaokrouhleně ${answer}). ${populationProvenance(country.populationSource)}; nejde o dnešní přesné sčítání. ${['CZ','FR','UA','TG'].includes(country.code)?country.note:''}`;
+    source=country.populationSource;
   }
   wrong=uniqueWrong(wrong,answer);
   if(wrong.length<2)throw new Error(`Nedostatek různých odpovědí: ${country.code}/${type}`);

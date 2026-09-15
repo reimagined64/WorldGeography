@@ -70,6 +70,31 @@ export function coords(c: Coordinates): string {
   return `${Math.abs(c.lat).toFixed(1)}° ${c.lat>=0?'N':'S'} / ${Math.abs(c.lon).toFixed(1)}° ${c.lon>=0?'E':'W'}`;
 }
 
+/**
+ * The "where this number came from" link under a population answer.
+ *
+ * Keyed off the question's own `source`, which `makeQuestion` now copies from
+ * the country's `populationSource`, so the link a player follows is the source
+ * the number in front of them was actually read from. The old build hard-coded
+ * the Worldometer URL and showed it for every population question forever;
+ * a `wg.run.v7` saved by that build still carries the old tag, which is why
+ * both are handled rather than only the current one.
+ */
+export function populationSourceLink(source: string): string {
+  const link = (href: string, label: string): string =>
+    `<a href="${href}" target="_blank" rel="noopener noreferrer">${esc(label)} ↗</a>`;
+  if (source.startsWith('un-wpp-')) {
+    return link('https://population.un.org/wpp/', 'Populační zdroj: OSN, World Population Prospects 2024');
+  }
+  if (source.startsWith('worldometer-')) {
+    return link(
+      'https://www.worldometers.info/world-population/population-by-country/',
+      'Populační zdroj: Worldometer / OSN',
+    );
+  }
+  return '';
+}
+
 export function regionOptions(value: string): string {
   return `<option value="all"${value==='all'?' selected':''}>Celý svět</option>`+Object.entries(Core.REGIONS).map(([key,label])=>`<option value="${key}"${value===key?' selected':''}>${label}</option>`).join('');
 }

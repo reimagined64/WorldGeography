@@ -51,6 +51,17 @@ export const paths = (root: string = REPO_ROOT) => ({
   map: join(root, 'data/build/map.json'),
   sources: join(root, 'data/build/sources.json'),
   notices: join(root, 'data/embedded-notices.txt'),
+  // The same provenance blocks, in the document the deploy copies to `dist/`.
+  // Two files because they have different jobs — one is inlined into the game,
+  // one is served beside it — and they are regenerated together because a
+  // provenance that is right in one and stale in the other is worse than
+  // either. U9 updated only the embedded copy, and this one kept crediting
+  // CountryInfo for a month.
+  thirdParty: join(root, 'THIRD_PARTY_NOTICES.txt'),
+  // The only file outside `data/` a refresh writes: the sources dialog states
+  // the edition date, and a date is the one claim on that page a player has no
+  // way to check.
+  dialog: join(root, 'src/app/dialogs/sources.ts'),
   flags: join(root, 'data/build/flags.json'),
 });
 

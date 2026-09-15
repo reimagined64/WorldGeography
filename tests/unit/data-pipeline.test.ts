@@ -51,8 +51,6 @@ import { refresh } from '../../scripts/data/refresh.ts';
 import {
   fetchPinned,
   loadLock,
-  regenerateNotices,
-  regenerateSourcesJson,
   REMOTE_SOURCES,
   serializeLock,
   sha256,
@@ -87,6 +85,10 @@ interface Fixture {
  * The flag PNGs are created empty rather than copied: `data:check` asserts that
  * `assets/flags/<code>.png` *exists*, and 195 real images would put 1.5 MB
  * through the filesystem for every scenario that writes.
+ *
+ * `THIRD_PARTY_NOTICES.txt` and `src/app/dialogs/sources.ts` are here because
+ * an accept rewrites the first and `data:check` reads the edition date out of
+ * the second. Neither is data, and both are claims about the data.
  */
 function fixture(): Fixture {
   const root = mkdtempSync(join(tmpdir(), 'wg-data-'));
@@ -99,17 +101,33 @@ function fixture(): Fixture {
   mkdirSync(join(root, 'assets/flags'), { recursive: true });
   for (const country of baseline) writeFileSync(join(root, 'assets/flags', `${country.code}.png`), '');
   copyFileSync(at('data/embedded-notices.txt'), join(root, 'data/embedded-notices.txt'));
+  copyFileSync(at('THIRD_PARTY_NOTICES.txt'), join(root, 'THIRD_PARTY_NOTICES.txt'));
+  mkdirSync(join(root, 'src/app/dialogs'), { recursive: true });
+  copyFileSync(at('src/app/dialogs/sources.ts'), join(root, 'src/app/dialogs/sources.ts'));
 
-  // The copied notices still credit Worldometer, CountryInfo, Babel and the
-  // pyogrio fixture, because the copied dataset is still the one those produced
-  // — `data/embedded-notices.txt` is byte-identical to the frozen v7 fixture
-  // today, and stops being so on the same commit that accepts a refresh. That
-  // is what gives the provenance rewrite something real to rewrite.
   return {
     root,
     read: (relative) => readFileSync(join(root, relative), 'utf8'),
     write: (relative, text) => writeFileSync(join(root, relative), text),
   };
+}
+
+/** Re-stamps every row's provenance tag, which is what an accept does. */
+function stampSource(place: Fixture, source: string, every = true): void {
+  place.write(
+    'data/build/countries.json',
+    serializeCountries(
+      baseline.map((country, i) => (every || i % 2 === 0 ? { ...country, populationSource: source } : country)),
+    ),
+  );
+}
+
+/** The frozen v7 notices, which credit Worldometer, CountryInfo, Babel and pyogrio. */
+function seedLegacyNotices(place: Fixture): void {
+  const v7 = readFileSync(at('tests/fixtures/baseline/embedded-notices.txt'), 'utf8');
+  place.write('data/embedded-notices.txt', v7);
+  place.write('THIRD_PARTY_NOTICES.txt', v7);
+  place.write('data/build/sources.json', readFileSync(at('tests/fixtures/baseline/data/sources.json'), 'utf8'));
 }
 
 // ------------------------------------------------------- synthetic upstream
@@ -546,17 +564,14 @@ describe('the guards, shown failing', () => {
   });
 
   it('fails when the notices describe a pipeline that did not produce the data', () => {
-    // The U9 defect, reproduced from the accept path rather than pasted: the
-    // provenance regen runs, `countries.json` is left as the archived script
-    // built it, and the shipped game then credits a sha256-pinned download and
-    // an ODbL derivative database for numbers neither one ever touched.
+    // The U9 defect: the provenance regen runs, `countries.json` is left as the
+    // archived script built it, and the shipped game then credits a
+    // sha256-pinned download and an ODbL derivative database for numbers
+    // neither one ever touched. Written by stamping the dataset rather than by
+    // rewriting the notices, so it keeps testing this whichever pipeline last
+    // produced the committed tree.
     const place = fixture();
-    const lock = loadLock(join(place.root, 'data/raw/sources.lock.json'));
-    place.write('data/embedded-notices.txt', regenerateNotices(place.read('data/embedded-notices.txt'), lock, 2026));
-    place.write(
-      'data/build/sources.json',
-      regenerateSourcesJson(place.read('data/build/sources.json'), lock, 2026),
-    );
+    stampSource(place, 'worldometer-un-2026');
 
     const result = runChecks(place.root).find((check) => check.name === 'provenance matches the dataset');
     expect(result?.ok).toBe(false);
@@ -571,8 +586,7 @@ describe('the guards, shown failing', () => {
     // notices behind. Symmetry is the point — a check that only fires one way
     // would let half of any future substitution through.
     const place = fixture();
-    const moved = baseline.map((country) => ({ ...country, populationSource: 'un-wpp-2024-2026' }));
-    place.write('data/build/countries.json', serializeCountries(moved));
+    seedLegacyNotices(place);
 
     const results = runChecks(place.root);
     expect(failures(results)).toContain('no retired sources credited');
@@ -581,10 +595,7 @@ describe('the guards, shown failing', () => {
 
   it('fails on a dataset that is half one pipeline and half the other', () => {
     const place = fixture();
-    const half = baseline.map((country, i) =>
-      i % 2 === 0 ? { ...country, populationSource: 'un-wpp-2024-2026' } : country,
-    );
-    place.write('data/build/countries.json', serializeCountries(half));
+    stampSource(place, 'worldometer-un-2026', false);
 
     const result = runChecks(place.root).find((check) => check.name === 'provenance matches the dataset');
     expect(result?.ok).toBe(false);
@@ -595,20 +606,34 @@ describe('the guards, shown failing', () => {
     // Only in pipeline mode: the share-alike obligation arrives with the data
     // that is derived from `world-countries`, not before it.
     const place = fixture();
-    const lock = loadLock(join(place.root, 'data/raw/sources.lock.json'));
-    place.write('data/embedded-notices.txt', regenerateNotices(place.read('data/embedded-notices.txt'), lock, 2026));
-    place.write(
-      'data/build/sources.json',
-      regenerateSourcesJson(place.read('data/build/sources.json'), lock, 2026),
-    );
-    place.write(
-      'data/build/countries.json',
-      serializeCountries(baseline.map((country) => ({ ...country, populationSource: 'un-wpp-2024-2026' }))),
-    );
     expect(failures(runChecks(place.root))).not.toContain('ODbL text ships');
 
     rmSync(join(place.root, 'licenses/ODbL-1.0.txt'));
     expect(failures(runChecks(place.root))).toContain('ODbL text ships');
+
+    // …and it is not asked of the legacy dataset, which is not derived from it.
+    stampSource(place, 'worldometer-un-2026');
+    seedLegacyNotices(place);
+    expect(failures(runChecks(place.root))).not.toContain('ODbL text ships');
+  });
+
+  it('rewrites both notice documents on an accept, not only the embedded one', async () => {
+    // THIRD_PARTY_NOTICES.txt is the copy the deploy serves beside the game.
+    // U9 updated only `data/embedded-notices.txt`, and this one kept crediting
+    // CountryInfo for a dataset that had moved on.
+    const place = fixture();
+    seedLegacyNotices(place);
+    for (const file of ['data/embedded-notices.txt', 'THIRD_PARTY_NOTICES.txt']) {
+      expect(place.read(file)).toContain('CountryInfo');
+    }
+
+    await run(place, pin(place), { accept: true });
+
+    for (const file of ['data/embedded-notices.txt', 'THIRD_PARTY_NOTICES.txt']) {
+      expect(place.read(file).toLowerCase()).not.toContain('countryinfo');
+      expect(place.read(file)).toContain(loadLock(join(place.root, 'data/raw/sources.lock.json')).remote['un-wpp']!.sha256);
+    }
+    expect(failures(runChecks(place.root))).toEqual([]);
   });
 });
 
@@ -626,13 +651,17 @@ describe('data:refresh --accept', () => {
 
   it('writes the whole set, and the result passes data:check', async () => {
     const place = fixture();
-    const upstream = pin(place);
+    // One population moved, because the synthetic upstream is built from the
+    // committed snapshot: an accept over an identical fetch writes the same
+    // bytes back and `not.toBe(before)` would be asserting nothing.
+    const upstream = pin(place, wppCsv(2026, { CZ: 11_000_000 }));
     const before = place.read('data/build/countries.json');
 
     const result = await run(place, upstream, { accept: true });
 
     expect(result.accepted).toBe(true);
     expect(result.writes.map((write) => write.path.slice(place.root.length + 1)).sort()).toEqual([
+      'THIRD_PARTY_NOTICES.txt',
       'data/build/countries.json',
       'data/build/map.json',
       'data/build/sources.json',
@@ -640,6 +669,7 @@ describe('data:refresh --accept', () => {
       'data/raw/countries.json',
       'data/raw/map.json',
       'data/raw/sources.lock.json',
+      'src/app/dialogs/sources.ts',
     ]);
     expect(place.read('data/build/countries.json')).not.toBe(before);
     // No leftovers from the staging step.
@@ -651,6 +681,7 @@ describe('data:refresh --accept', () => {
 
   it('stops crediting Worldometer, CountryInfo, Babel and pyogrio', async () => {
     const place = fixture();
+    seedLegacyNotices(place);
     for (const needle of ['Worldometer', 'CountryInfo', 'Babel', 'pyogrio']) {
       expect(place.read('data/embedded-notices.txt')).toContain(needle);
     }

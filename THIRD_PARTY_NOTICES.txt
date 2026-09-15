@@ -4,28 +4,41 @@ New implementation: see LICENSE (MIT).
 The standalone HTML embeds these notices so attribution travels with the game.
 
 NATURAL EARTH
-Generalized 1:110m geometry, public domain. Supplied here as extracted coordinate
-facts from the Natural Earth fixture distributed with pyogrio. No pyogrio or
-GeoPandas implementation is embedded in the browser game.
-https://www.naturalearthdata.com/about/terms-of-use/
+Generalized 1:110m Admin 0 country geometry, public domain, release v5.1.2.
+Read from https://raw.githubusercontent.com/nvkelso/natural-earth-vector/v5.1.2/geojson/ne_110m_admin_0_countries.geojson
+pinned by sha256 6866c877d39cba9c357620878839b336d569f8c662d3cfab4cb1dbe2d39c977f (838726 bytes), retrieved 2026-09-10.
+Coordinates are rounded to three decimals and stored as plain arrays; no GIS
+library is embedded in the browser game.
 The basemap is illustrative, not an assertion of current legal boundaries.
 
 POPULATION FACTS
 United Nations, Department of Economic and Social Affairs, Population Division.
-World Population Prospects 2024. Game reference year: 2026.
-Direct numerical source: Worldometer, Population by Country (2026).
-https://population.un.org/wpp/
-https://www.worldometers.info/world-population/population-by-country/
+World Population Prospects 2024, medium variant. Game reference year: 2026.
+Read from https://population.un.org/wpp/assets/Excel%20Files/1_Indicator%20(Standard)/CSV_FILES/WPP2024_Demographic_Indicators_Medium.csv.gz
+pinned by sha256 286ac36bb1415e2e1ade03acfef0a29f0e4c087e2f78e38c48f50c5df89082bc (16557272 bytes), retrieved 2026-09-10.
+Column TPopulation1July is published in thousands and is multiplied by 1000 here.
 Selected population numbers are numerical facts, not reproduced article text,
 web design, charts, logos, or a live feed. Attribution does not imply endorsement.
 Do not treat these projections as current national census counts.
 
 COUNTRY REFERENCE FACTS
-CountryInfo 0.1.2 supplied initial country capitals and representative positions.
-Many entries were corrected and Czech labels added. Its historical population
-figures are NOT used. CountryInfo describes its reference sources as Wikipedia,
-REST Countries, and GeoNames. ISO codes were matched with pycountry 24.6.1;
-pycountry implementation is not redistributed. See data/sources.json.
+world-countries 5.1.0 supplies ISO 3166 codes, English capital names,
+currencies, languages, continent and representative positions. Its data is licensed
+under the Open Database License (ODbL) v1.0 — see the ODbL notice below.
+Every value it supplies can be overridden by hand in data/overrides/, and many are;
+the overrides always win. See data/build/sources.json for the editorial corrections.
+
+OPEN DATABASE LICENSE (ODbL 1.0)
+data/build/countries.json is a Derivative Database of world-countries
+(https://github.com/mledoze/countries), whose data is made available under the
+Open Data Commons Open Database License v1.0. It is therefore offered under the
+same licence: you are free to copy, distribute, adapt and build upon it, provided
+you attribute this project and world-countries, and share any adapted database
+under ODbL. Individual contents of the database are additionally available under
+the Database Contents License. The full licence text ships beside this file as
+licenses/ODbL-1.0.txt and is served next to the game.
+https://opendatacommons.org/licenses/odbl/1-0/
+This licence covers the country database only. The program itself is MIT.
 
 ORIGINAL GAME
 Inspired by the quiz mechanics of World Geography for Commodore 64 (Bobco).
@@ -34,33 +47,11 @@ program, graphics, recordings, or music. Names identify the historical work;
 this is not an endorsement or an assignment of third-party trademark rights.
 The original program is NOT covered by this project's MIT license.
 
-COUNTRYINFO NOTICE
-MIT License
-
-Copyright (c) 2018 Porimol Chandro
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
-
-
-UNICODE CLDR / BABEL REFERENCE DATA
-Czech labels, currency intervals and selected language metadata were obtained
-through Babel 2.18.0. No Babel executable code is embedded in the game.
+UNICODE CLDR REFERENCE DATA
+Czech and English names of countries, currencies and languages come from Unicode
+CLDR through the ICU library compiled into Node.js, by way of Intl.DisplayNames:
+icu 78.2 / cldr 48.0 / node 24.14.0, verified 2026-09-15.
+No CLDR or ICU executable code is embedded in the game.
 
 UNICODE LICENSE V3
 

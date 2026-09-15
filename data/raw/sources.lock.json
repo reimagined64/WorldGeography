@@ -17,11 +17,11 @@
   "local": {
     "world-countries": {
       "version": "5.1.0",
-      "accessed": "2026-09-10"
+      "accessed": "2026-09-15"
     },
     "icu-cldr": {
       "version": "icu 78.2 / cldr 48.0 / node 24.14.0",
-      "accessed": "2026-09-10"
+      "accessed": "2026-09-15"
     }
   }
 }
