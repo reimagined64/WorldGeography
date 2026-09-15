@@ -267,13 +267,27 @@ describe('transcription from prepare_data.py', () => {
     expect(cs.names).toEqual(original);
   });
 
-  it('carries coords — 16 positions, as { lat, lon } rather than a bare pair', () => {
+  it("carries coords — the script's 16 positions, as { lat, lon } rather than a bare pair", () => {
     const original = table('coords') as unknown as Record<string, [number, number]>;
     expect(Object.keys(original)).toHaveLength(16);
-    const asPositions = Object.fromEntries(
-      Object.entries(original).map(([code, [lat, lon]]) => [code, { lat, lon }]),
-    );
-    expect(overrides.coords.overrides).toEqual(asPositions);
+    for (const [code, [lat, lon]] of Object.entries(original)) {
+      expect(overrides.coords.overrides[code]).toEqual({ lat, lon });
+    }
+  });
+
+  it('holds five more positions against upstream, and deliberately not Serbia', () => {
+    // Upstream has a position for all six now, and is right about exactly one
+    // of them. The five here are held at the shipped value; Serbia is absent so
+    // the fetch wins, because 44.13, 16.43 is a point in Bosnia and Herzegovina
+    // that the atlas prints as Serbia's own `44.1° N / 16.4° E`.
+    const byCode = new Map(baseline.map((country) => [country.code as string, country]));
+    const added = Object.keys(overrides.coords.overrides).filter((code) => !(code in table('coords')));
+    expect(added).toEqual(['AD', 'IL', 'ME', 'MM', 'VA']);
+    for (const code of added) {
+      const country = byCode.get(code);
+      expect(overrides.coords.overrides[code]).toEqual({ lat: country?.lat, lon: country?.lon });
+    }
+    expect(overrides.coords.overrides['RS']).toBeUndefined();
   });
 
   it('carries extra — the 5 records upstream has none of, split across the files that own each field', () => {

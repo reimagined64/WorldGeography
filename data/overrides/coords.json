@@ -1,11 +1,15 @@
 {
-  "why": "Where the globe marker for a country goes. The marker denotes the country, not its capital, so `overrides` is for a position the fetcher places badly: the centroid of a country with distant overseas territory, or a small island state the fetcher rounds to the wrong sea. `missingUpstream` supplies a position for a country the fetcher has no record of. Degrees, positive north and positive east.",
+  "why": "Where the globe marker for a country goes, and the position printed beside it in the atlas and during play. The marker denotes the country, not its capital, so `overrides` is for a position the fetcher places badly: the centroid of a country with distant overseas territory, a small island state the fetcher rounds to the wrong sea, or a point that lands in the neighbouring country. Five entries are the latter — upstream puts Israel inside the polygon this game draws as Palestine, and moves Andorra, Montenegro, Myanmar and the Vatican further from their own centres — and each is held at the reviewed value. Serbia is the one place upstream is right and the shipped value was wrong, so it is deliberately not pinned: 44.13, 16.43 is in Bosnia and Herzegovina. Four codes appear in both blocks; `overrides` is what decides, and `missingUpstream` is still the answer if upstream ever drops the country again. `missingUpstream` supplies a position for a country the fetcher has no record of. Degrees, positive north and positive east.",
   "overrides": {
+    "AD": { "lat": 42.54, "lon": 1.58 },
     "BH": { "lat": 26.05, "lon": 50.55 },
     "FM": { "lat": 6.9, "lon": 158.2 },
     "FR": { "lat": 46.7, "lon": 2.4 },
+    "IL": { "lat": 31.5, "lon": 34.75 },
     "KI": { "lat": 1.45, "lon": 173 },
+    "ME": { "lat": 42.7, "lon": 19.3 },
     "MH": { "lat": 7.1, "lon": 171.2 },
+    "MM": { "lat": 21, "lon": 96 },
     "MT": { "lat": 35.9, "lon": 14.45 },
     "NO": { "lat": 62, "lon": 10 },
     "NR": { "lat": -0.52, "lon": 166.94 },
@@ -16,6 +20,7 @@
     "TO": { "lat": -21.15, "lon": -175.2 },
     "TV": { "lat": -8.5, "lon": 179.2 },
     "US": { "lat": 39, "lon": -98 },
+    "VA": { "lat": 41.9029, "lon": 12.4534 },
     "WS": { "lat": -13.76, "lon": -172.1 }
   },
   "missingUpstream": {
