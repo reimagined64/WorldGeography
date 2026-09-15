@@ -128,6 +128,28 @@ const SOUND_BUTTON_EXCEPTIONS: readonly { readonly path: string; readonly proper
   { path: SOUND_BUTTON_PATH, property: 'transform-origin' },
   { path: 'div.header-actions', property: 'width' },
   { path: 'div.header-actions', property: 'transform-origin' },
+  /*
+   * U11 adds a third control to the header, and the frozen sheet has never
+   * heard of it: every property on `#language` and on the two spans inside it
+   * differs, because the v7 stylesheet styles neither `.language-button` nor
+   * `.visually-hidden`. `'*'` says so once rather than listing forty
+   * properties, and it is scoped to the subtree of the new control — anything
+   * outside it still has to resolve identically under both sheets.
+   */
+  { path: 'button#language.icon-button.language-button', property: '*' },
+  /*
+   * …and the header row redistributes around it. Under the frozen sheet the
+   * switcher's accessible name is *visible* — v7 has no `.visually-hidden` —
+   * so the button measures some eighty pixels instead of one, `.header-actions`
+   * grows, and the flex row takes the difference out of the navigation. The
+   * split sheet is the correct rendering here and the frozen one is the
+   * counterfactual; what is being declared is that the difference stops at the
+   * three boxes the header row is made of.
+   */
+  { path: 'header.header>nav', property: 'width' },
+  { path: 'header.header>nav', property: 'transform-origin' },
+  { path: 'button#nav-help.nav-button', property: 'width' },
+  { path: 'button#nav-help.nav-button', property: 'transform-origin' },
 ];
 
 /* ------------------------------------------------------------------ *
@@ -585,9 +607,10 @@ function diffGroup(where: string, before: Record<string, Record<string, unknown>
   return differences;
 }
 
-/** True for the one declared exception, and only where it was declared. */
+/** True for a declared exception, and only where it was declared. */
 function isDeclaredException(difference: string): boolean {
-  return SOUND_BUTTON_EXCEPTIONS.some(({ path, property }) => difference.includes(`${path} ${property}: `));
+  return SOUND_BUTTON_EXCEPTIONS.some(({ path, property }) =>
+    property === '*' ? difference.includes(path) : difference.includes(`${path} ${property}: `));
 }
 
 /* ------------------------------------------------------------------ *
@@ -699,9 +722,18 @@ test.describe('the split stylesheet', () => {
     const mobile = selectorInventory(parseStylesheet(readFileSync(join(REPO_ROOT, MOBILE_SHEET), 'utf8')));
     const known = new Set([...owners.keys(), ...mobile]);
 
+    // U11 is the first unit to add a selector the original never had. They are
+    // listed rather than pattern-matched for the same reason
+    // `DECLARED_STYLE_CHANGES` is: the point of this assertion is that the
+    // split is a *split*, and a new selector has to be a decision somebody
+    // wrote down.
+    const ADDED_BY_U11 = ['.language-button', '.icon-button:disabled', '.icon-button:disabled:hover', '.visually-hidden'];
+
     const missing = original.filter((selector) => !known.has(selector));
     const shared = [...owners.entries()].filter(([, files]) => files.length > 1);
-    const invented = [...known].filter((selector) => !original.includes(selector));
+    const invented = [...known].filter(
+      (selector) => !original.includes(selector) && !ADDED_BY_U11.includes(selector),
+    );
 
     expect(missing, `selectors lost in the split: ${missing.join(', ')}`).toEqual([]);
     expect(invented, `selectors the original never had: ${invented.join(', ')}`).toEqual([]);

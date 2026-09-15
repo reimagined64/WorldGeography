@@ -109,6 +109,13 @@
   .sound-button{min-width:32px}
   .sound-label{display:none}
   .mixer-button{width:25px!important}
+  /*
+   * No width here: `.icon-button` above already gives 33px at this breakpoint,
+   * which clears the 32px hit area on its own. Only the type has to shrink, and
+   * no `!important` is needed — unlike `.mixer-button`, this rule is later in
+   * the same sheet and wins on order.
+   */
+  .language-button{font-size:10px}
   .game-active .world-heading h1{font-size:29px}
   .game-active .score-chips{margin-top:10px}
   .game-active .score-chip{padding:9px 10px}
@@ -149,6 +156,7 @@
 }
 @media(max-width:390px){
   .mixer-button{width:21px!important}
+  .language-button{width:28px;font-size:9px}
   .header{gap:8px}
   .timing-panel{gap:3px 8px}
   .reward-readout small{font-size:9px}

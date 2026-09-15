@@ -136,7 +136,8 @@ export async function renderThemes(page: Page): Promise<ThemeDigest[]> {
       floorAmplitude: number;
     }): Promise<ThemeDigest[]> => {
       interface Score {
-        name: string;
+        /** U11: the catalog key of the name, resolved through `wgT` below. */
+        nameKey: string;
         lead: number[];
       }
       interface AudioInstance {
@@ -155,6 +156,7 @@ export async function renderThemes(page: Page): Promise<ThemeDigest[]> {
         QUESTION_SCORES: Score[];
       };
       const GeoAudio = (window as unknown as { GeoAudio: AudioConstructor }).GeoAudio;
+      const t = (window as unknown as { wgT: (key: string) => string }).wgT;
 
       const fft = (re: Float64Array, im: Float64Array): void => {
         const n = re.length;
@@ -276,7 +278,7 @@ export async function renderThemes(page: Page): Promise<ThemeDigest[]> {
 
         digests.push({
           index,
-          name: score.name,
+          name: t(score.nameKey),
           leadLength: score.lead.length,
           stepSeconds: beat,
           durationSeconds: round(duration, 9),

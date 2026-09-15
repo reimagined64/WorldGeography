@@ -53,7 +53,12 @@ async function audioGlobalScript(): Promise<string> {
     absWorkingDir: REPO_ROOT,
     stdin: {
       contents: "import { GeoAudio } from './src/audio/audio.ts';\n"
-        + "(window as unknown as Record<string, unknown>)['GeoAudio'] = GeoAudio;\n",
+        + "import { t } from './src/i18n/index.ts';\n"
+        + "(window as unknown as Record<string, unknown>)['GeoAudio'] = GeoAudio;\n"
+        // U11: a score carries the *key* of its name, so the digest needs the
+        // catalog to say what the fixture recorded. The default locale is
+        // Czech, which is what `audio-golden.json` was captured in.
+        + "(window as unknown as Record<string, unknown>)['wgT'] = t;\n",
       resolveDir: REPO_ROOT,
       loader: 'ts',
     },

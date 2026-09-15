@@ -30,3 +30,10 @@
 .sound-label{font:9px var(--mono);letter-spacing:.6px}
 .sound-on{color:var(--green);border-color:var(--green)}
 .mixer-button{width:32px;font-size:23px}
+/*
+ * The switcher shows the two-letter code of the language it switches *to*, so
+ * it is type rather than a glyph and needs the mono face at a readable size —
+ * the 23px the base primitive gives an icon would overflow a 39px circle at
+ * two capitals wide.
+ */
+.language-button{font:12px var(--mono);font-weight:700;letter-spacing:.5px;width:39px}

@@ -10,28 +10,28 @@
 <body>
 <div class="app-shell">
 <header class="header">
-<button class="brand" id="brand" aria-label="World Geography – úvod"><svg viewBox="0 0 40 40" aria-hidden="true"><circle cx="20" cy="20" r="16"/><ellipse cx="20" cy="20" rx="7" ry="16"/><path d="M5 14h30M4 23h32M8 30h24"/></svg><span>WORLD<br>GEOGRAPHY</span></button>
-<nav aria-label="Hlavní navigace"><button id="nav-play" class="nav-button active">Expedice</button><button id="nav-atlas" class="nav-button">Atlas</button><button id="nav-help" class="nav-button">Jak hrát</button></nav>
-<div class="header-actions"><span class="edition">C64 REIMAGINED <i></i> 2026</span><button id="sound" class="icon-button sound-button" aria-label="Vypnout zvuk" aria-pressed="true" title="Vypnout zvuk (M)">♪</button><button id="sound-options" class="icon-button mixer-button" aria-label="Nastavení hudby a zvuků" title="Nastavení hudby a zvuků">≋</button></div>
+<button class="brand" id="brand" data-i18n-label="chrome.brand" aria-label="World Geography – úvod"><svg viewBox="0 0 40 40" aria-hidden="true"><circle cx="20" cy="20" r="16"/><ellipse cx="20" cy="20" rx="7" ry="16"/><path d="M5 14h30M4 23h32M8 30h24"/></svg><span>WORLD<br>GEOGRAPHY</span></button>
+<nav data-i18n-label="chrome.nav" aria-label="Hlavní navigace"><button id="nav-play" class="nav-button active" data-i18n="chrome.navPlay">Expedice</button><button id="nav-atlas" class="nav-button" data-i18n="chrome.navAtlas">Atlas</button><button id="nav-help" class="nav-button" data-i18n="chrome.navHelp">Jak hrát</button></nav>
+<div class="header-actions"><span class="edition"><span data-i18n="chrome.edition">C64 REIMAGINED</span> <i></i> 2026</span><button id="sound" class="icon-button sound-button" aria-label="Vypnout zvuk" aria-pressed="true" title="Vypnout zvuk (M)">♪</button><button id="sound-options" class="icon-button mixer-button" data-i18n-label="chrome.mixer" data-i18n-title="chrome.mixer" aria-label="Nastavení hudby a zvuků" title="Nastavení hudby a zvuků">≋</button><button id="language" class="icon-button language-button"></button></div>
 </header>
 <main id="main">
 <section id="main-view" class="main-grid">
 <div class="world-panel">
 <div id="world-heading" class="world-heading"></div>
-<div class="canvas-wrap"><canvas id="globe" role="img" aria-label="Otočný zeměpisný glóbus"></canvas><div id="flight-status" class="flight-status" role="status" hidden></div><div class="globe-controls" aria-label="Ovládání glóbu"><button id="zoom-out" aria-label="Oddálit glóbus">−</button><button id="globe-reset" aria-label="Vystředit glóbus" title="Vystředit">◎</button><button id="zoom-in" aria-label="Přiblížit glóbus">+</button></div></div>
+<div class="canvas-wrap"><canvas id="globe" role="img" data-i18n-label="chrome.globe" aria-label="Otočný zeměpisný glóbus"></canvas><div id="flight-status" class="flight-status" role="status" hidden></div><div class="globe-controls" data-i18n-label="chrome.globeControls" aria-label="Ovládání glóbu"><button id="zoom-out" data-i18n-label="chrome.zoomOut" aria-label="Oddálit glóbus">−</button><button id="globe-reset" data-i18n-label="chrome.globeReset" data-i18n-title="chrome.globeResetTitle" aria-label="Vystředit glóbus" title="Vystředit">◎</button><button id="zoom-in" data-i18n-label="chrome.zoomIn" aria-label="Přiblížit glóbus">+</button></div></div>
 <div id="world-caption" class="world-caption"></div>
-<div class="map-legend"><span><i></i> pevnina</span><span class="target-legend"><i></i> hledaná země</span><span>Tažením otočíte glóbus</span></div>
+<div class="map-legend"><span><i></i> <span data-i18n="chrome.legendLand">pevnina</span></span><span class="target-legend"><i></i> <span data-i18n="chrome.legendTarget">hledaná země</span></span><span data-i18n="chrome.legendDrag">Tažením otočíte glóbus</span></div>
 </div>
 <div id="side-panel" class="side-panel"></div>
 </section>
 <section id="results-view" hidden></section>
 </main>
-<footer class="footer"><span>INSPIROVÁNO ROKEM 1985. PŘIPRAVENO PRO DNEŠEK.</span><button id="data-button">Data & zdroje <span>↗</span></button><span class="offline"><i></i> BEZ INTERNETU · BEZ REKLAM</span></footer>
+<footer class="footer"><span data-i18n="chrome.footerTag">INSPIROVÁNO ROKEM 1985. PŘIPRAVENO PRO DNEŠEK.</span><button id="data-button"><span data-i18n="chrome.footerData">Data & zdroje</span> <span>↗</span></button><span class="offline"><i></i> <span data-i18n="chrome.footerOffline">BEZ INTERNETU · BEZ REKLAM</span></span></footer>
 </div>
-<dialog id="dialog" aria-labelledby="dialog-title"><div class="dialog-top"><span class="eyebrow">WORLD GEOGRAPHY / INFORMACE</span><button id="dialog-close" class="icon-button" aria-label="Zavřít okno">×</button></div><div id="dialog-content"></div></dialog>
+<dialog id="dialog" aria-labelledby="dialog-title"><div class="dialog-top"><span class="eyebrow" data-i18n="chrome.dialogEyebrow">WORLD GEOGRAPHY / INFORMACE</span><button id="dialog-close" class="icon-button" data-i18n-label="chrome.dialogClose" aria-label="Zavřít okno">×</button></div><div id="dialog-content"></div></dialog>
 <div id="mobile-hud" class="mobile-hud" hidden></div>
 <div id="toast" class="toast" role="status" hidden></div>
-<noscript><div class="no-js">Pro hraní je potřeba zapnout JavaScript. Hra neodesílá žádná data na internet.</div></noscript>
+<noscript><div class="no-js">Pro hraní je potřeba zapnout JavaScript. Hra neodesílá žádná data na internet.<br>JavaScript has to be enabled to play. The game sends no data to the internet.</div></noscript>
 <script id="license-data" type="text/plain">/*__NOTICES__*/</script>
 <script id="country-data" type="application/json">/*__COUNTRIES__*/</script>
 <script id="flag-data" type="application/json">/*__FLAGS__*/</script>

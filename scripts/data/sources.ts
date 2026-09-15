@@ -295,26 +295,29 @@ export function czechDate(iso: string): string {
   return `${day}. ${name} ${year}`;
 }
 
+/** The one line in `src/app/dialogs/sources.ts` an accepted refresh rewrites. */
+export const EDITION_PATTERN = /export const EDITION = '\d{4}-\d{2}-\d{2}';/;
+
 /**
  * The edition date in the sources dialog, restamped from the snapshot.
  *
- * It appears twice — as Czech prose a player reads, and as the ISO string
- * stamped into the JSON export — and both were hardcoded, so both went on
- * saying "7. září 2026" after the data had moved. Regenerating it here puts it
- * under the same rule as the notices: one accept rewrites every document that
- * makes a claim about the dataset, and `data:check` fails if one is left
- * behind. It is the only file outside `data/` a refresh writes, which is the
- * price of the dialog stating a date at all.
+ * It used to be written twice and by hand — as Czech prose a player reads and
+ * as the ISO string stamped into the JSON export — so both went on saying
+ * "7. září 2026" for a month after the data had moved. U11 left one ISO
+ * constant and formats it per locale at render time, which is also the only way
+ * the sentence could move into the catalog: a regex over translated prose would
+ * have found nothing the first time somebody edited the Czech.
+ *
+ * Regenerating it here puts it under the same rule as the notices: one accept
+ * rewrites every document that makes a claim about the dataset, and
+ * `data:check` fails if one is left behind. It is the only file outside `data/`
+ * a refresh writes, which is the price of the dialog stating a date at all.
  */
 export function regenerateEditionDate(text: string, fetchedAt: string): string {
-  const prose = /Datová edice <strong>[^<]*<\/strong>/;
-  const iso = /edition:'\d{4}-\d{2}-\d{2}'/;
-  for (const [pattern, what] of [[prose, 'the dialog date'], [iso, 'the export stamp']] as const) {
-    if (!pattern.test(text)) throw new Error(`src/app/dialogs/sources.ts: cannot find ${what}`);
+  if (!EDITION_PATTERN.test(text)) {
+    throw new Error(`src/app/dialogs/sources.ts: cannot find the EDITION constant to restamp`);
   }
-  return text
-    .replace(prose, `Datová edice <strong>${czechDate(fetchedAt)}</strong>`)
-    .replace(iso, `edition:'${fetchedAt}'`);
+  return text.replace(EDITION_PATTERN, `export const EDITION = '${fetchedAt}';`);
 }
 
 export const RETIRED_SOURCES: readonly string[] = [

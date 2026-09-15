@@ -287,6 +287,17 @@ export interface GameState extends ProgressState {
   cycles: number;
   created: string;
   lastCountry?: Iso2;
+  /**
+   * The language the questions in this run were written in.
+   *
+   * A run bakes its prompts, options and explanations at creation, so the run
+   * and the interface it is resumed into have to agree; `isValidRun` drops a
+   * save that disagrees rather than resuming into a half-translated game.
+   * Absent on every `wg.run.v7` written before U11, which is why it is optional
+   * and why an absent one is read as Czech — the only language that existed
+   * when such a save was written.
+   */
+  lang?: Locale;
 }
 
 /**

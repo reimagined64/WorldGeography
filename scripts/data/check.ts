@@ -34,7 +34,7 @@ import {
   serializeMap,
 } from './apply.ts';
 import { loadLocaleBundle, loadOverrides, UNATTRIBUTED, type MapPolygon } from './merge.ts';
-import { czechDate, findRetiredSources, loadLock, type SourceEntry } from './sources.ts';
+import { EDITION_PATTERN, findRetiredSources, loadLock, type SourceEntry } from './sources.ts';
 
 /** The world total the dataset has to land inside, in people. */
 export const POPULATION_BAND = { min: 7.5e9, max: 9.5e9 } as const;
@@ -454,25 +454,28 @@ function provenance(at: ReturnType<typeof paths>, countries: readonly Country[])
  * The edition date the sources dialog shows a player, against the date the
  * snapshot was actually fetched.
  *
- * It is written twice in `sources.ts` — once as Czech prose in the dialog, once
- * as the ISO string stamped into the JSON export — and both were hardcoded, so
- * both said "7. září 2026" for as long as nobody remembered them. A date is the
- * one claim on that page a reader has no way to check, which is the argument
- * for checking it here.
+ * It used to be written twice in the dialog — once as Czech prose, once as the
+ * ISO string stamped into the JSON export — and both were hardcoded, so both
+ * said "7. září 2026" for as long as nobody remembered them. Since U11 there is
+ * one ISO constant, formatted per locale at render time, and this checks that
+ * constant. A date is the one claim on that page a reader has no way to check,
+ * which is the argument for checking it here.
  */
 function editionDate(at: ReturnType<typeof paths>): CheckResult {
   const name = 'the edition date matches the snapshot';
   try {
     const fetchedAt = loadCountrySnapshot(at.rawCountries).fetchedAt;
     const dialog = readFileSync(join(at.root, 'src/app/dialogs/sources.ts'), 'utf8');
-    const czech = czechDate(fetchedAt);
+    const stamped = EDITION_PATTERN.exec(dialog)?.[0];
 
-    const wrong: string[] = [];
-    if (!dialog.includes(`edition:'${fetchedAt}'`)) wrong.push(`the JSON export is not stamped ${fetchedAt}`);
-    if (!dialog.includes(`<strong>${czech}</strong>`)) wrong.push(`the dialog does not read "${czech}"`);
-    return wrong.length === 0
-      ? ok(name, `both say ${fetchedAt} — "${czech}" in the dialog`)
-      : bad(name, `data/raw/countries.json was fetched ${fetchedAt}, but ${wrong.join(' and ')}.`);
+    if (stamped === undefined) return bad(name, 'src/app/dialogs/sources.ts has no EDITION constant');
+    return stamped.includes(`'${fetchedAt}'`)
+      ? ok(name, `the dialog and the JSON export both read ${fetchedAt}, in whichever language`)
+      : bad(
+          name,
+          `data/raw/countries.json was fetched ${fetchedAt}, but the dialog still says ` +
+            `${stamped}. Run npm run data:refresh -- --accept, which restamps it.`,
+        );
   } catch (error) {
     return bad(name, error instanceof Error ? error.message : String(error));
   }

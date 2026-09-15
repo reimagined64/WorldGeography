@@ -11,6 +11,7 @@
  * them in one run alongside `context`, which nothing ever sets back to null;
  * every method that touches a node tests `context` first, exactly as v7 did.
  */
+import { t } from '../i18n/index.ts';
 import { QUESTION_SCORE, QUESTION_SCORES, type Score } from './themes.ts';
 
 const MELODY=[72,0,76,79,0,76,74,0,72,0,67,0,69,72,0,0,74,0,77,81,0,79,76,0,74,72,71,0,67,0,72,0];
@@ -97,7 +98,7 @@ export class GeoAudio {
     if(!this.enabled)return Promise.resolve(false);
     try{
       if(!this.context){
-        const Audio=window.AudioContext||(window as Window&{webkitAudioContext?: typeof AudioContext}).webkitAudioContext;if(!Audio)throw new Error('Web Audio není dostupné.');
+        const Audio=window.AudioContext||(window as Window&{webkitAudioContext?: typeof AudioContext}).webkitAudioContext;if(!Audio)throw new Error(t('boot.noWebAudio'));
         this.connectGraph(new Audio());
       }
       return Promise.resolve(this.context!.resume()).then(()=>{
@@ -285,7 +286,7 @@ export class GeoAudio {
   }
   status() {
     let rms=0;if(this.analyser){const a=new Float32Array(this.analyser.fftSize);this.analyser.getFloatTimeDomainData(a);rms=Math.sqrt(a.reduce((s,v)=>s+v*v,0)/a.length);}
-    return {...this.settings(),scene:this.scene,paused:this.paused,unlocked:this.unlocked,failed:this.failed,state:this.context?.state||'not-started',notes:this.noteCount,rms,melody:{index:this.scoreIndex,name:this.activeScore().name,count:QUESTION_SCORES.length,startStep:this.questionStartStep,step:this.step,length:this.activeScore().lead.length,serial:this.questionSerial}};
+    return {...this.settings(),scene:this.scene,paused:this.paused,unlocked:this.unlocked,failed:this.failed,state:this.context?.state||'not-started',notes:this.noteCount,rms,melody:{index:this.scoreIndex,name:t(this.activeScore().nameKey),count:QUESTION_SCORES.length,startStep:this.questionStartStep,step:this.step,length:this.activeScore().lead.length,serial:this.questionSerial}};
   }
   // Only a live `AudioContext` is ever destroyed; an offline render is
   // discarded whole, and `OfflineAudioContext` has no `close`.

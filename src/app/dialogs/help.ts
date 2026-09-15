@@ -1,20 +1,31 @@
 /**
- * The rules dialog: one static block of Czech, and nothing else.
+ * The rules dialog: one block of prose, and nothing else.
  *
- * It reads no state and writes none, which is exactly why it is the first
- * thing out of the monolith — the text is a third of a screen of prose that
- * had no business sitting between two render functions.
+ * It reads no state and writes none, which is exactly why it was the first
+ * thing out of the monolith — the text is a third of a screen of prose that had
+ * no business sitting between two render functions. Since U11 the text is not
+ * here either: the dialog is the shape, `src/i18n/` is the words, and the two
+ * languages cannot drift apart because the compiler checks that both catalogs
+ * answer every key this file asks for.
  */
+import { t } from '../../i18n/index.ts';
+
+/** One numbered rule, with the strong lead-in the layout expects. */
+const step = (number: string, title: string, body: string): string =>
+  `<div class="help-step"><span>${number}</span><div><strong>${title}</strong><p>${body}</p></div></div>`;
+
+const section = (title: string, body: string): string => `<h3>${title}</h3><p>${body}</p>`;
+
 export function showHelp(openDialog: (html: string) => void): void {
-  openDialog(`<h2 id="dialog-title">Pět otázek za jeden pokus.</h2>
-<div class="help-step"><span>01</span><div><strong>Pokus se platí při načtení nového státu.</strong><p>Začínáte s pěti pokusy. Načtení první země spotřebuje jeden, takže ukazatel poté zobrazuje čtyři rezervní pokusy. Stejně se platí každý další stát. Celou zaplacenou zemi vždy dohrajete: stát, hlavní město, měna, jazyk a obyvatelstvo. Chybná odpověď ani vypršení času pokus neodebírají. Vlajková otázka je zdarma.</p></div></div>
-<div class="help-step"><span>02</span><div><strong>Každých 10 000 bodů dva pokusy a vlajka.</strong><p>Při dosažení nebo překročení 10 000, 20 000, 30 000 bodů atd. získáte <b>+2 pokusy okamžitě</b>. Současně se uloží nárok na jednu bonusovou otázku na vlajku. Bonus přijde až po všech pěti otázkách aktuálního státu, nikdy uprostřed. Správná vlajka přidá <b>další +1 pokus</b> a body za rychlost; chyba nebo vypršení bonusu nic neodebírá. Bonusové body se započítávají i do dalších hranic. Více čekajících bonusů se vyřídí postupně před změnou státu nebo hráče.</p></div></div>
-<div class="help-step"><span>03</span><div><strong>Tři otočky před zemí i bonusem.</strong><p>Každý nový stát a každý vlajkový bonus předchází 12sekundový oddech: oddálení, nejméně tři otočky, zpomalení a u státu přiblížení. Před vlajkou se glóbus zastaví neutrálně, aby neprozradil odpověď. Mezi otázkami stejného státu se nečeká ani nerotuje. Klidový režim odstraní pohyb, nikoli oddech.</p></div></div>
-<h3>Body a čas</h3><p><strong>Průzkumník: 30 s. Cestovatel: 20 s. Kartograf: 12 s.</strong> Správná odpověď dává 100 základních bodů a až 900 za rychlost, dohromady nejvýše 1 000. Body klesají po desítkách: 100 + 10 × zaokrouhlení(90 × zbývající čas / limit). V režimu Cestovatel je odpověď za přesně 5 sekund za 780 bodů. Stejné bodování platí i pro správnou vlajku, která navíc přidává jeden pokus. Chyba či vypršení limitu dává 0. Odpočet běží až po zobrazení otázky, nikdy během příletu.</p>
-<h3>Kdy hra končí</h3><p>Nula rezervních pokusů neukončuje rozpracovaný stát. Dohrajete jej i všechny získané vlajky; bodová hranice nebo správná vlajka vás ještě může zachránit. Bez pokusu poté nelze načíst další stát. Počet států ani získaných pokusů nemá herní strop.</p>
-<h3>Dva hráči</h3><p>Každý má vlastní body, pokusy i čekající bonusy. Tah se předává po dokončení země a jejích bonusů. Hráč bez rezervních pokusů vynechá další tahy; druhý pokračuje. Hra končí po vyčerpání pokusů obou, vítězí vyšší skóre.</p>
-<h3>Měny bez nápovědy</h3><p>Možnosti uvádějí pouze obecné názvy jako koruna, dolar nebo frank, nikoli národní přívlastky a kódy. Stejné názvy se neduplikují a všechny místní platné měnové skupiny jsou vyloučeny z chybných možností. Úplné názvy a kódy se ukážou až ve vysvětlení odpovědi; v atlasu zůstávají úplné.</p>
-<h3>Hudba</h3><p>Podkres při odpovídání má původní motiv a 20 nových melodií ve stejném tajemném soutěžním stylu. Melodie se losují bez opakování, dokud nezazní všech 21. Každá otázka začíná na jiném místě hudební fráze. Nové motivy mají 16 taktů; používají krátké basy, jemné arpeggio a příbuzné ladění se znělkami odpovědí. Tempo je 108 dob za minutu, v závěrečných pěti sekundách 120, bez návratu na začátek melodie. Pauza zachovává její pozici. Pod ≋ lze přehrávat další hudební ukázky.</p>
-<h3>Ovládání, ukládání a trénink</h3><p>Odpovědi: myš, dotyk, 1–3 / A–C nebo šipky a Enter. P pozastaví otázku, M přepne zvuk. Další krok spouštíte tlačítkem po přečtení vysvětlení. Ukládání zachová i čekající bonusy a již zaplacený stát: při pokračování se pokus znovu neodečte. Nedokončený přílet se opakuje, jeho cena ne. Procvičování chyb je konečné, bez časového limitu a pokusů, za 100 bodů.</p>
-<p>Vlajky jsou vložené offline; afghánská republikánská varianta je označená v atlasu a vyřazená z bonusů. Verze 6 kvůli novým pravidlům používá oddělené uložené hry a rekordy. Starší partie nepřevádí ani nepřepisuje. Číselná nastavení jsou pravidly remaku, nikoli doloženým přepisem originálu.</p>`);
+  openDialog(`<h2 id="dialog-title">${t('help.title')}</h2>
+${step('01', t('help.step1Title'), t('help.step1'))}
+${step('02', t('help.step2Title'), t('help.step2'))}
+${step('03', t('help.step3Title'), t('help.step3'))}
+${section(t('help.scoringTitle'), t('help.scoring'))}
+${section(t('help.endTitle'), t('help.end'))}
+${section(t('help.duelTitle'), t('help.duel'))}
+${section(t('help.currencyTitle'), t('help.currency'))}
+${section(t('help.musicTitle'), t('help.music'))}
+${section(t('help.controlsTitle'), t('help.controls'))}
+<p>${t('help.footer')}</p>`);
 }

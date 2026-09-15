@@ -28,7 +28,9 @@ import type { Country } from '../engine/types.ts';
 import { installDebugApi, requireAudio, requireGlobe, store, type View } from './state.ts';
 import { STORE, loadAudioSettings, loadRecord, loadRun, loadSettings } from './storage.ts';
 import { installDatabase, type Database } from './database.ts';
-import { $, dialog, optional, persist } from './dom.ts';
+import { $, dialog, esc, notify, optional, persist } from './dom.ts';
+import { detectLocale, locale, LOCALES, LOCALE_NAMES, setLocale, t } from '../i18n/index.ts';
+import { translateChrome } from '../i18n/chrome.ts';
 import { showAudioSettings } from './dialogs/audio-settings.ts';
 import { showHelp } from './dialogs/help.ts';
 import { showSources } from './dialogs/sources.ts';
@@ -81,6 +83,12 @@ export function leaveGame(): void {
 
 export function setView(next: View): void {
   if(next!=='game')leaveGame();store.view=next;
+  // The switcher's enabled state is a function of which screen is up and
+  // whether a run is live, and `setView` is the only place that knows either
+  // has changed. Rendering it here rather than from each screen is what keeps
+  // "starting a run locks the control" from depending on every future caller
+  // remembering to say so.
+  renderLanguage();
   document.body.classList.toggle('game-active',next==='game');document.body.classList.toggle('atlas-active',next==='atlas');
   $('main-view').hidden=next==='results';$('results-view').hidden=next!=='results';$('nav-atlas').classList.toggle('active',next==='atlas');$('nav-play').classList.toggle('active',next!=='atlas');
   if(next!=='game'){requireAudio().setPaused(document.hidden);requireAudio().setScene(next==='results'?'results':'home');}
@@ -93,12 +101,77 @@ export function openDialog(html: string): void {
 export function renderSound(): void {
   const audio=requireAudio();
   const pending=audio.enabled&&!audio.unlocked,active=audio.enabled&&audio.unlocked&&!audio.paused;
-  $('sound').innerHTML=`<span aria-hidden="true">${audio.enabled?'♪':'♩'}</span><span class="sound-label">${audio.enabled?'ZVUK':'TICHO'}</span>`;
+  const action=pending?t('sound.start'):audio.enabled?t('sound.turnOff'):t('sound.turnOn');
+  $('sound').innerHTML=`<span aria-hidden="true">${audio.enabled?'♪':'♩'}</span><span class="sound-label">${audio.enabled?t('sound.labelOn'):t('sound.labelOff')}</span>`;
   $('sound').classList.toggle('sound-on',active);$('sound').setAttribute('aria-pressed',String(audio.enabled));
-  $('sound').setAttribute('aria-label',pending?'Spustit zvuk':audio.enabled?'Vypnout zvuk':'Zapnout zvuk');
-  $('sound').title=(pending?'Spustit zvuk':audio.enabled?'Vypnout zvuk':'Zapnout zvuk')+' (M)';
+  $('sound').setAttribute('aria-label',action);
+  $('sound').title=t('sound.shortcut',{action});
   const note=optional('home-sound');
-  if(note)note.textContent=audio.failed?'Zvuk není dostupný v tomto prohlížeči.':!audio.enabled?'Zvuk vypnutý · klávesou M jej zapnete.':pending?'♫ Hudba a zvuky se spustí se hrou.':'♫ Zvuk zapnutý · klávesou M jej ztišíte.';
+  if(note)note.textContent=audio.failed?t('sound.unavailable'):!audio.enabled?t('sound.off'):pending?t('sound.pending'):t('sound.on');
+}
+
+/**
+ * The language this switcher would switch to.
+ *
+ * A list rather than a boolean: a third locale should mean one more entry in
+ * `LOCALES`, not a rebuilt control. With two it cycles, which is what a single
+ * button can do.
+ */
+export const nextLocale = (from = locale()): (typeof LOCALES)[number] =>
+  LOCALES[(LOCALES.indexOf(from) + 1) % LOCALES.length]!;
+
+/** True while a run is on screen and its questions are already in one language. */
+export const runInProgress = (): boolean =>
+  store.game !== null && !store.game.completed && store.view === 'game';
+
+/**
+ * The switcher: two letters a reader sees, a name a screen reader says.
+ *
+ * The visible label is the code of the language it switches *to*, matching the
+ * sound button next to it, which also names the action rather than the state.
+ * The accessible name is the target language's own name, carrying its own
+ * `lang` — "English", pronounced as English, not as Czech letters — which is
+ * why it is markup rather than an `aria-label`: an attribute cannot carry a
+ * language of its own.
+ *
+ * It is disabled while a run is in progress. A run bakes its question strings
+ * at creation, so switching mid-run would render exactly the mixed-language
+ * screen KTD13 calls a defect; the title says so in both languages rather than
+ * leaving a dead control unexplained.
+ */
+export function renderLanguage(): void {
+  const next = nextLocale();
+  const button = $('language') as HTMLButtonElement;
+  const locked = runInProgress();
+  button.innerHTML =
+    `<span aria-hidden="true">${next.toUpperCase()}</span>` +
+    `<span class="visually-hidden" lang="${next}">${esc(LOCALE_NAMES[next])}</span>`;
+  button.disabled = locked;
+  button.title = locked ? t('language.lockedDuringRun') : t('language.switchTo', { name: LOCALE_NAMES[next] });
+}
+
+/**
+ * Switch, re-render, and put the focus back where the reader left it.
+ *
+ * The re-render destroys the button that was just activated, so without the
+ * restore the focus falls to `document.body` and a keyboard reader loses their
+ * place in the header. The announcement goes through the toast, which is
+ * already a polite `role="status"` region, and is written in the language just
+ * switched to — announcing "English" in Czech would be the one message
+ * guaranteed to reach the wrong reader.
+ */
+export function switchLanguage(to = nextLocale()): void {
+  if (runInProgress()) return;
+  setLocale(to);
+  store.options.lang = to;
+  persist(STORE.settings, store.options);
+  document.documentElement.lang = to;
+  translateChrome();
+  rerender();
+  renderSound();
+  renderLanguage();
+  $('language').focus();
+  notify(t('language.switched', { name: LOCALE_NAMES[to] }));
 }
 
 /** `1`–`3` and `A`–`C` answer directly; the arrows move the highlight instead. */
@@ -127,19 +200,31 @@ function readInert<T>(id: string): T {
 
 export function boot(): void {
   const countries=readInert<Country[]>('country-data'),map=readInert<MapPolygon[]>('map-data'),sources=readInert<SourceEntry[]>('source-data'),flags=readInert<Record<string,string>>('flag-data');
-  try{Core.validateCountries(countries);}catch(e){$('side-panel').textContent='Databáze se nepodařila načíst: '+(e as Error).message;return;}
+  try{Core.validateCountries(countries);}catch(e){$('side-panel').textContent=t('boot.databaseFailed',{message:(e as Error).message});return;}
   const byCode=Object.fromEntries(countries.map(c=>[c.code,c])) as Database['byCode'];
   installDatabase({countries,byCode,flags,sources,licenseText:$('license-data').textContent ?? ''});
+  // Language first: every string after this line — the boot failure message
+  // included — is read out of the catalog, and `loadSettings` itself resolves
+  // the two placeholder player names through it.
   store.options=loadSettings();
+  setLocale(detectLocale(navigator.languages ?? [navigator.language], store.options.lang));
+  store.options=loadSettings();
+  document.documentElement.lang=locale();
+  translateChrome();
   store.record=loadRecord();
   store.audio=new GeoAudio(loadAudioSettings());
   store.game=loadRun(countries,byCode);
+  // A v7 save carries no language, so `loadRun` reads it as Czech; the session
+  // follows it rather than re-rendering a Czech run into an English shell. The
+  // switcher puts it back the moment the run is finished or left.
+  if(store.game&&store.game.lang!==undefined&&store.game.lang!==locale()){setLocale(store.game.lang);document.documentElement.lang=locale();translateChrome();}
   store.globe=new Globe($('globe') as HTMLCanvasElement,map);store.globe.setMotion(store.options.motion==='full');
   store.audio.onChange=renderSound;
 
   $('nav-play').onclick=()=>{requireAudio().unlock();if(store.game&&!store.game.completed)renderView('game');else renderView('home');window.scrollTo({top:0,behavior:'auto'});};
   $('brand').onclick=()=>{if(store.view==='home')captureSettings();renderView('home');window.scrollTo({top:0,behavior:'auto'});};
   $('nav-atlas').onclick=()=>{if(store.view==='home')captureSettings();renderView('atlas');window.scrollTo({top:0,behavior:'auto'});};
+  $('language').onclick=()=>{switchLanguage();};
   $('nav-help').onclick=()=>{showHelp(openDialog);};$('data-button').onclick=()=>{showSources();};$('dialog-close').onclick=()=>{dialog().close();};$('sound-options').onclick=()=>{showAudioSettings();};
   dialog().addEventListener('click',e=>{if(e.target===dialog()){const r=dialog().getBoundingClientRect();if(e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom)dialog().close();}});
   dialog().addEventListener('close',()=>{if(store.phase==='flying'){requireGlobe().pauseFlight(document.hidden);requireAudio().setScene('flight');requireAudio().setPaused(document.hidden);}else if(store.phase==='paused')requireAudio().setPaused(true);else{requireAudio().setScene(store.view==='results'?'results':store.view==='game'?'feedback':'home');requireAudio().setPaused(document.hidden);}});
@@ -157,5 +242,5 @@ export function boot(): void {
   });
   window.addEventListener('pagehide',()=>{if(store.clock?.running){stopClock();store.phase='paused';}saveGame();requireAudio().setPaused(true);});
   installDebugApi(window as unknown as Record<string, unknown>);
-  renderView('home');renderSound();
+  renderView('home');renderSound();renderLanguage();
 }

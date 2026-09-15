@@ -18,7 +18,8 @@
 import type { Country, Question } from '../../engine/types.ts';
 import { requireAudio, requireGlobe, store } from '../state.ts';
 import { STORE } from '../storage.ts';
-import { $, dialog, optional, persist, seconds } from '../dom.ts';
+import { $, dialog, esc, optional, persist, seconds } from '../dom.ts';
+import { t } from '../../i18n/index.ts';
 import { bindExit, footer, questionHeader, renderGame, renderWorldHeader, saveGame, stopClock } from './game.ts';
 
 export function beginFlight(q: Question, c: Country): void {
@@ -29,13 +30,13 @@ export function beginFlight(q: Question, c: Country): void {
   document.body.classList.add('flying');document.body.classList.remove('question-paused','flag-question');$('mobile-hud').hidden=true;
   document.querySelectorAll<HTMLButtonElement>('.globe-controls button').forEach(b=>{b.disabled=true;});
   renderWorldHeader(q,c,undefined,true);
-  $('side-panel').innerHTML=questionHeader(q)+`<div class="flight-card"><div class="eyebrow accent">${bonus?'ODDECH PŘED VLAJKOVÝM BONUSEM':'ODDECH PŘED DALŠÍ ZEMÍ'}</div><div class="rest-countdown"><strong id="rest-seconds">12,0</strong><span>sekund</span></div><h2 id="flight-title">Svět počká.</h2><p id="flight-description">${bonus?'Tři celé otočky zeměkoule. Potom poznávání vlajky.':'Tři celé otočky zeměkoule. Pak zaměření a přiblížení.'}</p><div class="rest-track" role="progressbar" aria-label="Průběh oddechu" aria-valuemin="0" aria-valuemax="12" aria-valuenow="0" id="rest-track"><span id="rest-fill"></span></div><div class="flight-steps"><span data-flight-step="spin">01 / TŘI OTOČKY</span><span data-flight-step="settle">02 / ZAMĚŘENÍ</span><span data-flight-step="zoom">03 / ${bonus?'BONUS':'PŘIBLÍŽENÍ'}</span></div><div class="rest-detail" id="rest-detail">Odpočet otázky ještě neběží.</div><p class="flight-footnote">${bonus?'Bonus nestojí žádný pokus.':'Nový stát: −1 pokus již zaplacen za všech pět otázek.'}<br>Čas otázky během oddechu neběží.</p><button class="text-button motion-flight" id="flight-motion">${store.options.motion==='full'?'Omezit pohyb':'Zapnout plné otáčení'}</button></div>`+footer();bindExit();
-  $('flight-motion').onclick=()=>{store.options.motion=store.options.motion==='full'?'reduced':'full';persist(STORE.settings,store.options);globe.setMotion(store.options.motion==='full');$('flight-motion').textContent=store.options.motion==='full'?'Omezit pohyb':'Zapnout plné otáčení';};
-  $('flight-status').hidden=false;$('flight-status').textContent='ODDECH · 12 s';
+  $('side-panel').innerHTML=questionHeader(q)+`<div class="flight-card"><div class="eyebrow accent">${bonus?t('flight.eyebrowBonus'):t('flight.eyebrowCountry')}</div><div class="rest-countdown"><strong id="rest-seconds">${seconds(12000)}</strong><span>${t('flight.secondsUnit')}</span></div><h2 id="flight-title">${t('flight.title')}</h2><p id="flight-description">${bonus?t('flight.introBonus'):t('flight.introCountry')}</p><div class="rest-track" role="progressbar" aria-label="${esc(t('flight.trackLabel'))}" aria-valuemin="0" aria-valuemax="12" aria-valuenow="0" id="rest-track"><span id="rest-fill"></span></div><div class="flight-steps"><span data-flight-step="spin">${t('flight.step1')}</span><span data-flight-step="settle">${t('flight.step2')}</span><span data-flight-step="zoom">${bonus?t('flight.step3Bonus'):t('flight.step3Country')}</span></div><div class="rest-detail" id="rest-detail">${t('flight.detailWaiting')}</div><p class="flight-footnote">${bonus?t('flight.footnoteBonus'):t('flight.footnoteCountry')}<br>${t('flight.footnoteClock')}</p><button class="text-button motion-flight" id="flight-motion">${store.options.motion==='full'?t('flight.motionReduce'):t('flight.motionRestore')}</button></div>`+footer();bindExit();
+  $('flight-motion').onclick=()=>{store.options.motion=store.options.motion==='full'?'reduced':'full';persist(STORE.settings,store.options);globe.setMotion(store.options.motion==='full');$('flight-motion').textContent=store.options.motion==='full'?t('flight.motionReduce'):t('flight.motionRestore');};
+  $('flight-status').hidden=false;$('flight-status').textContent=t('flight.statusInitial');
   audio.setRegion(c.region);audio.setScene('flight');audio.setPaused(document.hidden||dialog().open);audio.cue('flight');
   globe.reveal(c,{neutral:bonus,onStage:stage=>{
     if(token!==store.revealToken||store.view!=='game')return;
-    const text=({depart:['Chvíle na oddech.','Oddalujeme glóbus před dalším putováním.'],spin:['Svět se točí.','Tři celé otočky. Žádný spěch, odpočet otázky čeká.'],settle:[bonus?'Zastavujeme glóbus.':'Zaměřujeme cíl.',bonus?'Poloha země zůstává utajená.':'Otáčení zpomaluje a glóbus se zastaví.'],zoom:[bonus?'Přichází vlajkový bonus.':'Přibližujeme zemi.',bonus?'Poznáte vlajku? Správná odpověď přidá body i pokus.':'Připravte se. Odpočet začne až po příletu.']} as Record<string, [string, string]>)[stage]!;
+    const text=({depart:[t('flight.stageDepartTitle'),t('flight.stageDepartBody')],spin:[t('flight.stageSpinTitle'),t('flight.stageSpinBody')],settle:[bonus?t('flight.stageSettleTitleBonus'):t('flight.stageSettleTitleCountry'),bonus?t('flight.stageSettleBodyBonus'):t('flight.stageSettleBodyCountry')],zoom:[bonus?t('flight.stageZoomTitleBonus'):t('flight.stageZoomTitleCountry'),bonus?t('flight.stageZoomBodyBonus'):t('flight.stageZoomBodyCountry')]} as Record<string, [string, string]>)[stage]!;
     if(optional('flight-title'))$('flight-title').textContent=text[0];if(optional('flight-description'))$('flight-description').textContent=text[1];
     document.querySelectorAll<HTMLElement>('[data-flight-step]').forEach(e=>{e.classList.toggle('active',e.dataset['flightStep']===(stage==='depart'?'spin':stage));});
     if(stage==='zoom')audio.cue(bonus?'bonus':'zoom');
@@ -43,9 +44,9 @@ export function beginFlight(q: Question, c: Country): void {
     if(token!==store.revealToken||!optional('rest-seconds'))return;
     $('rest-seconds').textContent=seconds(state.remainingMs);$('rest-fill').style.transform=`scaleX(${state.progress})`;
     $('rest-track').setAttribute('aria-valuenow',String(Math.floor(state.elapsed/1000)));
-    const label=!state.motion?'KLIDOVÝ REŽIM':state.stage==='spin'?`OTOČKA ${Math.min(3,state.turnsCompleted+1)} / 3`:state.stage==='settle'?'ZAMĚŘENÍ':state.stage==='zoom'?(bonus?'VLAJKOVÝ BONUS':'PŘIBLÍŽENÍ'):'ODLET';
-    $('flight-status').textContent=`${label} · ODDECH ${Math.ceil(state.remainingMs/1000)} s`;
-    $('rest-detail').textContent=state.motion?`Dokončené otočky: ${state.turnsCompleted} / 3 · odpočet otázky čeká`:'Bez pohybu · délka oddechu zůstává 12 sekund';
+    const label=!state.motion?t('flight.labelStill'):state.stage==='spin'?t('flight.labelSpin',{turn:Math.min(3,state.turnsCompleted+1)}):state.stage==='settle'?t('flight.labelSettle'):state.stage==='zoom'?(bonus?t('flight.labelZoomBonus'):t('flight.labelZoomCountry')):t('flight.labelDepart');
+    $('flight-status').textContent=t('flight.status',{label,seconds:Math.ceil(state.remainingMs/1000)});
+    $('rest-detail').textContent=state.motion?t('flight.detailTurns',{turns:state.turnsCompleted}):t('flight.detailStill');
   },onComplete:()=>{
     if(token!==store.revealToken||store.view!=='game'||store.game!.questions[store.game!.index]!==q)return;
     const current=store.game!;

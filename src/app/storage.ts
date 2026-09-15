@@ -18,6 +18,9 @@
  * raises.
  */
 import * as Core from '../engine/core.ts';
+import { isLocale, LEGACY_LOCALE, locale as activeLocale, LOCALES, t, type Locale } from '../i18n/index.ts';
+import { cs } from '../i18n/cs.ts';
+import { en } from '../i18n/en.ts';
 import type { AudioSettings } from '../audio/audio.ts';
 import type { Country, GameOptions, GameState } from '../engine/types.ts';
 
@@ -33,9 +36,19 @@ export const STORE = Object.freeze({
 export const SCHEMA_KEY = 'schemaVersion';
 export const SCHEMA_VERSION = 1;
 
-/** The game options plus the one setting only the shell cares about. */
+/** The game options plus the two settings only the shell cares about. */
 export interface AppSettings extends GameOptions {
   motion: 'full' | 'reduced';
+  /**
+   * The language the player chose, if they chose one.
+   *
+   * Absent means "never asked", which is what lets detection run on every load
+   * until the switcher is used once. It lives inside `wg.settings.v1` rather
+   * than in a key of its own so U6's "the storage keys are unchanged" assertion
+   * still holds: a v7 build reading this blob ignores the field, exactly as it
+   * ignores `schemaVersion`.
+   */
+  lang?: Locale;
 }
 
 /** `wg.record.v7`: the single best run the home screen and results print. */
@@ -45,13 +58,30 @@ export interface HighScore {
   date: string;
 }
 
-export const DEFAULT_SETTINGS: Readonly<AppSettings> = Object.freeze({
+export const DEFAULT_SETTINGS: Readonly<Omit<AppSettings, 'names'>> = Object.freeze({
   players: 1,
-  names: ['Hráč 1', 'Hráč 2'],
   difficulty: 'normal' as const,
   region: 'all' as const,
   motion: 'full' as const,
 });
+
+/** The two placeholder names, in the language the player is reading. */
+export const defaultNames = (): [string, string] => [t('home.defaultName1'), t('home.defaultName2')];
+
+/**
+ * Every default name, in every language.
+ *
+ * A stored name is normally the player's and is never touched. A name that is
+ * still one of these was never typed — it is the placeholder the setup screen
+ * wrote through on the first render — so it follows the language instead of
+ * freezing whichever one happened to be active the first time the game ran.
+ * The alternative, storing a null for "untouched", would change the shape of a
+ * v7 settings payload for a cosmetic gain.
+ */
+const PLACEHOLDER_NAMES: readonly (readonly string[])[] = [
+  LOCALES.map((locale) => String((locale === 'cs' ? cs : en)['home.defaultName1'])),
+  LOCALES.map((locale) => String((locale === 'cs' ? cs : en)['home.defaultName2'])),
+];
 
 /**
  * Parse, and hand back the v7 shape.
@@ -99,6 +129,7 @@ export function write(key: string, value: unknown): boolean {
 export function normalizeSettings(saved: unknown): AppSettings {
   const options = {
     ...DEFAULT_SETTINGS,
+    names: defaultNames(),
     ...(saved !== null && typeof saved === 'object' ? saved : {}),
   } as AppSettings;
 
@@ -107,11 +138,19 @@ export function normalizeSettings(saved: unknown): AppSettings {
   if (!['all', ...Object.keys(Core.REGIONS)].includes(options.region)) options.region = 'all';
   delete options.visits;
   if (!['full', 'reduced'].includes(options.motion)) options.motion = 'full';
+  // A stored language comes back out of `localStorage`, so it is checked rather
+  // than trusted; an unrecognized one reads as "never chosen" and detection
+  // runs again.
+  if (!isLocale(options.lang)) delete options.lang;
 
+  const fallback = defaultNames();
   const names: unknown = options.names;
   options.names = Array.isArray(names)
-    ? [0, 1].map((i) => String((names as unknown[])[i] || DEFAULT_SETTINGS.names[i]).slice(0, 24))
-    : [...DEFAULT_SETTINGS.names];
+    ? [0, 1].map((i) => {
+        const stored = String((names as unknown[])[i] ?? '').slice(0, 24);
+        return stored === '' || PLACEHOLDER_NAMES[i]!.includes(stored) ? fallback[i]! : stored;
+      })
+    : [...fallback];
   return options;
 }
 
@@ -139,9 +178,18 @@ export function isValidRun(
   run: unknown,
   countries: Country[],
   byCode: Readonly<Record<string, Country>>,
+  locale: Locale = activeLocale(),
 ): boolean {
   const g = run as GameState;
   try {
+    // A run bakes its prompts, options and explanations at creation, so a save
+    // written in one language cannot be resumed into the other: half the
+    // screen would be Czech and half English, which is the mixed-language state
+    // KTD13 calls a defect. A save with no `lang` is not a mismatch — it is a
+    // v7 payload, which could only ever have been Czech, and `loadRun` migrates
+    // it rather than dropping a real player's run.
+    const lang: unknown = (g as { lang?: unknown } | null)?.lang;
+    if (lang !== undefined && lang !== locale) return false;
     if(!g||g.version!==7||g.completed||!Array.isArray(g.questions)||!g.questions.length||!Number.isInteger(g.index)||g.index<0||g.index>=g.questions.length)return false;
     if(!g.options||![1,2].includes(g.options.players)||!['easy','normal','expert'].includes(g.options.difficulty)||!['all',...Object.keys(Core.REGIONS)].includes(g.options.region)||!Array.isArray(g.options.names)||!g.options.names.every(n=>typeof n==='string'))return false;
     if(!Array.isArray(g.answers)||!Array.isArray(g.scores)||g.scores.length!==g.options.players||!g.scores.every(n=>Number.isFinite(n)&&n>=0))return false;
@@ -172,6 +220,11 @@ export function isValidRun(
  * A stored clock survives only while it still describes the question the run is
  * on, and it always comes back paused: the player left, so the countdown that
  * was running when the tab closed is not theirs to keep losing.
+ *
+ * A save with no `lang` is migrated to Czech rather than dropped. It is a real
+ * player's run, written by a build where Czech was the only language there was,
+ * and the caller pins the session to it — visibly, and reversible through the
+ * switcher as soon as the run is over.
  */
 export function loadRun(
   countries: Country[],
@@ -180,6 +233,7 @@ export function loadRun(
   const run = read<unknown>(STORE.run, null);
   if (!isValidRun(run, countries, byCode)) return null;
   const game = run as GameState;
+  if (game.lang === undefined) game.lang = LEGACY_LOCALE;
   if (game.clock && game.clock.index === game.index && Number.isFinite(game.clock.elapsedMs) && game.clock.elapsedMs >= 0) game.clock.paused = true;
   else game.clock = null;
   return game;

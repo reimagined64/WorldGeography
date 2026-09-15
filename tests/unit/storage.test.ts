@@ -17,8 +17,9 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import * as Engine from '../../src/engine/core.ts';
+import { setLocale } from '../../src/i18n/index.ts';
 import {
-  DEFAULT_SETTINGS,
+  defaultNames,
   SCHEMA_KEY,
   SCHEMA_VERSION,
   STORE,
@@ -164,7 +165,7 @@ describe('settings', () => {
     expect(options.region).toBe('all');
     expect(options.motion).toBe('full');
     expect(options.names[0]).toHaveLength(24);
-    expect(options.names[1]).toBe(DEFAULT_SETTINGS.names[1]);
+    expect(options.names[1]).toBe(defaultNames()[1]);
     expect('visits' in options).toBe(false);
   });
 
@@ -175,7 +176,19 @@ describe('settings', () => {
     expect(options).toMatchObject({ players: 2, difficulty: 'expert', region: 'Europe', motion: 'reduced' });
     expect(options.names).toEqual(['A', 'B']);
     options.names[0] = 'mutated';
-    expect(DEFAULT_SETTINGS.names[0]).toBe('Hráč 1');
+    expect(defaultNames()[0]).toBe('Hráč 1');
+  });
+
+  it('re-renders an untouched placeholder name in the reader\'s language', () => {
+    // U11: a name the player never typed is the setup screen's placeholder, and
+    // it follows the language. A name they did type never does, in either
+    // direction — that is the whole distinction this makes.
+    write(STORE.settings, { players: 2, names: ['Hráč 1', 'Grace'] });
+
+    setLocale('en');
+    expect(loadSettings().names).toEqual(['Player 1', 'Grace']);
+    setLocale('cs');
+    expect(loadSettings().names).toEqual(['Hráč 1', 'Grace']);
   });
 });
 

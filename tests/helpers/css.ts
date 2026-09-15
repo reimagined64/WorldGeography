@@ -240,6 +240,29 @@ export const DECLARED_STYLE_CHANGES: readonly string[] = [
   '@media(max-width:700px)||.score-chip padding: 7px 10px -> 9px 10px',
   '@media(max-width:700px)||.flight-card padding-top: 8px -> 16px',
   '@media(max-width:700px)||.flight-steps margin-top: 18px -> 24px',
+
+  // U11 adds one control to the header and the class that hides its accessible
+  // name from sight. `.language-button` restates the mono face and the width
+  // because the base `.icon-button` is sized for a glyph, not for two capitals;
+  // the `:disabled` pair is the mid-run lock, which has to look locked.
+  '||.language-button font: absent -> 12px var(--mono)',
+  '||.language-button font-weight: absent -> 700',
+  '||.language-button letter-spacing: absent -> .5px',
+  '||.language-button width: absent -> 39px',
+  '@media(max-width:700px)||.language-button font-size: absent -> 10px',
+  '@media(max-width:390px)||.language-button width: absent -> 28px',
+  '@media(max-width:390px)||.language-button font-size: absent -> 9px',
+  '||.icon-button:disabled opacity: absent -> .4',
+  '||.icon-button:disabled:hover background: absent -> none',
+  '||.visually-hidden position: absent -> absolute',
+  '||.visually-hidden width: absent -> 1px',
+  '||.visually-hidden height: absent -> 1px',
+  '||.visually-hidden margin: absent -> -1px',
+  '||.visually-hidden padding: absent -> 0',
+  '||.visually-hidden overflow: absent -> hidden',
+  '||.visually-hidden clip-path: absent -> inset(50%)',
+  '||.visually-hidden white-space: absent -> nowrap',
+  '||.visually-hidden border: absent -> 0',
 ].sort();
 
 /** Every distinct selector in the sheet, in first-seen order. */

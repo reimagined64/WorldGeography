@@ -52,6 +52,7 @@ export class StubElement {
   disabled = false;
   open = false;
   tagName = 'DIV';
+  lang = '';
   clicks = 0;
   focuses = 0;
   onclick: ((...args: unknown[]) => unknown) | null = null;
@@ -111,9 +112,13 @@ export function installDom(): DomStub {
   };
 
   const body = new StubElement('body');
+  // U11 sets `document.documentElement.lang` on every switch, which is the one
+  // thing a screen reader reads before any catalog string.
+  const documentElement = new StubElement('html');
   const document = {
     hidden: false,
     body,
+    documentElement,
     getElementById: (id: string): StubElement => el(id),
     querySelectorAll: (selector: string): StubElement[] => selectors.get(selector) ?? [],
     querySelector: (selector: string): StubElement | null => selectors.get(selector)?.[0] ?? null,

@@ -31,5 +31,13 @@ export default defineConfig({
   use: {
     ...devices['Desktop Chrome'],
     launchOptions: { ...CHROMIUM_LAUNCH },
+    /*
+     * Pinned since U11, because the game now reads `navigator.languages`.
+     * Without this the suite speaks whatever language the runner's Chromium
+     * was built for — Czech here, English on a CI image — and every assertion
+     * about a label would be a coin toss. `tests/browser/i18n.spec.ts` is where
+     * the other language is exercised, deliberately.
+     */
+    locale: 'cs-CZ',
   },
 });

@@ -14,8 +14,9 @@
  * first write refuses every later one, and a toast on each would bury the game.
  */
 import * as Core from '../engine/core.ts';
-import type { Coordinates, QuestionKind } from '../engine/types.ts';
+import type { Coordinates, QuestionKind, Region } from '../engine/types.ts';
 import { byCode, flags } from './database.ts';
+import { formatNumber, locale, regionName, t } from '../i18n/index.ts';
 import { write } from './storage.ts';
 
 /**
@@ -52,15 +53,23 @@ const ESCAPES: Readonly<Record<string, string>> = {
 export const esc = (value: unknown): string =>
   String(value ?? '').replace(/[&<>"']/g, (c) => ESCAPES[c]!);
 
-/** One decimal, Czech separator: the readout the clock and the flight share. */
+/**
+ * One decimal, in the reader's separator: the readout the clock and the flight
+ * share. Czech writes `1,4`, English `1.4`, and the number is the same number.
+ */
 export const seconds = (ms: number): string =>
-  (Math.ceil(Math.max(0, ms) / 100) / 10).toLocaleString('cs-CZ', { minimumFractionDigits: 1, maximumFractionDigits: 1 });
+  formatNumber(Math.ceil(Math.max(0, ms) / 100) / 10, { minimumFractionDigits: 1, maximumFractionDigits: 1 });
 
-export const pointText = (n: number): string => n.toLocaleString('cs-CZ');
+export const pointText = (n: number): string => formatNumber(n);
 
-/** Czech counts one, few and many differently, and the UI says the number aloud. */
-export const attemptWord = (n: number): string =>
-  n === 1 ? 'pokus' : n >= 2 && n <= 4 ? 'pokusy' : 'pokusů';
+/**
+ * The count and its noun, agreeing.
+ *
+ * v7 wrote `${n} pokusů` at ten sites and got the agreement right at one. The
+ * catalog entry carries all four Czech categories, so the number and the word
+ * can no longer be written apart from each other.
+ */
+export const attempts = (n: number): string => t('game.attempts', { count: n });
 
 export function lifePips(n: number): string {
   return `<span class="life-pips" aria-hidden="true">${Array.from({length:5},(_,i)=>`<i class="${i<n?'filled':''}"></i>`).join('')}${n>5?`<small>+${n-5}</small>`:''}</span>`;
@@ -84,23 +93,23 @@ export function populationSourceLink(source: string): string {
   const link = (href: string, label: string): string =>
     `<a href="${href}" target="_blank" rel="noopener noreferrer">${esc(label)} ↗</a>`;
   if (source.startsWith('un-wpp-')) {
-    return link('https://population.un.org/wpp/', 'Populační zdroj: OSN, World Population Prospects 2024');
+    return link('https://population.un.org/wpp/', t('source.population.un'));
   }
   if (source.startsWith('worldometer-')) {
     return link(
       'https://www.worldometers.info/world-population/population-by-country/',
-      'Populační zdroj: Worldometer / OSN',
+      t('source.population.worldometer'),
     );
   }
   return '';
 }
 
 export function regionOptions(value: string): string {
-  return `<option value="all"${value==='all'?' selected':''}>Celý svět</option>`+Object.entries(Core.REGIONS).map(([key,label])=>`<option value="${key}"${value===key?' selected':''}>${label}</option>`).join('');
+  return `<option value="all"${value==='all'?' selected':''}>${esc(regionName('all'))}</option>`+Object.keys(Core.REGIONS).map(key=>`<option value="${key}"${value===key?' selected':''}>${esc(regionName(key as Region))}</option>`).join('');
 }
 
 export function flagImage(code: string, hiddenName = false, extra = ''): string {
-  return `<img class="country-flag ${extra}" src="${flags[code]}" alt="${hiddenName?'Vlajka k poznání':'Vlajka: '+esc(byCode[code]!.name)}" draggable="false" decoding="sync">`;
+  return `<img class="country-flag ${extra}" src="${flags[code]}" alt="${hiddenName?esc(t('flag.altHidden')):esc(t('flag.alt',{name:byCode[code]!.name}))}" draggable="false" decoding="sync">`;
 }
 
 let toastTimer: ReturnType<typeof setTimeout> | undefined;
@@ -113,5 +122,5 @@ let storageWarningShown = false;
 
 /** `write`, plus the one-shot toast a refusal owes the player. */
 export function persist(key: string, value: unknown): boolean {
-  const ok=write(key,value);if(!ok&&!storageWarningShown){storageWarningShown=true;notify('Prohlížeč nepovoluje ukládání. Po zavření stránky se postup ztratí.');}return ok;
+  const ok=write(key,value);if(!ok&&!storageWarningShown){storageWarningShown=true;notify(t('storage.refused'));}return ok;
 }

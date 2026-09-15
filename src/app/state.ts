@@ -23,6 +23,7 @@ import type { GeoAudio } from '../audio/audio.ts';
 import type { GeoClock } from '../engine/clock.ts';
 import type { GameState } from '../engine/types.ts';
 import type { FlightState, Globe } from '../globe/globe.ts';
+import { t } from '../i18n/index.ts';
 import { normalizeSettings, type AppSettings, type HighScore } from './storage.ts';
 
 /** The four screens `setView` switches between. */
@@ -70,12 +71,12 @@ export const STORE_KEYS: readonly (keyof Store)[] = Object.freeze([
 ] as const);
 
 export function requireGlobe(): Globe {
-  if (store.globe === null) throw new Error('Glóbus ještě nebyl vytvořen.');
+  if (store.globe === null) throw new Error(t('boot.noGlobe'));
   return store.globe;
 }
 
 export function requireAudio(): GeoAudio {
-  if (store.audio === null) throw new Error('Zvuk ještě nebyl vytvořen.');
+  if (store.audio === null) throw new Error(t('boot.noAudio'));
   return store.audio;
 }
 

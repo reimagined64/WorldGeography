@@ -131,6 +131,16 @@ describe('readable build', () => {
     const modules = [...html.matchAll(/^\s*\/\/ (src\/\S+)$/gm)].map((match) => match[1]);
     expect(modules).toEqual([
       'src/engine/core.ts',
+      // U11: the catalog sits ahead of everything that prints — `themes.ts` is
+      // the first to need it, for the names of the twenty-one scores — and
+      // `index.ts` sits behind both catalogs, because a catalog that imported
+      // the runtime back would be a cycle evaluated during initialization,
+      // which is the one kind esbuild cannot flatten.
+      'src/i18n/cs.ts',
+      'src/i18n/en.ts',
+      'src/i18n/plurals.ts',
+      'src/i18n/locales.ts',
+      'src/i18n/index.ts',
       'src/audio/themes.ts',
       'src/audio/audio.ts',
       'src/globe/globe.ts',
@@ -138,6 +148,7 @@ describe('readable build', () => {
       'src/app/state.ts',
       'src/app/database.ts',
       'src/app/dom.ts',
+      'src/i18n/chrome.ts',
       'src/app/dialogs/audio-settings.ts',
       'src/app/dialogs/help.ts',
       'src/app/dialogs/sources.ts',

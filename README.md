@@ -18,6 +18,13 @@ game, including all 195 flags, is one file. Audio starts on the first page
 interaction, normally the "Zahájit expedici" button. Managed browsers in
 companies and schools may block local HTML or audio outright.
 
+The game opens in Czech or English, chosen from the browser's own language list
+and overridden by the `CS`/`EN` control in the header. The choice is remembered
+in the same `localStorage` settings the rest of the setup screen uses. It is
+disabled while a run is in progress: a run's questions are written once, at
+creation, in one language, so switching mid-run would mix the two on one
+screen.
+
 ## Requirements
 
 Node 24.14.0 (pinned in `.nvmrc`) and npm. There are no runtime dependencies;
