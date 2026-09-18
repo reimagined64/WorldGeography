@@ -9,7 +9,7 @@
     "node": "24.14.0"
   },
   "scripts": {
-    "build": "node scripts/unimplemented.ts build U13",
+    "build": "node scripts/obfuscate.ts",
     "build:readable": "node scripts/build.ts",
     "dev": "node scripts/dev.ts",
     "data:refresh": "node scripts/data/refresh.ts",

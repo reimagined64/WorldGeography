@@ -85,10 +85,16 @@ jobs:
       - name: Install Chromium and its system libraries
         run: npx playwright install --with-deps chromium
 
-      # The command the deploy uses, proven on every branch rather than only
-      # on main. U13 adds `npm run build` beside it; both stay green.
+      # Both flavors, proven on every branch rather than only on main. The
+      # readable one is what most of the browser suite opens; the obfuscated
+      # one is what the deploy publishes, and it is the one that can fail for
+      # reasons the other cannot — a transform that breaks the bundle, or a
+      # published file that moved out from under the notices.
       - name: Readable build
         run: npm run build:readable
+
+      - name: Published build
+        run: npm run build
 
       # ── U14 ───────────────────────────────────────────────────────────────
       # Becomes `npm run test:browser` once that script exists. The wiring is

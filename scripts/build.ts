@@ -14,8 +14,12 @@
  * the live tree. The substitution helpers below are therefore lifted rather
  * than imported, and JSON is re-serialized with a plain `JSON.stringify`.
  *
- * U13 adds the obfuscated flavor on top of `bundleScript`, which is why the
- * bundle is produced separately from the document it is inlined into.
+ * U13 added the obfuscated flavor on top of `bundleScript`, which is why the
+ * bundle is produced separately from the document it is inlined into:
+ * `scripts/obfuscate.ts` bundles with `minify`, runs the obfuscator over the
+ * result, and hands that to `assembleDocument`. Everything below this line is
+ * shared by both flavors, including the offline guard — an obfuscated build
+ * that reached for the network would be no less of an R8 failure.
  */
 import { build } from 'esbuild';
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
@@ -188,8 +192,17 @@ export function assertSelfContained(html: string): void {
   }
 }
 
-/** Collapse the `src/main.ts` graph into one browser IIFE. */
-export async function bundleScript(root: string = REPO_ROOT): Promise<string> {
+/**
+ * Collapse the `src/main.ts` graph into one browser IIFE.
+ *
+ * `minify` is the obfuscated flavor's only request of this function. It runs
+ * esbuild's minifier *before* the obfuscator rather than instead of it: every
+ * transform the obfuscator applies multiplies what it is handed, so stripping
+ * the comments and the long local names first is worth 55 KB of input and a
+ * measured 139 KB of output. The readable flavor leaves it off, because being
+ * readable is the entire purpose of that build.
+ */
+export async function bundleScript(root: string = REPO_ROOT, minify = false): Promise<string> {
   const result = await build({
     absWorkingDir: root,
     entryPoints: [BUNDLE_ENTRY],
@@ -200,7 +213,7 @@ export async function bundleScript(root: string = REPO_ROOT): Promise<string> {
     // Non-ASCII stays non-ASCII: the UI is Czech, and `č` for every `č`
     // would cost ~30 KB and make the readable build unreadable.
     charset: 'utf8',
-    minify: false,
+    minify,
     sourcemap: false,
     legalComments: 'inline',
     write: false,
@@ -212,19 +225,33 @@ export async function bundleScript(root: string = REPO_ROOT): Promise<string> {
   return output.text;
 }
 
-/** Bundle, inline, and check. The returned string is the whole product. */
-export async function buildReadable(root: string = REPO_ROOT): Promise<string> {
+/**
+ * Inline a finished bundle, the stylesheet and the four data blocks, then check.
+ *
+ * Takes the bundle rather than producing it, because U13 hands it a different
+ * one: the obfuscated flavor is this same document around an obfuscated script,
+ * and every other byte is identical. That sharing is not a convenience — KTD6
+ * requires the 1.5 MB flag payload to stay out of the obfuscated JavaScript,
+ * and it stays out precisely because it is substituted here, into its own inert
+ * element, rather than imported by anything the bundler can see.
+ */
+export function assembleDocument(bundle: string, root: string = REPO_ROOT): string {
   const read = (relative: string) => readFileSync(join(root, relative), 'utf8');
   const sources: Record<string, InlineSource> = {};
   for (const [tag, relative] of Object.entries(SOURCE_FILES)) {
     sources[tag] = { kind: relative.endsWith('.json') ? 'json' : 'raw', text: read(relative) };
   }
   sources['CSS'] = { kind: 'raw', text: readStylesheet(root) };
-  sources['BUNDLE'] = { kind: 'raw', text: await bundleScript(root) };
+  sources['BUNDLE'] = { kind: 'raw', text: bundle };
 
   const html = buildDocument(read(TEMPLATE_FILE), sources);
   assertSelfContained(html);
   return html;
+}
+
+/** Bundle, inline, and check. The returned string is the whole product. */
+export async function buildReadable(root: string = REPO_ROOT): Promise<string> {
+  return assembleDocument(await bundleScript(root), root);
 }
 
 /** Build and write, returning the byte length actually on disk. */

@@ -133,7 +133,7 @@ SPDX-License-Identifier: Unicode-3.0
 
 VLAJKY / VERZE 3.0
 195 rasterizovaných ilustrací Noto Color Emoji 2.051. Google Noto Emoji: https://github.com/googlefonts/noto-emoji
-Obrázky jsou vložené jako PNG; fontové soubory se nedistribuují. Ilustrace vlajek vycházejí z public-domain region-flags. Příslušná oznámení: licenses/Noto-Emoji-NOTICE.txt a licenses/Apache-2.0.txt v ZIP balíčku.
+Obrázky jsou vložené jako PNG; fontové soubory se nedistribuují. Ilustrace vlajek vycházejí z public-domain region-flags. Příslušná oznámení: licenses/Noto-Emoji-NOTICE.txt a licenses/Apache-2.0.txt vedle hry.
 
 
 FULL NOTO / APACHE NOTICES — PNG RENDER PROVENANCE

@@ -17,22 +17,9 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { writeReadable } from '../../scripts/build.ts';
+// The page's test surface, taken from `createDebugApi` rather than narrowed here.
+import '../helpers/page-api.ts';
 
-/**
- * The page's own test surface, frozen onto `window` during boot. Narrow on
- * purpose — only what this spec reads, so a rename fails a typecheck instead
- * of silently returning `undefined` inside the browser.
- */
-declare global {
-  interface Window {
-    WorldGeography?: {
-      getStatus(): {
-        phase: string;
-        clock: { elapsedMs: number; remainingMs: number; running: boolean } | null;
-      };
-    };
-  }
-}
 
 /** The arrival flight is 12 s of the game's own design, plus build and launch. */
 test.setTimeout(90_000);

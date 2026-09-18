@@ -46,26 +46,14 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      # ══════════════════════════════════════════════════════════════════════
-      # TEMPORARY — this publishes the READABLE build, which the plan forbids.
-      #
-      # R7 and KTD18 say the obfuscated `npm run build` output is the only game
-      # HTML Pages serves, and that the readable build is never published: a
-      # readable copy on the site leaves the obfuscation nothing to protect.
-      # `npm run build` lands in U13 and exits 1 today, so publishing the
-      # readable build is the only way to prove Pages end to end before then —
-      # and an unproven deploy is the thing U13 would otherwise discover late.
-      #
-      # U13 replaces the single `run:` line below with:
-      #
-      #     run: npm run build
-      #
-      # That is the whole change. `npm run build` writes `dist/index.html`
-      # itself, which is why the build runs first and the steps after it only
-      # add files: they stay correct, and idempotent, either way.
-      # ══════════════════════════════════════════════════════════════════════
+      # U13 landed, so this is the obfuscated flavor now — the only game HTML
+      # Pages serves (R7), and the readable build is never published beside it
+      # (KTD18). `npm run build` assembles the whole of `dist/` itself,
+      # including the four files the step below also copies; that duplication
+      # is deliberate and idempotent, and it is what lets this workflow keep
+      # verifying the published directory rather than trusting the build.
       - name: Build the game
-        run: npm run build:readable && mkdir -p dist && cp build/readable/index.html dist/index.html
+        run: npm run build
 
       - name: Assemble the published directory
         run: |
