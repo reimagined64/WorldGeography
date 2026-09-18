@@ -1,82 +1,178 @@
 [
   {
-    "name": "OSN – členské státy",
+    "name": {
+      "cs": "OSN – členské státy",
+      "en": "UN – member states"
+    },
     "url": "https://research.un.org/en/unmembers/currentmembers",
-    "use": "Rozsah základní sady: 193 členských států; přidány Palestina a Vatikán/Svatý stolec. Kontrola 7. 9. 2026."
+    "use": {
+      "cs": "Rozsah základní sady: 193 členských států; přidány Palestina a Vatikán/Svatý stolec. Kontrola 7. 9. 2026.",
+      "en": "The scope of the base set: 193 member states, with Palestine and the Vatican/Holy See added. Checked 7 September 2026."
+    }
   },
   {
-    "name": "OSN – World Population Prospects 2024 (CSV, střední varianta)",
+    "name": {
+      "cs": "OSN – World Population Prospects 2024 (CSV, střední varianta)",
+      "en": "UN – World Population Prospects 2024 (CSV, medium variant)"
+    },
     "url": "https://population.un.org/wpp/assets/Excel%20Files/1_Indicator%20(Standard)/CSV_FILES/WPP2024_Demographic_Indicators_Medium.csv.gz",
-    "use": "Přímý zdroj 195 populačních hodnot: sloupec TPopulation1July pro rok 2026, uváděný v tisících a násobený tisícem. Soubor je připnutý otiskem sha256 286ac36bb141… (16557272 B), staženo 2026-09-10. Jde o projekce střední varianty WPP 2024, nikoli o dnešní sčítání."
+    "use": {
+      "cs": "Přímý zdroj 195 populačních hodnot: sloupec TPopulation1July pro rok 2026, uváděný v tisících a násobený tisícem. Soubor je připnutý otiskem sha256 286ac36bb141… (16557272 B), staženo 2026-09-10. Jde o projekce střední varianty WPP 2024, nikoli o dnešní sčítání.",
+      "en": "The direct source of 195 population values: column TPopulation1July for 2026, published in thousands and multiplied by a thousand. The file is pinned by the sha256 digest 286ac36bb141… (16557272 B), retrieved 2026-09-10. These are medium-variant WPP 2024 projections, not a census taken today."
+    }
   },
   {
-    "name": "Natural Earth – 1:110m Admin 0, v5.1.2",
+    "name": {
+      "cs": "Natural Earth – 1:110m Admin 0, v5.1.2",
+      "en": "Natural Earth – 1:110m Admin 0, v5.1.2"
+    },
     "url": "https://raw.githubusercontent.com/nvkelso/natural-earth-vector/v5.1.2/geojson/ne_110m_admin_0_countries.geojson",
-    "use": "Generalizovaný mapový podklad 1:110m, public domain. Připnuto na značku v5.1.2, otisk sha256 6866c877d39c… (838726 B), staženo 2026-09-10. Kód země se čte z pole ISO_A3; polygony, které upstream nechává nepřiřazené, rozhoduje data/overrides/territory.json. Podklad není zdrojem právního vymezení hranic."
+    "use": {
+      "cs": "Generalizovaný mapový podklad 1:110m, public domain. Připnuto na značku v5.1.2, otisk sha256 6866c877d39c… (838726 B), staženo 2026-09-10. Kód země se čte z pole ISO_A3; polygony, které upstream nechává nepřiřazené, rozhoduje data/overrides/territory.json. Podklad není zdrojem právního vymezení hranic.",
+      "en": "A generalised 1:110m basemap, public domain. Pinned to the v5.1.2 tag, sha256 digest 6866c877d39c… (838726 B), retrieved 2026-09-10. The country code is read from the ISO_A3 field; polygons upstream leaves unassigned are decided by data/overrides/territory.json. The basemap is not a source for the legal course of borders."
+    }
   },
   {
-    "name": "world-countries – referenční databáze (ODC-ODbL 1.0)",
+    "name": {
+      "cs": "world-countries – referenční databáze (ODC-ODbL 1.0)",
+      "en": "world-countries – reference database (ODC-ODbL 1.0)"
+    },
     "url": "https://github.com/mledoze/countries",
-    "use": "Balíček 5.1.0: ISO kódy, anglické názvy hlavních měst, měny, jazyky, světadíl a orientační polohy. Data jsou pod ODC-ODbL 1.0, proto je data/build/countries.json odvozená databáze a šíří se pod toutéž licencí; plné znění je v licenses/ODbL-1.0.txt. Ověřeno 2026-09-15."
+    "use": {
+      "cs": "Balíček 5.1.0: ISO kódy, anglické názvy hlavních měst, měny, jazyky, světadíl a orientační polohy. Data jsou pod ODC-ODbL 1.0, proto je data/build/countries.json odvozená databáze a šíří se pod toutéž licencí; plné znění je v licenses/ODbL-1.0.txt. Ověřeno 2026-09-15.",
+      "en": "Package 5.1.0: ISO codes, English capital names, currencies, languages, continent and representative positions. Its data is under ODC-ODbL 1.0, which makes data/build/countries.json a derivative database distributed under that same licence; the full text is in licenses/ODbL-1.0.txt. Verified 2026-09-15."
+    }
   },
   {
-    "name": "Unicode CLDR – prostřednictvím ICU v Node.js",
+    "name": {
+      "cs": "Unicode CLDR – prostřednictvím ICU v Node.js",
+      "en": "Unicode CLDR – through the ICU in Node.js"
+    },
     "url": "https://cldr.unicode.org/",
-    "use": "České a anglické názvy zemí, měn a jazyků přes Intl.DisplayNames: icu 78.2 / cldr 48.0 / node 24.14.0. Verze ICU rozhoduje o znění popisků, proto je Node připnutý v .nvmrc. Ověřeno 2026-09-15."
+    "use": {
+      "cs": "České a anglické názvy zemí, měn a jazyků přes Intl.DisplayNames: icu 78.2 / cldr 48.0 / node 24.14.0. Verze ICU rozhoduje o znění popisků, proto je Node připnutý v .nvmrc. Ověřeno 2026-09-15.",
+      "en": "Czech and English names of countries, currencies and languages through Intl.DisplayNames: icu 78.2 / cldr 48.0 / node 24.14.0. The ICU version decides how the labels are worded, which is why Node is pinned in .nvmrc. Verified 2026-09-15."
+    }
   },
   {
-    "name": "Noto Color Emoji 2.051 – předloha vlajkových ilustrací",
+    "name": {
+      "cs": "Noto Color Emoji 2.051 – předloha vlajkových ilustrací",
+      "en": "Noto Color Emoji 2.051 – the master for the flag illustrations"
+    },
     "url": "https://raw.githubusercontent.com/googlefonts/noto-emoji/v2.051/fonts/NotoColorEmoji.ttf",
-    "use": "Předloha 195 vlajkových ilustrací. Obrázky vykresluje npm run data:flags z připnutého souboru písma, otisk sha256 72a635cb3d2f… (10673480 B), staženo 2026-09-15; samotné písmo se nedistribuuje a ve hře jsou jen hotové PNG. Jde o stylizované ilustrace, nikoli o technické vyobrazení poměrů stran a barev."
+    "use": {
+      "cs": "Předloha 195 vlajkových ilustrací. Obrázky vykresluje npm run data:flags z připnutého souboru písma, otisk sha256 72a635cb3d2f… (10673480 B), staženo 2026-09-15; samotné písmo se nedistribuuje a ve hře jsou jen hotové PNG. Jde o stylizované ilustrace, nikoli o technické vyobrazení poměrů stran a barev.",
+      "en": "The master for 195 flag illustrations. npm run data:flags renders the images from the pinned font file, sha256 digest 72a635cb3d2f… (10673480 B), retrieved 2026-09-15; the font itself is not distributed and only the finished PNGs are in the game. These are stylised illustrations, not technical depictions of ratios and colours."
+    }
   },
   {
-    "name": "Rada EU – přistoupení k eurozóně",
+    "name": {
+      "cs": "Rada EU – přistoupení k eurozóně",
+      "en": "Council of the EU – joining the euro area"
+    },
     "url": "https://www.consilium.europa.eu/en/policies/join-the-euro-area/",
-    "use": "Primární ověření: Bulharsko používá euro od 1. ledna 2026; ve hře není jako správná měna bulharský lev."
+    "use": {
+      "cs": "Primární ověření: Bulharsko používá euro od 1. ledna 2026; ve hře není jako správná měna bulharský lev.",
+      "en": "Primary verification: Bulgaria has used the euro since 1 January 2026; the Bulgarian lev is not a correct currency answer in the game."
+    }
   },
   {
-    "name": "Vláda Rovníkové Guineje – dekret 1/2026",
+    "name": {
+      "cs": "Vláda Rovníkové Guineje – dekret 1/2026",
+      "en": "Government of Equatorial Guinea – decree 1/2026"
+    },
     "url": "https://www.guineaecuatorialpress.com/noticias/decreto_ley_por_el_que_se_declara_la_ciudad_de_la_paz_djibloho_capital_de_la_republica_de_guinea_ecuatorial",
-    "use": "Primární ověření vyhlášení Ciudad de la Paz hlavním městem dne 2. ledna 2026, včetně přechodného období pro přesun institucí."
+    "use": {
+      "cs": "Primární ověření vyhlášení Ciudad de la Paz hlavním městem dne 2. ledna 2026, včetně přechodného období pro přesun institucí.",
+      "en": "Primary verification of the declaration of Ciudad de la Paz as the capital on 2 January 2026, including the transitional period for moving institutions."
+    }
   },
   {
-    "name": "Indonéský státní sekretariát – rozvoj Nusantary",
+    "name": {
+      "cs": "Indonéský státní sekretariát – rozvoj Nusantary",
+      "en": "Indonesian State Secretariat – the development of Nusantara"
+    },
     "url": "https://setneg.go.id/baca/index/mensesneg_tekankan_komitmen_presiden_prabowo_untuk_percepatan_pembangunan_ikn",
-    "use": "Primární zdroj o pokračující výstavbě Nusantary (13. 1. 2026). Herní otázka se ptá na jméno budovaného města, nikoli na sporné datum právního přesunu."
+    "use": {
+      "cs": "Primární zdroj o pokračující výstavbě Nusantary (13. 1. 2026). Herní otázka se ptá na jméno budovaného města, nikoli na sporné datum právního přesunu.",
+      "en": "A primary source on the continuing construction of Nusantara (13 January 2026). The game's question asks for the name of the city being built, not for the disputed date of the legal transfer."
+    }
   },
   {
-    "name": "COMPUTE!, leden 1991 – původní World Geography",
+    "name": {
+      "cs": "COMPUTE!, leden 1991 – původní World Geography",
+      "en": "COMPUTE!, January 1991 – the original World Geography"
+    },
     "url": "https://www.atarimagazines.com/compute/issue125/G8_Reviewers_choice.php",
-    "use": "Dobový popis glóbů, map a otázek na města, jazyky, měny a obyvatelstvo. Nová implementace neobsahuje původní program, grafiku ani hudbu."
+    "use": {
+      "cs": "Dobový popis glóbů, map a otázek na města, jazyky, měny a obyvatelstvo. Nová implementace neobsahuje původní program, grafiku ani hudbu.",
+      "en": "A contemporary description of the globes, maps and questions on cities, languages, currencies and population. This new implementation contains none of the original program, graphics or music."
+    }
   },
   {
-    "name": "Reserve Bank of Zimbabwe – měnové údaje",
+    "name": {
+      "cs": "Reserve Bank of Zimbabwe – měnové údaje",
+      "en": "Reserve Bank of Zimbabwe – currency data"
+    },
     "url": "https://www.rbz.co.zw/",
-    "use": "Primární ověření domácí měny ZiG v roce 2026; kurzovní lístky RBZ používají kód ZWG."
+    "use": {
+      "cs": "Primární ověření domácí měny ZiG v roce 2026; kurzovní lístky RBZ používají kód ZWG.",
+      "en": "Primary verification of the ZiG domestic currency in 2026; the RBZ exchange-rate sheets use the code ZWG."
+    }
   },
   {
-    "name": "Otorita IKN – výstavba Nusantary, květen 2026",
+    "name": {
+      "cs": "Otorita IKN – výstavba Nusantary, květen 2026",
+      "en": "Otorita IKN – the construction of Nusantara, May 2026"
+    },
     "url": "https://ikn.go.id/en/posts/pembangunan-ikn-maju-tanpa-ragu-otorita-ikn-tegaskan-progres-terus-berjalan",
-    "use": "Aktualizace z 21. 5. 2026: pokračující výstavba a rozlišení výstavby od právního rozhodnutí o přesunu hlavního města."
+    "use": {
+      "cs": "Aktualizace z 21. 5. 2026: pokračující výstavba a rozlišení výstavby od právního rozhodnutí o přesunu hlavního města.",
+      "en": "An update of 21 May 2026: construction continues, and it separates that construction from the legal decision to move the capital."
+    }
   },
   {
-    "name": "Káhirský úřední portál – Cairo in Lines",
+    "name": {
+      "cs": "Káhirský úřední portál – Cairo in Lines",
+      "en": "Cairo's official portal – Cairo in Lines"
+    },
     "url": "https://www.cairo.gov.eg/en/about-governorate/cairo-in-lines/",
-    "use": "Primární zdroj nadále označuje Káhiru za hlavní město Egypta."
+    "use": {
+      "cs": "Primární zdroj nadále označuje Káhiru za hlavní město Egypta.",
+      "en": "The primary source continues to name Cairo as the capital of Egypt."
+    }
   },
   {
-    "name": "Egyptská státní informační služba – The New Capital",
+    "name": {
+      "cs": "Egyptská státní informační služba – The New Capital",
+      "en": "Egyptian State Information Service – The New Capital"
+    },
     "url": "https://sis.gov.eg/en/media-center/events/the-inauguration-of-the-state-strategic-command-headquarters-the-octagon-in-the-new-capital/",
-    "use": "Vládní zpráva ze 4. 7. 2026 o státních institucích v novém správním centru; v atlasu odlišeno od Káhiry."
+    "use": {
+      "cs": "Vládní zpráva ze 4. 7. 2026 o státních institucích v novém správním centru; v atlasu odlišeno od Káhiry.",
+      "en": "A government report of 4 July 2026 on state institutions in the new administrative centre; distinguished from Cairo in the atlas."
+    }
   },
   {
-    "name": "Google Noto Emoji — ilustrace vlajek",
+    "name": {
+      "cs": "Google Noto Emoji — ilustrace vlajek",
+      "en": "Google Noto Emoji — the flag illustrations"
+    },
     "url": "https://github.com/googlefonts/noto-emoji",
-    "use": "195 vložených PNG obrázků vyrenderovaných z Noto Color Emoji 2.051 (2025-08-18). Nezávisí na podpoře emoji na zařízení. Stylizované, nikoli vexilologické technické výkresy. Syrská ilustrace má zelený horní pruh a tři červené hvězdy. Afghánská ilustrace je republikánská trikolóra; stát je vyřazen z vlajkových bonusů. Viz metodické poznámky v atlasu."
+    "use": {
+      "cs": "195 vložených PNG obrázků vyrenderovaných z Noto Color Emoji 2.051 (2025-08-18). Nezávisí na podpoře emoji na zařízení. Stylizované, nikoli vexilologické technické výkresy. Syrská ilustrace má zelený horní pruh a tři červené hvězdy. Afghánská ilustrace je republikánská trikolóra; stát je vyřazen z vlajkových bonusů. Viz metodické poznámky v atlasu.",
+      "en": "195 embedded PNG images rendered from Noto Color Emoji 2.051 (2025-08-18). They do not depend on a device's emoji support. Stylised, not vexillological technical drawings. The Syrian illustration has a green top stripe and three red stars. The Afghan illustration is the republican tricolour; the country is left out of the flag bonuses. See the methodology notes in the atlas."
+    }
   },
   {
-    "name": "Bank Al-Maghrib — marocký dirham",
+    "name": {
+      "cs": "Bank Al-Maghrib — marocký dirham",
+      "en": "Bank Al-Maghrib — the Moroccan dirham"
+    },
     "url": "https://www.bkam.ma/en/Monetary-policy/Strategic-framework/Presentation",
-    "use": "Oprava názvu měny MAD: marocký dirham, nikoli dinár. Ověřeno 7. 9. 2026."
+    "use": {
+      "cs": "Oprava názvu měny MAD: marocký dirham, nikoli dinár. Ověřeno 7. 9. 2026.",
+      "en": "A correction to the name of the currency MAD: Moroccan dirham, not dinar. Verified 7 September 2026."
+    }
   }
 ]

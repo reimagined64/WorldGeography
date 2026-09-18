@@ -88,6 +88,37 @@ function table(
   ];
 }
 
+/** One piece of hand-written prose, in both languages. */
+interface ProseRow {
+  key: string;
+  cs: string;
+  en: string;
+}
+
+/**
+ * The half of the English copy no generator produced.
+ *
+ * The tables above review a *lookup*: CLDR said something and a reviewer agrees
+ * or does not. These review a *translation*, which fails differently — the
+ * English can be fluent, present and complete and still not say what the Czech
+ * says. So there is no provenance column here; both columns are somebody's
+ * writing, and the only way to check one against the other is to read them side
+ * by side, which is what this is for.
+ */
+function proseTable(rows: readonly ProseRow[], heading: string, keyLabel: string, note: string): string[] {
+  return [
+    `## ${heading}`,
+    '',
+    `${rows.length} entries, hand-written in both languages.`,
+    note,
+    '',
+    `| ${keyLabel} | Czech | English |`,
+    '| --- | --- | --- |',
+    ...rows.map((row) => `| ${cell(row.key)} | ${cell(row.cs)} | ${cell(row.en)} |`),
+    '',
+  ];
+}
+
 export function renderReview(root?: string): string {
   const at = paths(root);
   const overrides = loadOverrides(at.overrides);
@@ -164,6 +195,24 @@ export function renderReview(root?: string): string {
   }
   const languages = [...languageSeen.values()].sort((a, b) => a.key.localeCompare(b.key, 'en'));
 
+  // The prose U17 wrote: the note under a disputed capital, and the sentence
+  // that says what each source was used for.
+  const notes: ProseRow[] = countries
+    .filter((country) => country.note.cs !== '' || country.note.en !== '')
+    .map((country) => ({ key: `${country.code} · ${country.name.en}`, cs: country.note.cs, en: country.note.en }));
+
+  const citations: ProseRow[] = (
+    JSON.parse(readFileSync(at.sources, 'utf8')) as {
+      name: Record<string, string>;
+      url: string;
+      use: Record<string, string>;
+    }[]
+  ).map((entry) => ({
+    key: entry.url,
+    cs: `**${entry.name['cs'] ?? ''}**<br>${entry.use['cs'] ?? ''}`,
+    en: `**${entry.name['en'] ?? ''}**<br>${entry.use['en'] ?? ''}`,
+  }));
+
   const all = [...names, ...capitals, ...currencies, ...languages];
   const flagged = [...names, ...currencies, ...languages].filter(needsReview);
 
@@ -171,7 +220,8 @@ export function renderReview(root?: string): string {
     '# English dataset — review artifact',
     '',
     '<!-- Machine-written by `npm run data:review`. Do not hand-edit: edit',
-    '     `data/overrides/countries.en.json` and regenerate. -->',
+    '     `data/overrides/countries.en.json` for a name, `notes.en.json` for a note',
+    '     or `data/build/sources.json` for a citation, then regenerate. -->',
     '',
     `Generated from the fetch of ${snapshot.fetchedAt}, reference year ${snapshot.year}.`,
     '',
@@ -182,6 +232,11 @@ export function renderReview(root?: string): string {
     'was wrong there, and the English side took its word.',
     '',
     `${all.length} values in total; ${flagged.length} where Czech corrected CLDR and English did not.`,
+    '',
+    'The last two tables are a different kind of review. They hold the prose U17',
+    'translated by hand — the notes and the citations — where nothing was',
+    'generated and so nothing can be flagged: both columns are somebody\'s',
+    'writing, and they are here to be read against each other.',
     '',
     ...(flagged.length === 0
       ? ['Nothing is outstanding.', '']
@@ -218,6 +273,23 @@ export function renderReview(root?: string): string {
         ' the two columns are the full name the atlas and the explanation print.',
     ),
     ...table(languages, 'Languages', 'Tag', 'CLDR', true, ''),
+    ...proseTable(
+      notes,
+      'Country notes',
+      'Country',
+      'The footnote the atlas prints, and the extra sentence the population' +
+        ' explanation carries for four countries. Several of them state a disputed' +
+        ' claim rather than a fact, so a translation that softens or drops one changes' +
+        ' what the game says about a border; the rest qualify a population figure.',
+    ),
+    ...proseTable(
+      citations,
+      'Citations',
+      'Link',
+      'The sources dialog. The name is the link text and the sentence under it says' +
+        ' what that source was used for; five of them are written by the pipeline from' +
+        ' `sources.lock.json` and change whenever a pin does.',
+    ),
   ].join('\n');
 }
 

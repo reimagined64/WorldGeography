@@ -25,6 +25,7 @@ import { join } from 'node:path';
 import { Readable } from 'node:stream';
 import { pipeline } from 'node:stream/promises';
 import { fileURLToPath } from 'node:url';
+import type { LocalizedText } from '../../src/engine/types.ts';
 
 export const REPO_ROOT = fileURLToPath(new URL('../..', import.meta.url));
 export const RAW_DIR = join(REPO_ROOT, 'data/raw');
@@ -265,12 +266,53 @@ export async function fetchPinned(id: string, options: FetchOptions): Promise<Fe
 
 // ------------------------------------------------------------- provenance
 
-/** One entry of `data/build/sources.json`, as the atlas dialog reads it. */
+/**
+ * One entry of `data/build/sources.json`, as the atlas dialog reads it.
+ *
+ * `name` and `use` are localized because a citation is prose: it tells a player
+ * what the source was used *for*, and a reader in English learns nothing from a
+ * Czech sentence about `sloupec TPopulation1July`. The `url` is not — a link is
+ * the same link in both languages, and it is also what `data:check` matches a
+ * pinned download against, so it stays a plain string on purpose.
+ */
 export interface SourceEntry {
-  name: string;
+  name: LocalizedText;
   url: string;
-  use: string;
+  use: LocalizedText;
 }
+
+/**
+ * The shape the file had before U17, where both fields were bare Czech.
+ *
+ * It still has to be readable: `tests/fixtures/baseline/data/sources.json` is
+ * the shipped v7 citation list and is an oracle rather than a file to be
+ * migrated in place, so the regenerator meets the old shape every time that
+ * fixture is replayed.
+ */
+interface LegacySourceEntry {
+  name: string | LocalizedText;
+  url: string;
+  use: string | LocalizedText;
+}
+
+/**
+ * Lifts a pre-U17 entry into the localized shape.
+ *
+ * A bare string is Czech — that is the only thing it could have been — so it is
+ * carried into both locales rather than dropped. The English half is then
+ * visibly untranslated instead of missing, which is what the U17 test catches
+ * and a maintainer fixes by hand. Inventing a translation here, or leaving the
+ * English blank, would both be worse: one fakes editorial work, the other
+ * shows an English reader an empty citation.
+ */
+const localizeText = (value: string | LocalizedText): LocalizedText =>
+  typeof value === 'string' ? { cs: value, en: value } : value;
+
+const localizeEntry = (entry: LegacySourceEntry): SourceEntry => ({
+  name: localizeText(entry.name),
+  url: entry.url,
+  use: localizeText(entry.use),
+});
 
 /**
  * Sources the notices credited before this pipeline existed.
@@ -351,22 +393,46 @@ export function findRetiredSources(files: readonly { path: string; text: string 
   return found;
 }
 
-/** `data/build/sources.json` entries this pipeline owns, keyed by the entry name. */
-const GENERATED_ENTRY_NAMES: readonly string[] = [
-  'OSN – World Population Prospects 2024 (CSV, střední varianta)',
-  'Natural Earth – 1:110m Admin 0, v5.1.2',
-  'world-countries – referenční databáze (ODC-ODbL 1.0)',
-  'Unicode CLDR – prostřednictvím ICU v Node.js',
-  'Noto Color Emoji 2.051 – předloha vlajkových ilustrací',
+/**
+ * `data/build/sources.json` entries this pipeline owns, keyed by the entry name.
+ *
+ * One of the five reads the same in both languages and is listed that way
+ * rather than being paraphrased into a difference: "Natural Earth – 1:110m
+ * Admin 0, v5.1.2" is a product name and a release, and there is no English
+ * word in it to translate.
+ */
+const GENERATED_ENTRY_NAMES: readonly LocalizedText[] = [
+  {
+    cs: 'OSN – World Population Prospects 2024 (CSV, střední varianta)',
+    en: 'UN – World Population Prospects 2024 (CSV, medium variant)',
+  },
+  { cs: 'Natural Earth – 1:110m Admin 0, v5.1.2', en: 'Natural Earth – 1:110m Admin 0, v5.1.2' },
+  {
+    cs: 'world-countries – referenční databáze (ODC-ODbL 1.0)',
+    en: 'world-countries – reference database (ODC-ODbL 1.0)',
+  },
+  { cs: 'Unicode CLDR – prostřednictvím ICU v Node.js', en: 'Unicode CLDR – through the ICU in Node.js' },
+  {
+    cs: 'Noto Color Emoji 2.051 – předloha vlajkových ilustrací',
+    en: 'Noto Color Emoji 2.051 – the master for the flag illustrations',
+  },
 ];
 
-/** Entries the generated block replaces: the four above plus the retired ones. */
+/**
+ * Entries the generated block replaces: the five above plus the retired ones.
+ *
+ * Every locale's name is offered, because a file written before U17 names the
+ * generated entries in Czech and one written after names them in both. Matching
+ * on a single locale would leave the other spelling behind as a duplicate
+ * citation the next refresh appends to rather than replaces.
+ */
 const REPLACED_ENTRY_PREFIXES: readonly string[] = [
-  ...GENERATED_ENTRY_NAMES,
+  ...GENERATED_ENTRY_NAMES.flatMap((name) => Object.values(name)),
   'Worldometer',
   'CountryInfo',
   'Natural Earth – terms of use',
   'OSN – World Population Prospects 2024',
+  'UN – World Population Prospects 2024',
   'Unicode CLDR – Territory-Language Information',
   'Unicode CLDR – Supplemental Data',
 ];
@@ -389,45 +455,79 @@ export function generatedSourceEntries(lock: SourceLock, year: number): SourceEn
     {
       name: GENERATED_ENTRY_NAMES[0]!,
       url: wpp.url,
-      use:
-        `Přímý zdroj 195 populačních hodnot: sloupec TPopulation1July pro rok ${year}, ` +
-        `uváděný v tisících a násobený tisícem. Soubor je připnutý otiskem sha256 ${short(wpp.sha256)}… ` +
-        `(${wpp.bytes} B), staženo ${wpp.accessed}. Jde o projekce střední varianty WPP 2024, ` +
-        `nikoli o dnešní sčítání.`,
+      use: {
+        cs:
+          `Přímý zdroj 195 populačních hodnot: sloupec TPopulation1July pro rok ${year}, ` +
+          `uváděný v tisících a násobený tisícem. Soubor je připnutý otiskem sha256 ${short(wpp.sha256)}… ` +
+          `(${wpp.bytes} B), staženo ${wpp.accessed}. Jde o projekce střední varianty WPP 2024, ` +
+          `nikoli o dnešní sčítání.`,
+        en:
+          `The direct source of 195 population values: column TPopulation1July for ${year}, ` +
+          `published in thousands and multiplied by a thousand. The file is pinned by the sha256 ` +
+          `digest ${short(wpp.sha256)}… (${wpp.bytes} B), retrieved ${wpp.accessed}. These are ` +
+          `medium-variant WPP 2024 projections, not a census taken today.`,
+      },
     },
     {
       name: GENERATED_ENTRY_NAMES[1]!,
       url: ne.url,
-      use:
-        `Generalizovaný mapový podklad 1:110m, public domain. Připnuto na značku v5.1.2, ` +
-        `otisk sha256 ${short(ne.sha256)}… (${ne.bytes} B), staženo ${ne.accessed}. ` +
-        `Kód země se čte z pole ISO_A3; polygony, které upstream nechává nepřiřazené, ` +
-        `rozhoduje data/overrides/territory.json. Podklad není zdrojem právního vymezení hranic.`,
+      use: {
+        cs:
+          `Generalizovaný mapový podklad 1:110m, public domain. Připnuto na značku v5.1.2, ` +
+          `otisk sha256 ${short(ne.sha256)}… (${ne.bytes} B), staženo ${ne.accessed}. ` +
+          `Kód země se čte z pole ISO_A3; polygony, které upstream nechává nepřiřazené, ` +
+          `rozhoduje data/overrides/territory.json. Podklad není zdrojem právního vymezení hranic.`,
+        en:
+          `A generalised 1:110m basemap, public domain. Pinned to the v5.1.2 tag, sha256 ` +
+          `digest ${short(ne.sha256)}… (${ne.bytes} B), retrieved ${ne.accessed}. The country code ` +
+          `is read from the ISO_A3 field; polygons upstream leaves unassigned are decided by ` +
+          `data/overrides/territory.json. The basemap is not a source for the legal course of borders.`,
+      },
     },
     {
       name: GENERATED_ENTRY_NAMES[2]!,
       url: 'https://github.com/mledoze/countries',
-      use:
-        `Balíček ${wc.version}: ISO kódy, anglické názvy hlavních měst, měny, jazyky, světadíl ` +
-        `a orientační polohy. Data jsou pod ODC-ODbL 1.0, proto je data/build/countries.json ` +
-        `odvozená databáze a šíří se pod toutéž licencí; plné znění je v licenses/ODbL-1.0.txt. ` +
-        `Ověřeno ${wc.accessed}.`,
+      use: {
+        cs:
+          `Balíček ${wc.version}: ISO kódy, anglické názvy hlavních měst, měny, jazyky, světadíl ` +
+          `a orientační polohy. Data jsou pod ODC-ODbL 1.0, proto je data/build/countries.json ` +
+          `odvozená databáze a šíří se pod toutéž licencí; plné znění je v licenses/ODbL-1.0.txt. ` +
+          `Ověřeno ${wc.accessed}.`,
+        en:
+          `Package ${wc.version}: ISO codes, English capital names, currencies, languages, ` +
+          `continent and representative positions. Its data is under ODC-ODbL 1.0, which makes ` +
+          `data/build/countries.json a derivative database distributed under that same licence; ` +
+          `the full text is in licenses/ODbL-1.0.txt. Verified ${wc.accessed}.`,
+      },
     },
     {
       name: GENERATED_ENTRY_NAMES[3]!,
       url: 'https://cldr.unicode.org/',
-      use:
-        `České a anglické názvy zemí, měn a jazyků přes Intl.DisplayNames: ${icu.version}. ` +
-        `Verze ICU rozhoduje o znění popisků, proto je Node připnutý v .nvmrc. Ověřeno ${icu.accessed}.`,
+      use: {
+        cs:
+          `České a anglické názvy zemí, měn a jazyků přes Intl.DisplayNames: ${icu.version}. ` +
+          `Verze ICU rozhoduje o znění popisků, proto je Node připnutý v .nvmrc. Ověřeno ${icu.accessed}.`,
+        en:
+          `Czech and English names of countries, currencies and languages through ` +
+          `Intl.DisplayNames: ${icu.version}. The ICU version decides how the labels are worded, ` +
+          `which is why Node is pinned in .nvmrc. Verified ${icu.accessed}.`,
+      },
     },
     {
       name: GENERATED_ENTRY_NAMES[4]!,
       url: noto.url,
-      use:
-        `Předloha 195 vlajkových ilustrací. Obrázky vykresluje npm run data:flags z připnutého ` +
-        `souboru písma, otisk sha256 ${short(noto.sha256)}… (${noto.bytes} B), staženo ${noto.accessed}; ` +
-        `samotné písmo se nedistribuuje a ve hře jsou jen hotové PNG. Jde o stylizované ilustrace, ` +
-        `nikoli o technické vyobrazení poměrů stran a barev.`,
+      use: {
+        cs:
+          `Předloha 195 vlajkových ilustrací. Obrázky vykresluje npm run data:flags z připnutého ` +
+          `souboru písma, otisk sha256 ${short(noto.sha256)}… (${noto.bytes} B), staženo ${noto.accessed}; ` +
+          `samotné písmo se nedistribuuje a ve hře jsou jen hotové PNG. Jde o stylizované ilustrace, ` +
+          `nikoli o technické vyobrazení poměrů stran a barev.`,
+        en:
+          `The master for 195 flag illustrations. npm run data:flags renders the images from the ` +
+          `pinned font file, sha256 digest ${short(noto.sha256)}… (${noto.bytes} B), retrieved ` +
+          `${noto.accessed}; the font itself is not distributed and only the finished PNGs are in ` +
+          `the game. These are stylised illustrations, not technical depictions of ratios and colours.`,
+      },
     },
   ];
 }
@@ -442,9 +542,11 @@ export function generatedSourceEntries(lock: SourceLock, year: number): SourceEn
  * where the first replaced entry sat, which keeps the file stable across runs.
  */
 export function regenerateSourcesJson(text: string, lock: SourceLock, year: number): string {
-  const entries = JSON.parse(text) as SourceEntry[];
+  const entries = (JSON.parse(text) as LegacySourceEntry[]).map(localizeEntry);
   const replaced = (entry: SourceEntry): boolean =>
-    REPLACED_ENTRY_PREFIXES.some((prefix) => entry.name.startsWith(prefix));
+    REPLACED_ENTRY_PREFIXES.some((prefix) =>
+      Object.values(entry.name).some((name) => name.startsWith(prefix)),
+    );
 
   const at = entries.findIndex(replaced);
   const kept = entries.filter((entry) => !replaced(entry));

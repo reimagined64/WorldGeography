@@ -205,3 +205,51 @@ test('plays a whole question in English, dataset and all', async ({ page }) => {
   await expect(page.locator('#world-caption .caption-title')).toHaveText('Czechia');
   await expect(page.locator('#atlas-details')).toContainText('Prague');
 });
+
+test('reads the whole sources dialog in English, citations and links included', async ({ page }) => {
+  // U17. The Node suite drives this dialog through the test harness, which
+  // hands the module its citation list directly. Here the list takes the route
+  // it takes in the shipped game: `data/build/sources.json` is inlined into an
+  // inert `<script>` block at build time, read back out of the DOM during boot
+  // and rendered from there — so a shape the build serializes but the page
+  // cannot read again would only fail in this file.
+  await page.goto(pageUrl);
+  await switchLanguage(page);
+
+  await page.locator('#nav-atlas').click();
+  await page.locator('#atlas-source').click();
+  await expect(page.locator('#dialog-title')).toHaveText('The data has a story.');
+
+  const dialog = page.locator('#dialog-content');
+  await expect(dialog).toContainText('Data edition September 15, 2026.');
+  // A citation the pipeline generates, and one a human wrote: the two halves
+  // of the file, which are translated in two different places.
+  await expect(dialog).toContainText('column TPopulation1July for 2026');
+  await expect(dialog).toContainText('the Bulgarian lev is not a correct currency answer');
+  await expect(dialog).toContainText('UN – member states');
+
+  // Every link is real, external and opened without handing the new page a
+  // handle back to this one.
+  const links = dialog.locator('.source-item a');
+  const count = await links.count();
+  expect(count).toBeGreaterThanOrEqual(16);
+  for (let i = 0; i < count; i += 1) {
+    const link = links.nth(i);
+    await expect(link).toHaveAttribute('href', /^https:\/\//);
+    await expect(link).toHaveAttribute('rel', 'noopener noreferrer');
+    await expect(link).toHaveAttribute('target', '_blank');
+  }
+
+  // Nothing Czech survived the switch. The citations are the one place a
+  // Czech sentence could hide behind an English heading.
+  const CZECH = /[ěščřžýáíéúůťďňĚŠČŘŽÝÁÍÉÚŮŤĎŇ]/;
+  const prose = await dialog.locator('.source-item p').allInnerTexts();
+  expect(prose).toHaveLength(count);
+  for (const text of prose) expect({ text, czech: CZECH.test(text) }).toEqual({ text, czech: false });
+
+  // …and the help dialog, the other screen that is nothing but prose.
+  await page.locator('#dialog-close').click();
+  await page.locator('#nav-help').click();
+  await expect(page.locator('#dialog-title')).toHaveText('Five questions for one attempt.');
+  await expect(page.locator('#dialog-content')).toContainText('Explorer: 30 s. Traveller: 20 s. Cartographer: 12 s.');
+});

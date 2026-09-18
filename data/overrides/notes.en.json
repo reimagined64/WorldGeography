@@ -1,4 +1,27 @@
 {
-  "why": "English country notes — the prose a player reads under a disputed capital, a currency in transition or a population figure that needs a caveat. Empty on purpose: U12 generated the English *names*, and the 22 notes carry geopolitical framing that has to be translated with the same care as the Czech rather than machine-rendered, which is U17's job. A country with no note here simply has no note in English, exactly as a country with no Czech note has none in Czech; nothing breaks, the explanation is one sentence shorter.",
-  "notes": {}
+  "why": "English country notes — the prose a player reads under a disputed capital, a currency in transition or a population figure that needs a caveat. These are the Czech notes translated (U17), not generated: every one of them carries framing a machine would flatten — which city a question is actually asking about, whose claim is disputed, why a projection is not a census. Written for a player, not for a maintainer, in the same British spelling as src/i18n/en.ts. A country with no note here has no note in English, exactly as a country with no Czech note has none in Czech; nothing breaks, the explanation is one sentence shorter.",
+  "notes": {
+    "BG": "Since 1 January 2026 Bulgaria has used the euro, not the Bulgarian lev.",
+    "BO": "The constitutional capital is Sucre; the government and parliament sit in La Paz.",
+    "CH": "Bern is the federal city and the seat of government; Switzerland does not formally designate a capital.",
+    "CI": "The capital is Yamoussoukro; many institutions sit in Abidjan.",
+    "CZ": "The population figure is a projection from the UN series for 2026, not the current population count published by the Czech Statistical Office. Projections and national statistics can differ.",
+    "EG": "The capital, Cairo, is distinguished here from the new administrative centre (the New Administrative Capital), to which state institutions are moving. Cairo's official portal continues to name Cairo as the capital.",
+    "FR": "The UN population series uses its own territorial definition of France; the figure is not directly comparable with the French national total that includes all overseas territories.",
+    "GQ": "Ciudad de la Paz was declared the capital on 2 January 2026. The former capital was Malabo; institutions are moving during a transitional period.",
+    "ID": "The move of the capital to Nusantara is under way. The game's question asks for the name of the Nusantara being built, not for the date of the legal or actual transfer of government.",
+    "IL": "Israel designates Jerusalem as its capital. The city's status and the extent of its recognition are internationally disputed; the game's question therefore distinguishes a specific function of the city.",
+    "LK": "Sri Jayawardenepura Kotte is the seat of parliament; Colombo holds significant administrative and commercial functions.",
+    "MY": "The capital is Kuala Lumpur, the administrative centre Putrajaya.",
+    "NL": "The capital is Amsterdam; the government and parliament sit in The Hague.",
+    "NR": "Nauru has no official capital. Government institutions sit in the district of Yaren.",
+    "PS": "Palestine claims East Jerusalem as its capital; the administrative seat is in Ramallah. The game's question asks for the administrative seat. The status of Jerusalem is disputed. The Vatican/Holy See and Palestine are added to the 193 UN members.",
+    "SZ": "Mbabane is the administrative capital; Lobamba is the royal and legislative seat.",
+    "TG": "The population figure is a UN WPP 2024 projection, medium variant, for 2026; some more recent revisions of the UN series may differ.",
+    "UA": "The population projection is based on the UN model. War, migration and differing territorial definitions raise the uncertainty considerably.",
+    "VA": "The game holds Vatican City, whose sovereign is the Holy See, a non-member observer state of the UN. The population estimate is not a count of Vatican citizens.",
+    "YE": "Sanaa is the constitutional capital. Because of the conflict the political and administrative situation is divided; the game's question therefore distinguishes a specific function of the city.",
+    "ZA": "South Africa has three capitals: Pretoria (executive), Cape Town (legislative) and Bloemfontein (traditionally judicial). The Constitutional Court sits in Johannesburg.",
+    "ZW": "The domestic currency is Zimbabwe Gold (ZiG, code ZWG). Foreign currencies including the US dollar are also in official use; the list here is not exhaustive."
+  }
 }

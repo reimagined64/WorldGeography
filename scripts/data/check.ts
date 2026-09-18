@@ -473,6 +473,8 @@ function provenance(at: ReturnType<typeof paths>, countries: readonly LocalizedC
         ),
   );
 
+  results.push(citationsSpeakBothLocales(sourcesText));
+
   try {
     const lock = loadLock(at.lock);
     const entries = JSON.parse(sourcesText) as SourceEntry[];
@@ -579,6 +581,40 @@ function sameProvenanceBlocks(notices: string, thirdParty: string): CheckResult 
  * on a 1:110m generalization. The release really is what ships, so the credit is
  * true whichever pipeline last wrote `countries.json`.
  */
+/**
+ * Every citation says its piece in both languages.
+ *
+ * U17: the sources dialog is the one screen where the game explains where its
+ * facts came from, and a citation that names its source but describes the use
+ * in Czech tells an English reader nothing about why the link is there. This
+ * asserts presence, not quality — that the field exists and is not blank in
+ * either locale. Whether the English is a real translation rather than the
+ * Czech copied across is a question about editorial work and is asserted in
+ * `tests/unit/english-copy.test.ts`, against this repo's file; a scratch repo built
+ * from the frozen v7 citation list migrates that file and legitimately has the
+ * Czech in both halves until someone translates it.
+ */
+function citationsSpeakBothLocales(sourcesText: string): CheckResult {
+  const name = 'every citation speaks both locales';
+  let entries: SourceEntry[];
+  try {
+    entries = JSON.parse(sourcesText) as SourceEntry[];
+  } catch (error) {
+    return bad(name, `data/build/sources.json does not parse: ${error instanceof Error ? error.message : String(error)}`);
+  }
+  const blank: string[] = [];
+  for (const entry of entries) {
+    const label = entry.name?.cs ?? entry.url;
+    for (const locale of DATASET_LOCALES) {
+      if ((entry.name?.[locale] ?? '').trim() === '') blank.push(`${label} name.${locale}`);
+      if ((entry.use?.[locale] ?? '').trim() === '') blank.push(`${label} use.${locale}`);
+    }
+  }
+  return blank.length === 0
+    ? ok(name, `${entries.length} citations, each with a name and a use in ${DATASET_LOCALES.join(' and ')}`)
+    : bad(name, `blank or missing: ${list(blank)}`);
+}
+
 function naturalEarthCredited(
   at: ReturnType<typeof paths>,
   noticesText: string,
