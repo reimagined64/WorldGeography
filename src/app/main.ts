@@ -221,7 +221,19 @@ export function boot(): void {
   // A v7 save carries no language, so `loadRun` reads it as Czech; the session
   // follows it rather than re-rendering a Czech run into an English shell. The
   // switcher puts it back the moment the run is finished or left.
-  if(store.game&&store.game.lang!==undefined&&store.game.lang!==locale()){setLocale(store.game.lang);document.documentElement.lang=locale();translateChrome();}
+  //
+  // This branch fires for exactly one kind of save and no other: `isValidRun`
+  // has already dropped any run whose `lang` disagrees with the active locale,
+  // so a game that is loaded and still disagrees is a v7 payload `loadRun` just
+  // migrated. The choice is written through because the pin has to outlive this
+  // load — the first thing the migration does is put `lang` on the save, and on
+  // the next boot an English-preferring browser would detect English, find a
+  // Czech run, and reject the very run it resumed a minute ago. U14's storage
+  // spec is what caught that; RISK-8 is what it would have cost.
+  if(store.game&&store.game.lang!==undefined&&store.game.lang!==locale()){
+    setLocale(store.game.lang);store.options.lang=store.game.lang;persist(STORE.settings,store.options);
+    document.documentElement.lang=locale();translateChrome();
+  }
   store.globe=new Globe($('globe') as HTMLCanvasElement,map);store.globe.setMotion(store.options.motion==='full');
   store.audio.onChange=renderSound;
 

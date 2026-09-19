@@ -19,8 +19,11 @@ import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { GeoClock } from '../../src/engine/clock.ts';
 import { STORE_KEYS, installDebugApi, store, type Store } from '../../src/app/state.ts';
-import type { GameState } from '../../src/engine/types.ts';
+import { installDatabase } from '../../src/app/database.ts';
+import { setLocale } from '../../src/i18n/index.ts';
+import type { Difficulty, GameState } from '../../src/engine/types.ts';
 import { BASELINE_ROOT } from '../helpers/load-baseline.ts';
+import { realDatabase } from '../helpers/app-harness.ts';
 
 const SRC_ROOT = fileURLToPath(new URL('../../src', import.meta.url));
 const V7_APP = readFileSync(join(BASELINE_ROOT, 'js/app.js'), 'utf8');
@@ -72,13 +75,60 @@ describe('window.WorldGeography', () => {
   type Api = ReturnType<typeof installDebugApi>;
   const api = (): Api => install()['WorldGeography'] as Api;
 
-  it('exposes exactly the members the shipped build froze onto window', () => {
+  it('keeps every member the shipped build froze onto window, and adds one', () => {
     const shipped = /window\.WorldGeography=Object\.freeze\(\{([\s\S]*?)\n\}\);/.exec(V7_APP)?.[1];
     if (shipped === undefined) throw new Error('baseline app.js no longer freezes window.WorldGeography');
 
     const declared = [...shipped.matchAll(/(?:^|[,{\s])(getState|getView|getStatus|version|edition)\s*:/g)]
       .map((match) => match[1]);
-    expect(Object.keys(api()).sort()).toEqual([...declared].sort());
+
+    // U14 widened this surface deliberately, once: the obfuscated bundle is the
+    // only build a player runs and `golden-dist.spec.ts` has to be able to ask
+    // it for a question. Spelling the addition out rather than relaxing the
+    // comparison keeps the guard biting — a *second* member added here still
+    // fails, which is the whole reason this test reads the frozen v7 file.
+    expect(Object.keys(api()).sort()).toEqual([...declared, 'getQuestionSet'].sort());
+  });
+
+  it('generates every question of a difficulty and seed, from the live database', () => {
+    const { countries } = realDatabase();
+    installDatabase(realDatabase());
+    const set = api().getQuestionSet('normal', 0);
+
+    // Every country, six kinds each, in data order: the shape
+    // `captureQuestions` walks and `questions-golden.json` records.
+    expect(set).toHaveLength(countries.length * 6);
+    expect(set.map((q) => q.country)).toEqual(countries.flatMap((c) => Array<string>(6).fill(c.code)));
+    expect(new Set(set.map((q) => q.type))).toEqual(
+      new Set(['country', 'capital', 'currency', 'language', 'population', 'flag']),
+    );
+
+    // A fresh RNG per question, not one stream shared across the walk: two
+    // calls with the same seed have to agree character for character, and a
+    // different seed has to disagree somewhere.
+    expect(JSON.stringify(api().getQuestionSet('normal', 0))).toBe(JSON.stringify(set));
+    expect(JSON.stringify(api().getQuestionSet('normal', 1))).not.toBe(JSON.stringify(set));
+    expect(JSON.stringify(api().getQuestionSet('expert', 0))).not.toBe(JSON.stringify(set));
+  });
+
+  it('refuses an argument it cannot honour, rather than inventing a question', () => {
+    installDatabase(realDatabase());
+    expect(() => api().getQuestionSet('brutal' as Difficulty, 0)).toThrow(/unknown difficulty brutal/);
+    expect(() => api().getQuestionSet('normal', -1)).toThrow(/non-negative integer/);
+    expect(() => api().getQuestionSet('normal', 1.5)).toThrow(/non-negative integer/);
+  });
+
+  it('writes the questions in the language the page is showing', () => {
+    installDatabase(realDatabase());
+    const czech = api().getQuestionSet('normal', 0);
+    setLocale('en');
+    try {
+      const english = api().getQuestionSet('normal', 0);
+      expect(czech[0]?.prompt).not.toBe(english[0]?.prompt);
+      expect(english.map((q) => q.prompt)).toContain('Which country is highlighted on the globe?');
+    } finally {
+      setLocale('cs');
+    }
   });
 
   it('reports the game version and edition, not the package version', () => {

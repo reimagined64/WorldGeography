@@ -114,9 +114,13 @@ test('publishes the debug API and nothing else', async ({ page }) => {
     frozen: Object.isFrozen((window as unknown as { WorldGeography: DebugView }).WorldGeography),
   }), ['GeoCore', 'GeoClock', 'GeoAudio', 'GeoGlobe', 'GeoApp']);
 
-  // The whole shim is gone. `WorldGeography` stays; it is the supported surface.
+  // The whole shim is gone. `WorldGeography` stays; it is the supported surface,
+  // and since U14 it carries one member v7 did not — `getQuestionSet`, which is
+  // how `golden-dist.spec.ts` reaches the engine inside the published bundle.
   expect(globals.shim).toEqual([]);
-  expect(globals.api).toEqual(['edition', 'getState', 'getStatus', 'getView', 'version']);
+  expect(globals.api).toEqual([
+    'edition', 'getQuestionSet', 'getState', 'getStatus', 'getView', 'version',
+  ]);
   expect(globals.frozen).toBe(true);
 });
 

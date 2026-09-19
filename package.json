@@ -20,7 +20,7 @@
     "verify:baseline": "vitest run tests/unit/build-baseline.test.ts",
     "simulate": "node scripts/simulate.ts",
     "test": "vitest run",
-    "test:browser": "node scripts/unimplemented.ts test:browser U14",
+    "test:browser": "playwright test",
     "typecheck": "tsc --noEmit"
   },
   "devDependencies": {

@@ -48,13 +48,30 @@ npm ci
 | `npm run data:flags` | Re-renders the 195 flag PNGs from a pinned Noto Color Emoji release and reports which crops would move. Writes nothing without `--yes`. **Needs network** unless given `--font-path`. |
 | `npm run verify:baseline` | Proves the TypeScript builder still reproduces the original v7 file byte for byte. |
 | `npm test` | Unit suite, including the golden fixtures that pin engine behavior to v7. |
-| `npm run test:browser` | Playwright suite against the built artifact: playthrough, offline purity, both locales. |
+| `npm run test:browser` | Playwright suite against the built artifact: it builds `dist/` first, then plays through it — gameplay in both languages, real `localStorage` over a local origin, offline purity, the globe canvas, and all 14,040 question variants generated inside the obfuscated bundle. |
 | `npm run typecheck` | `tsc --noEmit` under `strict: true`. |
 | `npm run simulate` | Monte Carlo balance run, about 61 seconds. Not part of CI. |
 
 `build` and `build:readable` are fully offline. Only `data:refresh` and
 `data:flags` reach the network, and both pin every download by content hash in
 `data/raw/sources.lock.json`.
+
+## How a change reaches the site
+
+CI runs the typecheck, the dataset invariants, the unit suite and the browser
+suite on every push and pull request, and uploads the `dist/` those suites ran
+against, with its sha256 recorded inside the artifact.
+
+The deploy never builds. It starts only when CI has finished successfully on
+`main`, downloads that run's artifact, re-checks the digest, smoke-tests the
+files and publishes them. So the bytes on the site are the bytes that were
+tested, and a push that fails CI cannot reach the site at all. A previous good
+run can be put back byte for byte by dispatching the deploy workflow with its
+run id.
+
+One more workflow runs on a monthly schedule: `data-drift.yml` runs
+`npm run data:refresh` against the live sources, writes nothing, and opens an
+issue if anything upstream moved. It cannot fail a build.
 
 ## Editing the data
 

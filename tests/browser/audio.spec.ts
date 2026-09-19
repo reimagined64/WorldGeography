@@ -20,6 +20,13 @@
  * built bundle keeps its one `GeoAudio` instance inside its own closure, so
  * `renderThemes` gets the class from a second bundle of the same source file
  * instead of from a global the product would otherwise have to keep exporting.
+ *
+ * U14 adds the other half, at the bottom: the sound dialog a player actually
+ * uses. The digests above prove the twenty-one scores render correctly; they
+ * say nothing about whether the control that auditions them reaches all
+ * twenty-one, and a bag that refilled wrongly would leave a player cycling
+ * five. That one runs against the published build, because the dialog is
+ * chrome and chrome is what obfuscation rewrites.
  */
 import { expect, test } from '@playwright/test';
 import { build } from 'esbuild';
@@ -28,6 +35,10 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { REPO_ROOT, writeReadable } from '../../scripts/build.ts';
+import { DIST_DIR } from '../../scripts/obfuscate.ts';
+import { t } from '../../src/i18n/index.ts';
+import { openGame, status } from '../helpers/play.ts';
+import { serveDirectory, type StaticSite } from '../helpers/static-server.ts';
 import { renderThemes } from '../../scripts/capture-golden.ts';
 import { FIXTURES_DIR } from '../helpers/golden.ts';
 import {
@@ -137,4 +148,65 @@ test('stays well inside the tolerance rather than merely under it', () => {
   // even while it still passes. The fixture's own re-capture moved 0.01 dB.
   expect(worstDb).toBeLessThan(AUDIO_TOLERANCE.bandDb / 2);
   expect(worstAmplitude).toBeLessThan(AUDIO_TOLERANCE.amplitudeRelative / 2);
+});
+
+/**
+ * U14 — the control that auditions the scores, on the build that ships.
+ *
+ * `browser.test.py` clicked this twice and checked the two themes differed.
+ * Twice is enough to catch a control that does nothing and not enough to catch
+ * a bag that refills wrongly, which is the failure this dialog can actually
+ * have: `prepareTheme` shuffles all twenty-one indices into a bag, shifts one
+ * per question, and refills when the bag empties — so a bug in the refill
+ * shows up as a player hearing the same handful for ever, and only on the
+ * twenty-second click.
+ */
+test.describe('the sound dialog', () => {
+  let site: StaticSite;
+
+  test.beforeAll(async () => {
+    site = await serveDirectory(join(REPO_ROOT, DIST_DIR));
+  });
+
+  test.afterAll(async () => {
+    await site.close();
+  });
+
+  test('auditions all twenty-one themes, each from its own starting bar', async ({ page }) => {
+    await openGame(page, site.url, { audio: { enabled: true }, clock: false });
+
+    await page.locator('#sound-options').click();
+    await expect(page.locator('#dialog-title')).toHaveText(t('audio.title'));
+
+    const heard: { index: number; name: string; startStep: number }[] = [];
+    await page.locator('#audio-question-preview').click();
+
+    for (let i = 0; i < 21; i += 1) {
+      if (i > 0) await page.locator('#audio-next-theme').click();
+      const melody = (await status(page)).audio.melody;
+      heard.push({ index: melody.index, name: melody.name, startStep: melody.startStep });
+
+      // The label names what is playing, so a reader can tell which of the
+      // twenty-one they are hearing rather than only that it changed.
+      await expect(page.locator('#audio-theme-label')).toContainText(melody.name);
+      expect(melody.count).toBe(21);
+    }
+
+    // All twenty-one, each exactly once: that is what a bag is for, and it is
+    // the claim two clicks cannot make.
+    expect(new Set(heard.map((m) => m.index)).size).toBe(21);
+    expect(new Set(heard.map((m) => m.name)).size).toBe(21);
+    // And no two consecutive auditions start at the same bar, which is the
+    // other half of `prepareTheme` — the one that stops a repeated theme from
+    // sounding like a repeated recording.
+    for (const [i, melody] of heard.slice(1).entries()) {
+      expect(melody.startStep, `audition ${String(i + 2)} repeats the previous offset`)
+        .not.toBe(heard[i]!.startStep);
+    }
+
+    // The answer cues are the same dialog's other job, and they move the
+    // synthesizer to the scene that plays them.
+    await page.locator('#audio-preview').click();
+    await expect.poll(async () => (await status(page)).audio.scene).toBe('feedback');
+  });
 });

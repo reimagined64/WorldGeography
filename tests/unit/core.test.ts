@@ -5,8 +5,8 @@
  * assertions, because a count that is only printed cannot fail. The recorded
  * numbers (14,040 question variants, 42 configurations, and the two full-engine
  * runs) are the v7 values from that file, inlined so the suite keeps meaning
- * after `original-source/` is deleted in U14. They were produced by the
- * original JavaScript and are asserted here against the TypeScript port.
+ * now that the rescued tree is gone — U14 deleted it. They were produced by
+ * the original JavaScript and are asserted here against the TypeScript port.
  */
 import { describe, expect, it } from 'vitest';
 import * as Core from '../../src/engine/core.ts';

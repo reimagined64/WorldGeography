@@ -1,10 +1,13 @@
-# Typecheck, unit suite, build and browser suite on every push and PR.
+# Typecheck, dataset, unit suite, both builds and the browser suite, on every
+# push and pull request — and the one artifact the deploy is allowed to publish.
 #
-# The plan gives this file to U14, after the obfuscated build lands in U13. It
-# exists now because the deploy has to be provable today, so it is written to
-# be *extended* rather than replaced: the two commands that do not exist yet
-# are marked in place, and the Chromium cache is already keyed the way the
-# pinned audio fixture requires.
+# This job is the only place the published directory is built. `deploy.yml`
+# does not rebuild it: it downloads what this job uploaded and checks the
+# digest before publishing (R27, KTD18). That is what makes "the deployed
+# artifact is the artifact CI tested" a fact rather than a convention — two
+# builds of the same commit would almost certainly agree, `obfuscator.json`
+# pins the seed precisely so they do, but "almost certainly" is not what the
+# requirement says.
 name: CI
 
 on:
@@ -86,36 +89,69 @@ jobs:
         run: npx playwright install --with-deps chromium
 
       # Both flavors, proven on every branch rather than only on main. The
-      # readable one is what most of the browser suite opens; the obfuscated
-      # one is what the deploy publishes, and it is the one that can fail for
-      # reasons the other cannot — a transform that breaks the bundle, or a
-      # published file that moved out from under the notices.
+      # readable one is what several browser specs open; the obfuscated one is
+      # what the deploy publishes, and it is the one that can fail for reasons
+      # the other cannot — a transform that breaks the bundle, or a published
+      # file that moved out from under the notices.
       - name: Readable build
         run: npm run build:readable
 
+      # `npm run test:browser` builds `dist/` itself, in Playwright's
+      # `globalSetup`, so running the command here is not what produces the
+      # artifact — it is what proves the command a developer runs still works,
+      # and it fails before the suite rather than during it.
       - name: Published build
         run: npm run build
 
-      # ── U14 ───────────────────────────────────────────────────────────────
-      # Becomes `npm run test:browser` once that script exists. The wiring is
-      # already right: `playwright.config.ts` points at `tests/browser/`, sets
-      # `forbidOnly` from CI and pins the launch options.
+      # Four specs open `dist/`, one of them driving all 14,040 question
+      # variants through the obfuscated bundle. The suite rebuilds the
+      # directory once before the first worker starts, so what it tested and
+      # what is uploaded below are the same bytes.
       #
-      # Expect `styles.spec.ts` to be red on the first run here. Its fixture
-      # records `width` and `height` as used values, captured on a developer
-      # machine; this runner has neither Georgia nor Inter, so every text-sized
-      # box measures differently. Pinning the browser was never going to pin
-      # the fonts. U14 decides between recapturing under the runner's own
-      # image and keying the fixture by platform — not between the two by
-      # deleting the gate.
-      # ──────────────────────────────────────────────────────────────────────
+      # The plan expected `styles.spec.ts` to be red here, because this runner
+      # has neither Georgia nor Inter and the gate was imagined as a committed
+      # snapshot of used values. U7 did not build it that way: it swaps the
+      # `<style>` text between the frozen stylesheet and the split one inside
+      # one browser at one moment and compares the two, so whatever fonts the
+      # runner has cancel out on both sides. There is no fixture to recapture
+      # and nothing to key by platform.
       - name: Browser suite
-        run: npx playwright test
+        run: npm run test:browser
 
-      # `playwright.config.ts` still uses the `list` reporter — U14 owns that
-      # choice — so `playwright-report/` may not exist while `test-results/`
-      # holds what a failing spec left behind. Uploading both keeps this step
-      # correct across that change instead of quietly uploading nothing.
+      - name: Record the tested artifact
+        id: artifact
+        run: |
+          sha="$(sha256sum dist/index.html | cut -d ' ' -f 1)"
+          bytes="$(wc -c < dist/index.html)"
+          printf '%s  dist/index.html\n' "$sha" > dist-sha256.txt
+          echo "sha=$sha" >> "$GITHUB_OUTPUT"
+          {
+            echo "### Tested artifact"
+            echo
+            echo "| File | sha256 | Bytes |"
+            echo "| --- | --- | --- |"
+            echo "| \`dist/index.html\` | \`$sha\` | $bytes |"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      # `include-hidden-files` is not optional here: `.nojekyll` is a dotfile,
+      # upload-artifact skips those by default, and a published directory
+      # without it is one Jekyll will reformat — which invalidates a bundle
+      # that defends itself against being edited.
+      - name: Upload the tested artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: site
+          path: |
+            dist/
+            dist-sha256.txt
+          include-hidden-files: true
+          retention-days: 30
+
+      # Under CI the config adds the HTML reporter to `list`, and keeps a trace
+      # for any spec that failed. `playwright-report/` is the former and
+      # `test-results/` the latter; both are uploaded because a failure that
+      # only happens on this image is diagnosable from the trace and from
+      # almost nothing else.
       - name: Upload the Playwright report
         if: failure()
         uses: actions/upload-artifact@v4

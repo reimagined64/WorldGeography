@@ -1,9 +1,9 @@
 /**
  * U1 — structural guards over the rescued project layout.
  *
- * These assert the shape of the tree rather than any behavior: once
- * `original-source/` is deleted in U14 there is no second copy of these
- * assets, so a silently missing flag or baseline fixture would only surface
+ * These assert the shape of the tree rather than any behavior. U14 deleted the
+ * rescued `original-source/`, so there is no second copy of these assets any
+ * more: a silently missing flag or baseline fixture would otherwise surface
  * much later, as a build that cannot reproduce the v7 hash.
  */
 import { describe, expect, it } from 'vitest';
@@ -80,15 +80,44 @@ describe('rescued assets', () => {
     ]);
   });
 
-  it('leaves no Python in the project outside the archive and original-source', () => {
+  it('leaves no Python anywhere in the project', () => {
+    // R1. Until U14 this filtered `original-source/` out, because the rescued
+    // v7 tree still held the Python the port was measured against. U14 deleted
+    // that tree — everything the suites still read was copied into
+    // `tests/fixtures/baseline/` in U1 — so the exception goes with it and the
+    // claim becomes the unqualified one the requirement actually makes.
     const tracked = execFileSync('git', ['ls-files', '-co', '--exclude-standard', '*.py'], {
       cwd: root,
       encoding: 'utf8',
     })
       .split('\n')
-      .filter((p) => p !== '' && !p.startsWith('original-source/'));
+      .filter((p) => p !== '');
 
     expect(tracked).toEqual([]);
+  });
+
+  it('has no rescued source tree left to read from', () => {
+    // The whole point of freezing the fixtures in U1 was that this directory
+    // could go. A suite that quietly started reading it again would keep
+    // passing here and fail for everyone who cloned the repository afterwards.
+    expect(existsSync(new URL('original-source', `file://${root}`))).toBe(false);
+
+    // Quoted rather than bare, so this finds a path a file could actually be
+    // opened at and not the handful of comments that explain what used to be
+    // there. This file is excluded because it is the one that has to name the
+    // directory in order to say it is gone. `git grep` exits 1 when it matches
+    // nothing, which is the passing case and not an error.
+    let referring: string[] = [];
+    try {
+      referring = execFileSync(
+        'git',
+        ['grep', '-lE', "['\"]original-source", '--', ':!docs/plans/', ':!tests/unit/scaffold.test.ts'],
+        { cwd: root, encoding: 'utf8', stdio: 'pipe' },
+      ).split('\n').filter((line) => line !== '');
+    } catch (error) {
+      if ((error as { status?: number }).status !== 1) throw error;
+    }
+    expect(referring).toEqual([]);
   });
 });
 
@@ -120,24 +149,17 @@ describe('command surface', () => {
     );
   });
 
-  it('fails an unimplemented command loudly, naming the unit that owns it', () => {
-    // Exiting 0 here would let CI report a green run for work that never ran.
-    let status = 0;
-    let stderr = '';
-    try {
-      execFileSync('node', ['scripts/unimplemented.ts', 'test:browser', 'U14'], {
-        cwd: root,
-        encoding: 'utf8',
-        stdio: 'pipe',
-      });
-    } catch (error) {
-      const failure = error as { status: number; stderr: string };
-      status = failure.status;
-      stderr = failure.stderr;
-    }
-
-    expect(status).toBe(1);
-    expect(stderr).toContain('U14');
+  it('has no command left that only pretends to run', () => {
+    // `scripts/unimplemented.ts` existed so that a command the plan had named
+    // but not yet built would fail loudly rather than report a green run for
+    // work that never happened. `test:browser` was the last of them and U14
+    // built it, so the placeholder is gone and this is what replaces the test
+    // that used to drive it: every script runs something real.
+    expect(existsSync(new URL('scripts/unimplemented.ts', `file://${root}`))).toBe(false);
+    const pretending = Object.entries(pkg.scripts)
+      .filter(([, command]) => command.includes('unimplemented'))
+      .map(([name]) => name);
+    expect(pretending).toEqual([]);
   });
 
   it('pins the two dependencies whose output must be reproducible', () => {

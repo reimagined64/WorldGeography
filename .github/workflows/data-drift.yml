@@ -1,0 +1,137 @@
+# Run the fetchers against the live sources once a month, and write nothing.
+#
+# This exists to arm the network-facing half of `scripts/data/`. `data:refresh`
+# without `--accept` fetches, merges, diffs and prints a report; it is the only
+# code in the project that talks to the internet, and CI cannot run it — a
+# gate that depends on four upstream endpoints is a gate that goes red for
+# reasons nobody in this repository can fix.
+#
+# Left unexercised, it would first be run by hand months from now against
+# endpoints the plan describes as "under active churn", and at that point a
+# fetcher bug and the upstream drift it was built to detect look exactly alike.
+# Running it monthly keeps the two distinguishable: today's report is the
+# baseline for next month's.
+#
+# It is deliberately **non-blocking**. Nothing here can fail a build or stop a
+# deploy; an upstream that moved, went away or changed shape opens an issue
+# and that is all. The issue is the product of this workflow.
+#
+# The cadence is the working default for the plan's open question about refresh
+# ownership. Whoever answers it can change the cron; until then, "monthly, and
+# it tells you" is better than "nobody, and it does not".
+name: Data drift
+
+on:
+  schedule:
+    # 06:00 UTC on the first of the month. Early enough that an issue is
+    # waiting rather than arriving mid-afternoon, and a date nothing else uses.
+    - cron: '0 6 1 * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+concurrency:
+  group: data-drift
+  cancel-in-progress: false
+
+jobs:
+  refresh:
+    name: Fetch upstream and report
+    runs-on: ubuntu-latest
+    # Four endpoints, one of them a UN CSV of some size, on a shared runner.
+    timeout-minutes: 30
+
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v4
+
+      - name: Use the pinned Node version
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      # No `--accept`, so `data/build/` is not written and the working tree
+      # stays clean. `continue-on-error` is the whole design: a fetch that
+      # failed is exactly the news this job exists to deliver, so it must not
+      # end the job before the reporting step runs.
+      - name: Fetch upstream and diff against the committed dataset
+        id: refresh
+        continue-on-error: true
+        run: |
+          set -o pipefail
+          npm run data:refresh 2>&1 | tee refresh-report.txt
+
+      # Silence is the thing that has to be earned here, not the thing that is
+      # assumed: a monitor whose default is "nothing to report" reports nothing
+      # when it breaks. So this opens an issue unless the run proves it was
+      # quiet — the command succeeded, the dataset diff is empty, no local
+      # source version moved, nothing was blocked, and every invariant held.
+      - name: Decide whether this is news
+        id: triage
+        run: |
+          set -uo pipefail
+          quiet=yes
+          [ "${{ steps.refresh.outcome }}" = "success" ] || quiet=no
+          grep -q 'countries: 0 added, 0 removed, 0 changed' refresh-report.txt || quiet=no
+          grep -qE '^BLOCKED|\[CHANGED\]|^ FAIL ' refresh-report.txt && quiet=no
+          news=no; [ "$quiet" = "yes" ] || news=yes
+          echo "news=$news" >> "$GITHUB_OUTPUT"
+
+          report="$(cat refresh-report.txt 2>/dev/null || echo 'no report was produced')"
+
+          {
+            echo "### Data drift — $(date -u +%Y-%m-%d)"
+            echo
+            echo "Refresh step: \`${{ steps.refresh.outcome }}\`. Opening an issue: \`$news\`."
+            echo
+            echo '```'
+            echo "$report"
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Keep the report
+        uses: actions/upload-artifact@v4
+        with:
+          name: refresh-report
+          path: refresh-report.txt
+          if-no-files-found: warn
+          retention-days: 90
+
+      # One issue per run that had something to say. Not de-duplicated on
+      # purpose: a source that has been drifting for three months should read
+      # as three months of issues, not as one that nobody reopened.
+      - name: Open an issue when something moved
+        if: steps.triage.outputs.news == 'yes'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          {
+            echo "\`npm run data:refresh\` was run against the live sources and it did not come back clean."
+            echo
+            echo "Nothing was written: the command ran without \`--accept\`, so \`data/build/\` is untouched and"
+            echo "the shipped dataset is unchanged. This is a report, not a failure."
+            echo
+            echo "Refresh step outcome: \`${{ steps.refresh.outcome }}\`."
+            echo
+            echo "<details><summary>Report</summary>"
+            echo
+            echo '```'
+            cat refresh-report.txt || echo 'no report was produced'
+            echo '```'
+            echo
+            echo "</details>"
+            echo
+            echo "Run: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+          } > issue-body.md
+
+          gh issue create \
+            --repo "$GITHUB_REPOSITORY" \
+            --title "Data drift on $(date -u +%Y-%m-%d)" \
+            --body-file issue-body.md

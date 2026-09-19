@@ -144,14 +144,19 @@ describe('readable build', () => {
       'src/audio/themes.ts',
       'src/audio/audio.ts',
       'src/globe/globe.ts',
-      'src/app/storage.ts',
-      'src/app/state.ts',
-      'src/app/database.ts',
-      // U12: the question bundles land ahead of `dom.ts`, which is the first
-      // module to read a `LocalizedText` off a country — the flag's alt text.
+      // U12 put the question bundles ahead of `dom.ts`, the first module to
+      // read a `LocalizedText` off a country — the flag's alt text. U14 moved
+      // them further forward still, along with `database.ts`: `state.ts` now
+      // reads both, because `getQuestionSet` generates questions from the live
+      // database in the live bundle. Three modules changing position is what
+      // one new import looks like from here, and it is the reason this list is
+      // pinned rather than sampled.
       'src/i18n/questions.cs.ts',
       'src/i18n/questions.en.ts',
       'src/i18n/questions.ts',
+      'src/app/database.ts',
+      'src/app/storage.ts',
+      'src/app/state.ts',
       'src/app/dom.ts',
       'src/i18n/chrome.ts',
       'src/app/dialogs/audio-settings.ts',

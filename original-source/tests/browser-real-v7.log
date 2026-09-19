@@ -1,4 +1,0 @@
-PASS — Real-time country flight: 11.98s, 3 turns, timer blocked, neutral=False, audio output
-PASS — Real-time bonus flight: 12.13s, 3 turns, timer blocked, neutral=True, audio output
-PASS — No browser JavaScript errors or external HTTP requests
-PASS — 3 integration groups (real)

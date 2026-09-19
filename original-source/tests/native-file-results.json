@@ -1,3 +1,0 @@
-{
-  "error": "Page.goto: net::ERR_BLOCKED_BY_ADMINISTRATOR at file:///mnt/data/world-geography-v7/World-Geography/index.html\nCall log:\n  - navigating to \"file:///mnt/data/world-geography-v7/World-Geography/index.html\", waiting until \"load\"\n"
-}

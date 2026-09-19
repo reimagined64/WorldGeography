@@ -19,11 +19,14 @@
  * a missing instance is a wiring bug and says so, instead of surfacing as
  * `undefined is not a function` somewhere in a render.
  */
+import * as Core from '../engine/core.ts';
 import type { GeoAudio } from '../audio/audio.ts';
 import type { GeoClock } from '../engine/clock.ts';
-import type { GameState } from '../engine/types.ts';
+import type { BaseQuestion, Difficulty, GameState, QuestionKind } from '../engine/types.ts';
 import type { FlightState, Globe } from '../globe/globe.ts';
 import { t } from '../i18n/index.ts';
+import { questionBundle } from '../i18n/questions.ts';
+import { countries } from './database.ts';
 import { normalizeSettings, type AppSettings, type HighScore } from './storage.ts';
 
 /** The four screens `setView` switches between. */
@@ -107,9 +110,16 @@ export interface DebugApi {
   getState(): GameState | null;
   getView(): View;
   getStatus(): DebugStatus;
+  /** U14's addition to v7's five members. See `getQuestionSet` below. */
+  getQuestionSet(difficulty: Difficulty, seed: number): BaseQuestion[];
   readonly version: string;
   readonly edition: string;
 }
+
+/** The six kinds, in the order every question walk in this project uses. */
+const QUESTION_KINDS: readonly QuestionKind[] = Object.freeze([...Core.TYPES, 'flag']);
+
+const DIFFICULTIES: readonly Difficulty[] = Object.freeze(['easy', 'normal', 'expert']);
 
 /**
  * The page's own test surface.
@@ -118,11 +128,37 @@ export interface DebugApi {
  * running: handing out the live object would let a spec that pokes at the
  * result change the run it was measuring. The version string is the *game's*,
  * not the package's — a save, a record and this number all say 7.
+ *
+ * `getQuestionSet` is U14's one addition to the five members v7 froze, and it
+ * is what `tests/browser/golden-dist.spec.ts` needs: the obfuscated bundle is
+ * the only build a player ever runs, and nothing else can ask it to generate a
+ * question. A twenty-question playthrough touches twenty of the 14,040
+ * variants, so a transform that corrupted one string in one branch — an RC4
+ * table entry, a `splitStrings` chunk, a flattened control path taken only by
+ * `expert` — would ship. This walks all of them and hands the text back.
+ *
+ * It generates rather than reads: nothing is cached, `store` is untouched, and
+ * a fresh `rng(seed)` per question is what makes each variant independent of
+ * the ones before it, exactly as `captureQuestions` recorded them. The bundle
+ * it writes them in is the live one, so switching the language switches what
+ * this returns — which is how the English half is reached.
+ *
+ * The two argument checks throw plain English rather than a catalog key: no
+ * player reaches this method, and inventing `cs`/`en` copy for a message only
+ * a spec can provoke would be two translations of a lie.
  */
 export function createDebugApi(): Readonly<DebugApi> {
   return Object.freeze({
     getState: (): GameState | null =>
       store.game ? (JSON.parse(JSON.stringify(store.game)) as GameState) : null,
+    getQuestionSet: (difficulty: Difficulty, seed: number): BaseQuestion[] => {
+      if (!DIFFICULTIES.includes(difficulty)) throw new TypeError(`getQuestionSet: unknown difficulty ${String(difficulty)}`);
+      if (!Number.isSafeInteger(seed) || seed < 0) throw new TypeError(`getQuestionSet: seed must be a non-negative integer, got ${String(seed)}`);
+      const bundle = questionBundle();
+      return countries.flatMap((country) =>
+        QUESTION_KINDS.map((kind) =>
+          Core.makeQuestion(country, kind, countries, bundle, difficulty, Core.rng(seed))));
+    },
     getView: (): View => store.view,
     getStatus: (): DebugStatus => {
       const globe = requireGlobe();
