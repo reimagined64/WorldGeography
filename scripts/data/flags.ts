@@ -9,9 +9,19 @@
  * decided by an alpha bounding box. Thirteen of the committed images carry an
  * outermost row or column whose strongest pixel is alpha 3 to 10 — invisible,
  * and decisive for where the crop lands — so re-rendering moves thirteen crops
- * by one pixel in one dimension and leaves the other 182 exactly as they are.
- * A command that overwrote 195 images on every invocation would put 1.5 MB of
- * that churn in a diff nobody can read.
+ * by a pixel and leaves the other 182 exactly as they are. A command that
+ * overwrote 195 images on every invocation would put 1.5 MB of that churn in a
+ * diff nobody can read.
+ *
+ * The thirteen are BD, BE, BO, CG, HU, IN, LS, ML, MY, SC, SS, SZ and VA, under
+ * the `noto-emoji` pin in `data/raw/sources.lock.json` and `@napi-rs/canvas`
+ * 1.0.9. Named because U10 recorded only the count, and a future canvas bump or
+ * font re-pin that turned thirteen into thirty would otherwise look exactly
+ * like the state this paragraph describes. Twelve of them move in one
+ * dimension and CG moves in both, 127x95 to 126x94 — U10's commit message says
+ * "one pixel in one dimension", which is right about twelve countries and
+ * wrong about the thirteenth, and is corrected here because a commit message
+ * cannot be.
  *
  * So the command's normal answer is a report: what it would write, and which
  * crops would move. `--yes` is the whole difference between reading that and

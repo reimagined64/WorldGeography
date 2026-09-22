@@ -48,7 +48,7 @@ import { parseCsv, reducePopulation } from '../../scripts/data/fetchers/populati
 import { parseGeometry } from '../../scripts/data/fetchers/geometry.ts';
 import { readReference } from '../../scripts/data/fetchers/reference.ts';
 import { applyTerritory, loadOverrides, UNATTRIBUTED, type MapPolygon } from '../../scripts/data/merge.ts';
-import { refresh } from '../../scripts/data/refresh.ts';
+import { DEFAULT_YEAR, refresh } from '../../scripts/data/refresh.ts';
 import {
   fetchPinned,
   loadLock,
@@ -233,11 +233,25 @@ function pin(place: Fixture, csvText = wppCsv(), geoText = geojson()): Upstream 
   return { transport, csv, geo };
 }
 
+/**
+ * The reference year every fixture in this file describes.
+ *
+ * Pinned here rather than left to `DEFAULT_YEAR`, which tracks the calendar
+ * since 2026-09-22. The CSV fixture below carries rows for one year and the
+ * committed `data/build/` describes one year; a suite that took the current
+ * year from the clock would pass until the 1st of January and then fail every
+ * refresh test at once, for a reason that has nothing to do with the code it
+ * is testing. `the reference year` below is where the calendar behaviour is
+ * checked, deliberately and in one place.
+ */
+const FIXTURE_YEAR = 2026;
+
 const run = (place: Fixture, upstream: Upstream, options: Record<string, unknown> = {}) =>
   refresh({
     root: place.root,
     transport: upstream.transport,
     today: '2026-09-10',
+    year: FIXTURE_YEAR,
     gitStatus: () => '',
     ...options,
   });
@@ -371,6 +385,38 @@ describe('the country set', () => {
     expect(reference.map((country) => country.code).sort()).toEqual(
       baseline.map((country) => country.code as string).sort(),
     );
+  });
+});
+
+describe('the reference year', () => {
+  it('is whichever year it is now, not a year somebody pinned', () => {
+    // Resolved 2026-09-22: the game asks about the present. The alternative
+    // was a pinned year, which is wrong the moment nobody remembers to move
+    // it — and a quiz whose populations are three years stale is wrong in a
+    // way no other test in this project can see.
+    expect(DEFAULT_YEAR).toBe(new Date().getUTCFullYear());
+  });
+
+  it('says so in the report when the calendar has moved past the dataset', async () => {
+    const place = fixture();
+    const upstream = pin(place, wppCsv(FIXTURE_YEAR + 1));
+
+    const result = await run(place, upstream, { year: FIXTURE_YEAR + 1 });
+
+    // Every country's population changes on a rollover, and a reader looking
+    // at 195 changed rows has no way to tell a new reference year from a
+    // republished WPP revision. The report distinguishes them.
+    expect(result.report.join('\n')).toContain(
+      `reference year moved: ${String(FIXTURE_YEAR)} -> ${String(FIXTURE_YEAR + 1)}`,
+    );
+    expect(result.accepted).toBe(false);
+  });
+
+  it('says nothing about the calendar when the dataset is already current', async () => {
+    const place = fixture();
+    const result = await run(place, pin(place));
+
+    expect(result.report.join('\n')).not.toContain('reference year moved');
   });
 });
 

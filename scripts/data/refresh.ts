@@ -80,8 +80,29 @@ import {
   type Transport,
 } from './sources.ts';
 
-/** The WPP reference year the game asks about. */
-export const DEFAULT_YEAR = 2026;
+/**
+ * The WPP reference year the game asks about: whichever year it is now.
+ *
+ * Resolved (2026-09-22) after the port shipped. It was a pinned `2026` until
+ * then, and the plan deferred the choice because advancing the year changes
+ * every population answer and every `easy` flag — which makes it a product
+ * decision rather than a refresh-time detail. The decision is that the game
+ * asks about the present: a quiz whose populations are three years stale is
+ * wrong in a way no test can see, and pinning the year means somebody has to
+ * remember to move it, which is the thing nobody does.
+ *
+ * WPP's value for the current year is a projection until the year is over,
+ * exactly as the committed 2026 figures already were. What changes on the 1st
+ * of January is that `data:refresh` starts reporting a diff on all 195
+ * countries — which is correct, is what `data-drift.yml` exists to surface,
+ * and is called out by name in the report so a calendar rollover cannot be
+ * mistaken for upstream churn.
+ *
+ * Read once per process rather than per call: a refresh that changed reference
+ * year halfway through would write a dataset whose rows disagreed about what
+ * year they describe.
+ */
+export const DEFAULT_YEAR = new Date().getUTCFullYear();
 
 /** Locales the snapshot carries display names for: the dataset's own list. */
 export const SNAPSHOT_LOCALES: readonly Locale[] = DATASET_LOCALES;
@@ -267,8 +288,15 @@ export async function refresh(options: RefreshOptions = {}): Promise<RefreshResu
 
   const baselineCountriesText = readFileSync(at.countries, 'utf8');
   const baselineMapText = readFileSync(at.map, 'utf8');
-  const diff = diffCountries(JSON.parse(baselineCountriesText) as LocalizedCountry[], built.countries);
+  const baselineCountries = JSON.parse(baselineCountriesText) as LocalizedCountry[];
+  const diff = diffCountries(baselineCountries, built.countries);
   diff.polygons = diffPolygons(JSON.parse(baselineMapText) as MapPolygon[], built.polygons);
+
+  // What reference year the committed dataset describes, read off the dataset
+  // rather than from anywhere that could disagree with it. Every row carries
+  // the same `populationYear`; `data:check` is what holds them to that, so one
+  // row is enough and a dataset that has none is simply not reported on.
+  const baselineYear = baselineCountries[0]?.populationYear;
 
   const checks = datasetChecks({
     countries: built.countries,
@@ -286,6 +314,9 @@ export async function refresh(options: RefreshOptions = {}): Promise<RefreshResu
   const report: string[] = [
     `data:refresh — candidate for reference year ${year}`,
     `baseline: ${describeBaseline(at.root)}`,
+    ...(baselineYear !== undefined && baselineYear !== year
+      ? [`reference year moved: ${baselineYear} -> ${year}. Every population answer changes; this is the calendar, not upstream.`]
+      : []),
     '',
     'sources',
   ];
