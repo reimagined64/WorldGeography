@@ -26,6 +26,19 @@
  * So the command's normal answer is a report: what it would write, and which
  * crops would move. `--yes` is the whole difference between reading that and
  * acting on it.
+ *
+ * **Decided (2026-09-24): the thirteen stay as they are.** The disputed edges
+ * were measured — each carries between 3 and 10 alpha out of 255, against 122
+ * to 255 on the line immediately behind it, so there is no gradient of
+ * ambiguity about where a flag ends, only a whisker hanging off a cliff. Eight
+ * of the thirteen shrink because the committed image holds the whisker; five
+ * grow because the re-render does. Neither is more correct than the other.
+ * Accepting would rewrite all 195 images rather than thirteen, since every one
+ * differs in chunk layout even where the pixels agree, which is a megabyte and
+ * a half of unreadable diff for pixels nobody can see — and it would
+ * re-baseline the images the OFL notice credits to a pinned digest. Nothing
+ * automated holds the set at thirteen; the codes are named above so that a
+ * canvas bump or a font re-pin which changed them has something to contradict.
  */
 import { createCanvas, GlobalFonts } from '@napi-rs/canvas';
 import { existsSync, readFileSync } from 'node:fs';
