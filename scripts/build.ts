@@ -151,46 +151,16 @@ export function buildDocument(
 }
 
 /**
- * References a browser would resolve on its own, as opposed to a URL the page
- * merely prints or opens on a click.
+ * R8's rule lives in `scripts/self-contained.ts` and is re-exported here.
  *
- * The citation links in `sources.json` and the attribution URLs in the licence
- * notices are `https://` text and stay that way, so "contains no http" is the
- * wrong test — R8 is about what loads without the user asking. Anything that
- * fetches is either an element attribute, a CSS reference, or a network API.
+ * It was defined in this file until U14's deploy needed it: the publish job
+ * imports it to check the artifact before it goes live, and this module pulls
+ * in esbuild, which that job has no reason to install. Re-exported rather than
+ * moved-and-forgotten so every existing importer — the two build suites, the
+ * offline spec — keeps reading it from where it has always read it.
  */
-const EXTERNAL_REFERENCE_PATTERNS: readonly RegExp[] = [
-  // Elements that exist only to pull in something else. `<script>` and `<img>`
-  // are absent from this list because the document legitimately contains
-  // both — the attribute rule below is what constrains them.
-  /<(?:link|base|iframe|embed|object|frame)\b/gi,
-  // A resource attribute may only hold a `data:` URI or a template expression
-  // that produces one. A relative path is as fatal as an absolute URL: it is
-  // the second file a single-file build is not allowed to have. Deliberately
-  // strict enough to also catch `element.src = value` in script — a false
-  // positive costs a rename and a loud message, a false negative ships R8.
-  /\b(?:src|srcset|poster)\s*=\s*(?!["']?(?:data:|\$\{))/gi,
-  /@import\b/gi,
-  /\burl\(\s*["']?(?!data:|#)(?:[a-z][a-z0-9+.-]*:|\/\/)/gi,
-  /\b(?:fetch|importScripts|XMLHttpRequest|WebSocket|EventSource|navigator\.sendBeacon)\s*\(/g,
-];
-
-/**
- * Fail the build, not the review, if anything in the output would go to the
- * network. R8 is the product's identity; nothing else in the pipeline notices
- * a stray `<script src>` sneaking in through a source file.
- */
-export function assertSelfContained(html: string): void {
-  const found: string[] = [];
-  for (const pattern of EXTERNAL_REFERENCE_PATTERNS) {
-    for (const match of html.matchAll(pattern)) found.push(match[0]);
-  }
-  if (found.length > 0) {
-    throw new Error(
-      `Built output is not self-contained; it would load ${found.length} external reference(s):\n  ${[...new Set(found)].join('\n  ')}`,
-    );
-  }
-}
+import { assertSelfContained } from './self-contained.ts';
+export { assertSelfContained };
 
 /**
  * Collapse the `src/main.ts` graph into one browser IIFE.
