@@ -62,12 +62,12 @@ CI runs the typecheck, the dataset invariants, the unit suite and the browser
 suite on every push and pull request, and uploads the `dist/` those suites ran
 against, with its sha256 recorded inside the artifact.
 
-The deploy never builds. It starts only when CI has finished successfully on
-`main`, downloads that run's artifact, re-checks the digest, smoke-tests the
-files and publishes them. So the bytes on the site are the bytes that were
-tested, and a push that fails CI cannot reach the site at all. A previous good
-run can be put back byte for byte by dispatching the deploy workflow with its
-run id.
+The deploy never builds. On a push to `main`, CI calls `deploy.yml` once the
+suites are green; it takes the artifact those suites ran against, re-checks the
+digest, smoke-tests the files and publishes them. So the bytes on the site are
+the bytes that were tested, and a push that fails CI cannot reach the site at
+all. A previous good run can be put back byte for byte by dispatching the
+deploy workflow with its run id.
 
 One more workflow runs on a monthly schedule: `data-drift.yml` runs
 `npm run data:refresh` against the live sources, writes nothing, and opens an

@@ -21,10 +21,14 @@ on:
 permissions:
   contents: read
 
-# A newer push to the same ref makes the older run's verdict irrelevant.
+# A newer push to the same ref makes the older run's verdict irrelevant — with
+# one exception. A run on `main` may go on to deploy, and cancelling the caller
+# cancels the called workflow with it, so a second push landing mid-publish
+# would leave a half-applied Pages deployment. On `main` the older run is left
+# to finish; everywhere else it is superseded.
 concurrency:
   group: ci-${{ github.ref }}
-  cancel-in-progress: true
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
 
 jobs:
   verify:
@@ -162,3 +166,29 @@ jobs:
             test-results/
           if-no-files-found: ignore
           retention-days: 7
+
+  # ── Publish ─────────────────────────────────────────────────────────────
+  # Only from `main`, only on a push, and only once `verify` is green — which
+  # is the whole of R27: what goes live is the artifact the suites ran against,
+  # uploaded by the job above, in this same run.
+  #
+  # Called rather than triggered. `deploy.yml` was `on: workflow_run` first and
+  # every run was rejected at the environment gate, because a `workflow_run`
+  # job executes in the default branch's context (`develop`) and the
+  # `github-pages` environment allows `main` alone. A reusable workflow runs in
+  # the caller's context, so `github.ref` here is the branch that actually
+  # produced the artifact. `deploy.yml`'s header has the full account.
+  #
+  # `permissions` has to be granted by this job: a called workflow gets the
+  # intersection of the caller's and its own, and this file's workflow-level
+  # block is `contents: read`.
+  deploy:
+    name: Deploy
+    needs: verify
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    permissions:
+      contents: read
+      actions: read
+      pages: write
+      id-token: write
+    uses: ./.github/workflows/deploy.yml

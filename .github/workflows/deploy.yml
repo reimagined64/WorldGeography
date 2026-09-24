@@ -1,27 +1,38 @@
 # Publish to GitHub Pages the artifact CI tested — never a fresh build.
 #
-# Requires Settings → Pages → Source = "GitHub Actions" in the repository. No
-# branch is published; the site is exactly the `dist/` CI uploaded.
+# Requires Settings -> Pages -> Source = "GitHub Actions". No branch is
+# published; the site is exactly the `dist/` CI uploaded.
 #
 # R27 and KTD18 are one sentence: the deployed artifact's sha256 equals the
-# sha256 of the artifact the suites ran against. Until U14 this workflow built
-# its own copy in parallel with CI, which made that sentence a hope — a push
-# that failed CI could still publish, and "the same commit builds the same
-# bytes" was an assumption about the obfuscator nobody had checked. So the
-# trigger is now `workflow_run`: this only starts when CI has *finished
-# successfully* on `main`, it downloads that run's artifact, and it compares
-# the digest against the one CI recorded inside it before publishing anything.
+# sha256 of the artifact the suites ran against. This workflow does not build.
+# It takes the artifact CI produced, re-checks the digest CI recorded inside
+# it, smoke-tests it, and publishes.
 #
-# `workflow_run` runs the copy of this file on the repository's default branch
-# (`develop`), whichever branch the triggering run was on — hence the explicit
-# `head_branch` test below rather than a `branches:` filter, which would be
-# about the wrong thing.
+# ## Why this is called rather than triggered
+#
+# It was `on: workflow_run` at first, and that does not work. A `workflow_run`
+# job executes in the context of the repository's *default* branch — `develop`
+# here — whatever branch the run that triggered it was on. The `github-pages`
+# environment allows deployments from `main` and only `main`, which is the
+# right rule, so every such run was rejected at the environment gate after
+# doing all of its work:
+#
+#     Branch "develop" is not allowed to deploy to github-pages
+#     due to environment protection rules.
+#
+# A reusable workflow runs in the *caller's* context, so when `ci.yml` calls
+# this on a push to `main`, `github.ref` is `refs/heads/main` and the rule is
+# satisfied by the branch that genuinely produced the artifact. It is also
+# simpler: the artifact is in the calling run, so there is no cross-run
+# download and no window in which CI's artifact could expire.
+#
+# `workflow_dispatch` stays, and is the rollback: give it the id of an earlier
+# green CI run and that run's artifact goes live again, byte for byte.
 name: Deploy to GitHub Pages
 
 on:
-  workflow_run:
-    workflows: [CI]
-    types: [completed]
+  # Called by `ci.yml` after the suites pass on `main`.
+  workflow_call:
   workflow_dispatch:
     inputs:
       run_id:
@@ -50,13 +61,11 @@ jobs:
     name: Publish the tested artifact
     runs-on: ubuntu-latest
     timeout-minutes: 15
-    # A CI run that failed, or that was not on `main`, is not a deploy. The
-    # manual path skips the test because its whole purpose is republishing a
-    # run chosen by hand.
-    if: >-
-      github.event_name == 'workflow_dispatch'
-      || (github.event.workflow_run.conclusion == 'success'
-          && github.event.workflow_run.head_branch == 'main')
+    # No condition: the caller decides whether this runs at all, and the manual
+    # path is somebody typing a run id on purpose. A guard here would be a
+    # second opinion about a decision already made, in a place where getting it
+    # wrong means silently not deploying.
+    #
     # `actions/deploy-pages` requires this environment; it is also what puts
     # the live URL on the run summary and in the Environments tab.
     environment:
@@ -69,24 +78,27 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           INPUT_RUN_ID: ${{ inputs.run_id }}
-          EVENT_RUN_ID: ${{ github.event.workflow_run.id }}
-          EVENT_SHA: ${{ github.event.workflow_run.head_sha }}
         run: |
           set -euo pipefail
-          if [ -n "${EVENT_RUN_ID:-}" ]; then
-            run_id="$EVENT_RUN_ID"
-          elif [ -n "${INPUT_RUN_ID:-}" ]; then
-            run_id="$INPUT_RUN_ID"
+          if [ "$GITHUB_EVENT_NAME" != 'workflow_dispatch' ]; then
+            # Called by CI: the artifact was uploaded by an earlier job of this
+            # very run, and `github.sha` is the commit those jobs tested.
+            run_id="$GITHUB_RUN_ID"
+            sha="$GITHUB_SHA"
           else
-            # The most recent green CI run on main, which is what "redeploy the
-            # current site" means when nobody names a run.
-            run_id="$(gh run list --repo "$GITHUB_REPOSITORY" --workflow CI \
-              --branch main --status success --limit 1 --json databaseId \
-              --jq '.[0].databaseId')"
+            if [ -n "${INPUT_RUN_ID:-}" ]; then
+              run_id="$INPUT_RUN_ID"
+            else
+              # The most recent green CI run on main, which is what "redeploy
+              # the current site" means when nobody names a run.
+              run_id="$(gh run list --repo "$GITHUB_REPOSITORY" --workflow CI \
+                --branch main --status success --limit 1 --json databaseId \
+                --jq '.[0].databaseId')"
+            fi
+            [ -n "$run_id" ] && [ "$run_id" != "null" ] || { echo "No successful CI run to publish"; exit 1; }
+            sha="$(gh run view "$run_id" --repo "$GITHUB_REPOSITORY" --json headSha --jq .headSha)"
           fi
-          [ -n "$run_id" ] && [ "$run_id" != "null" ] || { echo "No successful CI run to publish"; exit 1; }
 
-          sha="${EVENT_SHA:-$(gh run view "$run_id" --repo "$GITHUB_REPOSITORY" --json headSha --jq .headSha)}"
           echo "run_id=$run_id" >> "$GITHUB_OUTPUT"
           echo "commit=$sha" >> "$GITHUB_OUTPUT"
           echo "Publishing artifact from CI run $run_id (commit $sha)"
